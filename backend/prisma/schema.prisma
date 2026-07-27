@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// O conector SQLite não suporta enums nativos, então os "enums" abaixo
+// viraram String com um valor padrão. Os valores válidos para cada campo
+// estão documentados em comentário ao lado. Se um dia migrarem para
+// Postgres/MySQL, dá pra voltar a usar `enum` de verdade.
+
+model User {
+  id              String    @id @default(cuid())
+  name            String
+  email           String    @unique
+  password        String
+  role            String    @default("OPERATOR") // ADMIN | MANAGER | OPERATOR
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  orders          Order[]
+  logs            AuditLog[]
+  
+  @@map("users")
+}
+
+model Product {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+  price           Float
+  cost            Float?
+  category        String    @default("PIZZA") // PIZZA | HAMBURGUER | DRINK | DESSERT | SIDE
+  type            String    @default("SIMPLE") // SIMPLE | PIZZA_HALF | PIZZA_QUARTER | COMBO
+  isActive        Boolean   @default(true)
+  image           String?
+  preparationTime Int       @default(15)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  ingredients     ProductIngredient[]
+  pizzas          PizzaFlavor[]
+  orderItems      OrderItem[]
+  
+  @@map("products")
+}
+
+model PizzaFlavor {
+  id              String    @id @default(cuid())
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id])
+  flavorName      String
+  additionalPrice Float     @default(0)
+  ingredients     ProductIngredient[]
+  
+  @@map("pizza_flavors")
+}
+
+model ProductIngredient {
+  id              String    @id @default(cuid())
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id])
+  ingredientId    String
+  ingredient      Ingredient @relation(fields: [ingredientId], references: [id])
+  pizzaFlavorId   String?
+  pizzaFlavor     PizzaFlavor? @relation(fields: [pizzaFlavorId], references: [id])
+  quantity        Float
+  unit            String    @default("g")
+  
+  @@map("product_ingredients")
+}
+
+model Ingredient {
+  id              String    @id @default(cuid())
+  name            String
+  unit            String    @default("g")
+  currentStock    Float     @default(0)
+  minStock        Float     @default(0)
+  costPerUnit     Float
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  productIngredients ProductIngredient[]
+  
+  @@map("ingredients")
+}
+
+model Order {
+  id              String    @id @default(cuid())
+  // SQLite só permite autoincrement() no campo @id, então o número
+  // sequencial do pedido é calculado manualmente no OrderController.
+  number          Int
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  customerName    String?
+  customerPhone   String?
+  customerAddress String?
+  type            String    @default("DELIVERY") // DELIVERY | TAKEAWAY | TABLE
+  status          String    @default("PENDING") // PENDING | CONFIRMED | PREPARING | READY | DELIVERING | DELIVERED | CANCELLED
+  paymentMethod   String    @default("CASH") // CASH | CREDIT_CARD | DEBIT_CARD | PIX | IFOOD | MEAL_TICKET
+  total           Float
+  discount        Float     @default(0)
+  deliveryFee     Float     @default(0)
+  note            String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  items           OrderItem[]
+  
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String    @id @default(cuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id])
+  quantity        Int
+  unitPrice       Float
+  totalPrice      Float
+  notes           String?
+  halfFlavors     String?   // JSON com sabores da meia pizza
+  
+  @@map("order_items")
+}
+
+model AuditLog {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  action          String
+  entity          String
+  entityId        String?
+  details         String?
+  createdAt       DateTime  @default(now())
+  
+  @@map("audit_logs")
+}
