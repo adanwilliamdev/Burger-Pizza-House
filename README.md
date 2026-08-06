@@ -1,85 +1,183 @@
-# 🍕 Burger & Pizza House — ERP
+# 🍕 Burger & Pizza House ERP
 
-Sistema ERP desenvolvido para pizzarias e hamburguerias, permitindo o gerenciamento de produtos, pedidos e estoque por meio de uma interface moderna e intuitiva. O sistema também oferece um dashboard com indicadores em tempo real para auxiliar na tomada de decisões.
-
----
-
-## 📌 Funcionalidades
-
-- Dashboard com métricas de vendas e faturamento
-- Gestão completa de produtos
-- Cadastro e controle de ingredientes
-- Controle de estoque com alerta de itens críticos
-- Criação e acompanhamento de pedidos
-- Atualização do status dos pedidos
-- Autenticação via JWT
-- Interface responsiva para desktop, tablet e mobile
-- Tema Claro, Escuro e Automático
-- Atalhos de teclado para maior produtividade
+Sistema ERP completo para pizzarias e hamburguerias desenvolvido com **React + Node.js + TypeScript**, oferecendo controle de pedidos, produtos, estoque, autenticação segura e dashboard com indicadores em tempo real.
 
 ---
 
-# 🛠 Tecnologias
+## 📷 Preview
+
+
+<div align="center">
+
+| Dashboard | Produtos |
+|-----------|-----------|
+| <img src="./frontend/public/dashboard.png" width="450"/> | <img src="./frontend/public/produtos.png" width="450"/> |
+
+| Pedidos | Estoque |
+|-----------|-----------|
+| <img src="./frontend/public/pedidos.png" width="450"/> | <img src="./frontend/public/estoque.png" width="450"/> |
+
+</div>
+
+---
+
+# ✨ Funcionalidades
+
+## 📊 Dashboard
+
+- Receita diária
+- Receita total
+- Ticket médio
+- Total de pedidos
+- Produtos mais vendidos
+- Gráfico de faturamento
+- Pedidos recentes
+- Estoque crítico
+
+---
+
+## 📦 Produtos
+
+- Cadastro
+- Edição
+- Exclusão
+- Busca
+- Categorias
+- Controle de preços
+
+---
+
+## 🛒 Pedidos
+
+- Cadastro de clientes
+- Produtos do pedido
+- Desconto
+- Taxa de entrega
+- Formas de pagamento
+- Alteração de status
+- Histórico de pedidos
+
+---
+
+## 🥬 Estoque
+
+- Cadastro de ingredientes
+- Controle de quantidade
+- Estoque mínimo
+- Alertas visuais
+- Atualização automática ao registrar pedidos
+
+---
+
+## 🔐 Autenticação
+
+- Login JWT
+- Senhas criptografadas com Bcrypt
+- Rotas protegidas
+- Controle de sessão
+
+---
+
+## 🎨 Interface
+
+- Layout responsivo
+- Sidebar recolhível
+- Tema Claro
+- Tema Escuro
+- Tema Automático
+- Feedback visual
+- Design moderno
+
+---
+
+# 🛠️ Tecnologias
 
 ## Backend
 
-- Node.js
-- Express
-- TypeScript
-- Prisma ORM
-- SQLite
-- JSON Web Token (JWT)
+| Tecnologia | Uso |
+|------------|----------------|
+| Node.js | Runtime |
+| Express | API REST |
+| TypeScript | Linguagem |
+| Prisma ORM | ORM |
+| SQLite | Banco de Dados |
+| JWT | Autenticação |
+| Bcrypt | Hash de senhas |
+
+---
 
 ## Frontend
 
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-- React Router
-- Recharts
-- Axios
+| Tecnologia | Uso |
+|------------|----------------|
+| React | Interface |
+| Vite | Build |
+| TypeScript | Linguagem |
+| TailwindCSS | Estilização |
+| Axios | API |
+| React Router | Rotas |
+| Recharts | Dashboard |
 
 ---
 
-# 📂 Estrutura do Projeto
+# 📂 Estrutura
 
-```
-.
+```text
+Burger-Pizza-House
+│
 ├── backend
 │   ├── prisma
-│   │   └── schema.prisma
-│   └── src
-│       ├── controllers
-│       ├── middlewares
-│       ├── routes
-│       └── seed.ts
+│   ├── src
+│   │   ├── controllers
+│   │   ├── middlewares
+│   │   ├── routes
+│   │   ├── utils
+│   │   └── server.ts
+│   └── package.json
 │
 └── frontend
-    └── src
-        ├── components
-        ├── hooks
-        ├── layouts
-        ├── pages
-        └── services
+    ├── src
+    │   ├── components
+    │   ├── contexts
+    │   ├── hooks
+    │   ├── layouts
+    │   ├── pages
+    │   ├── services
+    │   └── main.tsx
+    └── package.json
 ```
 
 ---
 
-# 🚀 Executando o projeto
+# 🚀 Instalação
+
+## Clone
+
+```bash
+git clone https://github.com/SEU-USUARIO/Burger-Pizza-House.git
+```
+
+---
 
 ## Backend
 
 ```bash
 cd backend
+
 npm install
+
+cp .env.example .env
+
 npx prisma generate
+
 npx prisma migrate dev
+
 npm run seed
+
 npm run dev
 ```
 
-Servidor disponível em:
+Servidor:
 
 ```
 http://localhost:5000
@@ -91,11 +189,13 @@ http://localhost:5000
 
 ```bash
 cd frontend
+
 npm install
+
 npm run dev
 ```
 
-Aplicação disponível em:
+Aplicação:
 
 ```
 http://localhost:5173
@@ -103,69 +203,51 @@ http://localhost:5173
 
 ---
 
-# 🔐 Credenciais de demonstração
+# ⚙️ Variáveis de Ambiente
+
+Backend (`.env`)
+
+```env
+DATABASE_URL="file:./dev.db"
+
+JWT_SECRET=your_secret_key
+
+PORT=5000
+```
+
+---
+
+# 🔑 Credenciais
 
 | Campo | Valor |
-|--------|-------|
-| E-mail | `admin@burgerpizzahouse.com` |
-| Senha | `admin123` |
+|-------|-------|
+| Email | admin@burgerpizzahouse.com |
+| Senha | admin123 |
 
 ---
 
-# 📊 Dashboard
+# 📈 Indicadores do Dashboard
 
-O dashboard apresenta indicadores estratégicos para acompanhamento do negócio:
-
-- Receita do dia
+- Receita diária
 - Receita total
-- Quantidade de pedidos
 - Ticket médio
-- Estoque crítico
+- Pedidos do dia
 - Produtos mais vendidos
+- Estoque crítico
+- Evolução do faturamento
 - Pedidos recentes
-- Gráfico de faturamento (7, 30, 90 e 365 dias)
 
 ---
 
-# 📦 Gestão de Produtos
+# ⌨️ Atalhos
 
-- Cadastro de produtos
-- Edição
-- Exclusão
-- Busca por nome
-
----
-
-# 🛒 Gestão de Pedidos
-
-- Criação de pedidos
-- Seleção de produtos
-- Cliente
-- Tipo de entrega
-- Forma de pagamento
-- Taxa de entrega
-- Desconto
-- Atualização de status
-
----
-
-# 🥬 Gestão de Estoque
-
-- Cadastro de ingredientes
-- Controle de quantidade
-- Atualização de estoque
-- Indicadores visuais de estoque baixo
-
----
-
-# 📱 Interface
-
-- Layout responsivo
-- Sidebar recolhível
-- Design System próprio
-- Componentes reutilizáveis
-- Dark Mode
-- Navegação otimizada por atalhos
+| Atalho | Ação |
+|---------|------|
+| Ctrl + 1 | Dashboard |
+| Ctrl + 2 | Produtos |
+| Ctrl + 3 | Pedidos |
+| Ctrl + 4 | Estoque |
+| Ctrl + L | Logout |
 
 ---
 
@@ -173,37 +255,153 @@ O dashboard apresenta indicadores estratégicos para acompanhamento do negócio:
 
 ## Backend
 
-| Comando | Descrição |
-|----------|-----------|
-| `npm run dev` | Inicia o servidor em desenvolvimento |
-| `npm run build` | Compila a aplicação |
-| `npm run seed` | Popula o banco de dados |
+```bash
+npm run dev
+npm run build
+npm start
+npm run seed
+```
+
+Prisma
+
+```bash
+npx prisma studio
+```
+
+---
 
 ## Frontend
 
-| Comando | Descrição |
-|----------|-----------|
-| `npm run dev` | Inicia o Vite |
-| `npm run build` | Gera a versão de produção |
-| `npm run preview` | Visualiza a build de produção |
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run lint
+```
 
 ---
 
-# 🚧 Melhorias Futuras
+# 🚧 Roadmap
 
-- Multiempresa
-- Controle de usuários e permissões
-- Integração com iFood
-- Integração com WhatsApp
-- Integração com Pix e gateways de pagamento
-- Notificações em tempo real (WebSocket)
-- Impressão térmica
-- Exportação para Excel e PDF
-- Backup automático
-- Progressive Web App (PWA)
+### Próximas funcionalidades
+
+- [ ] Relatórios em PDF
+- [ ] Exportação Excel
+- [ ] Impressora térmica
+- [ ] Multiempresa
+- [ ] RBAC
+- [ ] Integração iFood
+- [ ] WhatsApp
+- [ ] Gateway PIX
+- [ ] Gateway Cartão
+- [ ] PWA
+- [ ] React Native
+- [ ] Backup automático
+- [ ] Inteligência de vendas
+- [ ] Programa de fidelidade
 
 ---
 
-## 📄 Licença
+# 🧪 Testes
 
-Projeto desenvolvido para fins de estudo, demonstração de habilidades e composição de portfólio.
+Em desenvolvimento.
+
+---
+
+# 📌 API
+
+## Principais Endpoints
+
+### Autenticação
+
+```
+POST /auth/login
+POST /auth/register
+```
+
+### Produtos
+
+```
+GET /products
+POST /products
+PUT /products/:id
+DELETE /products/:id
+```
+
+### Pedidos
+
+```
+GET /orders
+POST /orders
+PATCH /orders/:id
+```
+
+### Estoque
+
+```
+GET /stock
+POST /stock
+PUT /stock/:id
+```
+
+---
+
+# 🤝 Contribuindo
+
+1. Faça um Fork
+
+2. Crie uma branch
+
+```bash
+git checkout -b feature/minha-feature
+```
+
+3. Commit
+
+```bash
+git commit -m "Minha feature"
+```
+
+4. Push
+
+```bash
+git push origin feature/minha-feature
+```
+
+5. Abra um Pull Request
+
+---
+
+# 📄 Licença
+
+Distribuído sob a licença MIT.
+
+---
+
+# 👨‍💻 Autor
+
+**Adan William Oliveira Santos**
+
+GitHub
+
+https://github.com/adanwilliamdev
+
+LinkedIn
+
+https://www.linkedin.com/in/adanwilliam
+
+Portfólio
+
+https://adanwilliamdev.github.io/
+
+---
+
+<div align="center">
+
+### 🍕 Burger & Pizza House ERP
+
+Sistema moderno para gestão de pizzarias e hamburguerias.
+
+Desenvolvido com ❤️ utilizando React, Node.js e TypeScript.
+
+</div>
