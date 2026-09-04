@@ -154,7 +154,7 @@ Burger-Pizza-House
 ## Clone
 
 ```bash
-git clone https://github.com/SEU-USUARIO/Burger-Pizza-House.git
+git clone https://github.com/adanwilliamdev/Burger-Pizza-House.git
 ```
 
 ---
