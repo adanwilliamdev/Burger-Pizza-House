@@ -154,7 +154,7 @@ Burger-Pizza-House
 ## Clone
 
 ```bash
-git clone https://github.com/SEU-USUARIO/Burger-Pizza-House.git
+git clone https://github.com/adanwilliamdev/Burger-Pizza-House.git
 ```
 
 ---
@@ -407,7 +407,7 @@ https://github.com/adanwilliamdev
 
 LinkedIn
 
-https://www.linkedin.com/in/adanwilliam
+https://www.linkedin.com/in/awosantos
 
 Portfólio
 
