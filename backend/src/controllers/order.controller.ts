@@ -36,9 +36,23 @@ export class OrderController {
         }
 
         // Aplicar desconto
+        // O schema Zod (order.schema.ts) já garante que discount e deliveryFee
+        // não são negativos. Aqui validamos a regra de negócio que depende do
+        // subtotal calculado: o desconto não pode ser maior que o subtotal dos
+        // itens, senão o pedido ficaria com total negativo.
+        const subtotal = total;
         const discount = orderData.discount || 0;
         const deliveryFee = orderData.deliveryFee || 0;
-        total = total - discount + deliveryFee;
+
+        if (discount > subtotal) {
+            return res.status(400).json({
+                error: 'O desconto não pode ser maior que o subtotal do pedido',
+                subtotal,
+                discount
+            });
+        }
+
+        total = subtotal - discount + deliveryFee;
 
         // SQLite não suporta autoincrement() em campo que não seja o @id,
         // então o número sequencial do pedido é calculado aqui.

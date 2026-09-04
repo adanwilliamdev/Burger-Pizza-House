@@ -154,7 +154,7 @@ Burger-Pizza-House
 ## Clone
 
 ```bash
-git clone https://github.com/adanwilliamdev/Burger-Pizza-House.git
+git clone https://github.com/SEU-USUARIO/Burger-Pizza-House.git
 ```
 
 ---
@@ -213,6 +213,9 @@ DATABASE_URL="file:./dev.db"
 JWT_SECRET=your_secret_key
 
 PORT=5000
+
+# Origens permitidas para CORS, separadas por vírgula
+CORS_ORIGIN=http://localhost:5173,http://localhost:3000
 ```
 
 ---
@@ -223,6 +226,22 @@ PORT=5000
 |-------|-------|
 | Email | admin@burgerpizzahouse.com |
 | Senha | admin123 |
+
+> Essas são as credenciais de um ambiente de demonstração/desenvolvimento (criadas pelo `npm run seed`). Não reutilize essa senha em um deploy público.
+
+---
+
+# 🔒 Segurança
+
+Medidas aplicadas na API para além do login com JWT:
+
+- **Criação de usuários restrita a administradores.** `POST /auth/register` exige um token de um usuário `ADMIN` autenticado — não é mais possível se auto-cadastrar como admin pela API pública. O primeiro admin é criado pelo `npm run seed`.
+- **Validação de entrada com Zod** em todas as rotas de escrita (auth, produtos, ingredientes e pedidos), rejeitando payloads com tipos ou formatos inválidos antes de chegar ao banco.
+- **Rate limiting**: `/auth/login` aceita no máximo 10 tentativas a cada 15 minutos por IP; as demais rotas da API têm um limite geral de 300 requisições/15min como proteção contra abuso.
+- **Helmet** aplicando cabeçalhos HTTP de segurança padrão.
+- **CORS configurável** via `CORS_ORIGIN` no `.env`, em vez de origem fixa no código.
+- **Regra de negócio no backend**: o `discount` de um pedido nunca pode ser maior que o subtotal dos itens (evita total negativo), e tanto `discount` quanto `deliveryFee` são validados como não-negativos.
+- **Rotas do frontend protegidas**: páginas internas (dashboard, produtos, pedidos, estoque) redirecionam para `/login` quando não há usuário autenticado, em vez de depender só do 401 da API.
 
 ---
 
@@ -316,7 +335,7 @@ Em desenvolvimento.
 
 ```
 POST /auth/login
-POST /auth/register
+POST /auth/register   (requer token de ADMIN — ver seção Segurança)
 ```
 
 ### Produtos

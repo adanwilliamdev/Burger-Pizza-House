@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/AuthContext';
 import { Pizza, Eye, EyeOff, TrendingUp, Package, ClipboardList } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -12,8 +12,9 @@ export const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const saved = localStorage.getItem(REMEMBER_KEY);
@@ -22,6 +23,12 @@ export const Login: React.FC = () => {
       setRememberMe(true);
     }
   }, []);
+
+  // Já autenticado? Não faz sentido mostrar a tela de login de novo.
+  if (user) {
+    const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
+    return <Navigate to={from} replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +42,8 @@ export const Login: React.FC = () => {
         localStorage.removeItem(REMEMBER_KEY);
       }
       toast.success('Bem-vindo! 🍕');
-      navigate('/dashboard');
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Erro ao fazer login');
     } finally {

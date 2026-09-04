@@ -1,8 +1,10 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
 import 'express-async-errors';
 import { errorHandler } from './middlewares/errorHandler';
+import { apiLimiter } from './middlewares/rateLimiter';
 import { authRoutes } from './routes/auth.routes';
 import { productRoutes } from './routes/product.routes';
 import { orderRoutes } from './routes/order.routes';
@@ -19,12 +21,21 @@ if (!process.env.JWT_SECRET) {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Origens permitidas para CORS, configuráveis via .env (lista separada por
+// vírgula). Cai para os defaults de desenvolvimento se a variável não for
+// definida, mas em produção ela deve sempre vir do .env.
+const corsOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+    : ['http://localhost:5173', 'http://localhost:3000'];
+
 // Middlewares
+app.use(helmet());
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    origin: corsOrigins,
     credentials: true
 }));
 app.use(express.json());
+app.use('/api', apiLimiter);
 
 // Rotas
 app.use('/api/auth', authRoutes);
