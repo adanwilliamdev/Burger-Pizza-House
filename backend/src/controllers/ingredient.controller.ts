@@ -34,7 +34,20 @@ export class IngredientController {
         const { id } = req.params;
         const { quantity, operation } = req.body;
 
-        const ingredient = await prisma.ingredient.update({
+        const ingredient = await prisma.ingredient.findUnique({ where: { id } });
+        if (!ingredient) {
+            return res.status(404).json({ error: 'Ingrediente não encontrado' });
+        }
+
+        if (operation === 'remove' && ingredient.currentStock < quantity) {
+            return res.status(409).json({
+                error: 'Quantidade a remover é maior que o estoque atual',
+                currentStock: ingredient.currentStock,
+                requested: quantity
+            });
+        }
+
+        const updated = await prisma.ingredient.update({
             where: { id },
             data: {
                 currentStock: {
@@ -43,7 +56,7 @@ export class IngredientController {
             }
         });
 
-        res.json(ingredient);
+        res.json(updated);
     }
 
     static async update(req: AuthRequest, res: Response) {
@@ -65,6 +78,18 @@ export class IngredientController {
 
     static async delete(req: AuthRequest, res: Response) {
         const { id } = req.params;
+
+        const ingredient = await prisma.ingredient.findUnique({ where: { id } });
+        if (!ingredient) {
+            return res.status(404).json({ error: 'Ingrediente não encontrado' });
+        }
+
+        const usageCount = await prisma.productIngredient.count({ where: { ingredientId: id } });
+        if (usageCount > 0) {
+            return res.status(409).json({
+                error: `Este ingrediente é usado em ${usageCount} receita(s) de produto e não pode ser excluído. Remova-o das receitas primeiro.`
+            });
+        }
 
         await prisma.ingredient.delete({
             where: { id }

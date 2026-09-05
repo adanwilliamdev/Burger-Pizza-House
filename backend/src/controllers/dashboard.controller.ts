@@ -95,12 +95,18 @@ export class DashboardController {
     }
 
     static async getRevenueByDay(req: Request, res: Response) {
-        const { days = 7 } = req.query;
+        // `days` vem de query string (sempre string ou undefined) e não
+        // passava por nenhuma validação — um valor gigante ou não numérico
+        // (ex: ?days=999999) gerava centenas de milhares de queries em
+        // paralelo (Promise.all abaixo), derrubando o servidor com um único
+        // request. Limitamos a um intervalo razoável (1 a 90 dias).
+        const rawDays = Number(req.query.days);
+        const days = Number.isFinite(rawDays) ? Math.min(90, Math.max(1, Math.trunc(rawDays))) : 7;
 
         const dates = [];
         const today = new Date();
 
-        for (let i = Number(days) - 1; i >= 0; i--) {
+        for (let i = days - 1; i >= 0; i--) {
             const date = new Date(today);
             date.setDate(date.getDate() - i);
             date.setHours(0, 0, 0, 0);

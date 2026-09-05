@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import 'express-async-errors';
 import { errorHandler } from './middlewares/errorHandler';
@@ -15,6 +16,18 @@ dotenv.config();
 
 if (!process.env.JWT_SECRET) {
     console.error('❌ Variável de ambiente JWT_SECRET não definida. Configure-a no arquivo .env (veja .env.example).');
+    process.exit(1);
+}
+
+// Impede subir o servidor com o placeholder do .env.example (alguém que
+// copia o arquivo sem trocar o valor) ou com um segredo curto demais pra
+// resistir a força bruta na assinatura do JWT.
+const EXAMPLE_JWT_SECRET = 'coloque_aqui_uma_chave_secreta_forte_e_unica';
+if (process.env.JWT_SECRET === EXAMPLE_JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    console.error(
+        '❌ JWT_SECRET está usando o valor de exemplo ou é curto demais (mínimo 32 caracteres). ' +
+        "Gere um novo com: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
+    );
     process.exit(1);
 }
 
@@ -34,6 +47,7 @@ app.use(cors({
     origin: corsOrigins,
     credentials: true
 }));
+app.use(cookieParser());
 app.use(express.json());
 app.use('/api', apiLimiter);
 

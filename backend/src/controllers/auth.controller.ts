@@ -3,6 +3,17 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../models/prisma';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Config do cookie httpOnly que carrega o token. `secure` só é exigido em
+// produção porque localhost em dev normalmente não roda HTTPS.
+const AUTH_COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'lax' as const,
+    maxAge: 24 * 60 * 60 * 1000 // 24h — mesmo tempo de vida do JWT
+};
+
 export class AuthController {
     static async login(req: Request, res: Response) {
         const { email, password } = req.body;
@@ -33,10 +44,21 @@ export class AuthController {
 
         const { password: _, ...userWithoutPassword } = user;
 
+        // O token vai num cookie httpOnly (não acessível via JS, então um
+        // XSS não consegue mais roubá-lo do localStorage) e também no corpo
+        // da resposta, para clientes não-navegador (scripts, apps mobile,
+        // testes automatizados) que não lidam com cookies.
+        res.cookie('token', token, AUTH_COOKIE_OPTIONS);
+
         return res.json({
             user: userWithoutPassword,
             token
         });
+    }
+
+    static async logout(req: Request, res: Response) {
+        res.clearCookie('token', { httpOnly: true, secure: isProduction, sameSite: 'lax' });
+        return res.status(204).send();
     }
 
     static async register(req: Request, res: Response) {

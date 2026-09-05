@@ -17,13 +17,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      fetchUser();
-    } else {
-      setLoading(false);
-    }
+    // O token agora vive num cookie httpOnly, que o navegador já anexa
+    // automaticamente em toda requisição (graças a `withCredentials: true`
+    // em services/api.ts) — não há mais nada pra ler do localStorage aqui.
+    // Só perguntamos ao backend "quem sou eu" e deixamos o próprio cookie
+    // (se existir e for válido) responder.
+    fetchUser();
   }, []);
 
   const fetchUser = async () => {
@@ -31,8 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await api.get('/auth/me');
       setUser(response.data);
     } catch (error) {
-      localStorage.removeItem('token');
-      delete api.defaults.headers.common['Authorization'];
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -40,15 +38,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (credentials: LoginCredentials) => {
     const response = await api.post('/auth/login', credentials);
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    const { user } = response.data;
+    // O backend já setou o cookie httpOnly na resposta; só guardamos o
+    // usuário no estado do React para a UI.
     setUser(user);
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
+    api.post('/auth/logout').catch(() => {
+      // mesmo que a chamada falhe (ex: rede), limpamos o estado local —
+      // na pior das hipóteses o cookie expira sozinho em 24h.
+    });
     setUser(null);
   };
 

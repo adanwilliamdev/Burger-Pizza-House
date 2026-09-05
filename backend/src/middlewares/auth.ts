@@ -8,8 +8,15 @@ export interface AuthRequest extends Request {
 
 export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-        const token = req.headers.authorization?.replace('Bearer ', '');
-        
+        // Prioriza o cookie httpOnly (usado pelo frontend web — não fica
+        // acessível via JavaScript, então um XSS não consegue mais roubar o
+        // token direto do localStorage). Mantém o header `Authorization:
+        // Bearer` como alternativa para chamadas feitas por scripts/serviços
+        // externos que não usam cookies.
+        const cookieToken = (req as any).cookies?.token;
+        const headerToken = req.headers.authorization?.replace('Bearer ', '');
+        const token = cookieToken || headerToken;
+
         if (!token) {
             return res.status(401).json({ error: 'Token não fornecido' });
         }

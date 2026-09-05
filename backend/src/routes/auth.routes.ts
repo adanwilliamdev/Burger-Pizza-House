@@ -8,6 +8,7 @@ import { loginSchema, registerSchema } from '../schemas/auth.schema';
 const router = Router();
 
 router.post('/login', loginLimiter, validate(loginSchema), AuthController.login);
+router.post('/logout', AuthController.logout);
 
 // Criação de novos usuários é restrita a administradores autenticados.
 // Isso evita que qualquer pessoa se cadastre direto pela API com
