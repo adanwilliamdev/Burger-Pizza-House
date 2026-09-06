@@ -47,3 +47,21 @@ export const ORDER_STATUS_OPTIONS = [
   { value: 'DELIVERED', label: 'Entregue' },
   { value: 'CANCELLED', label: 'Cancelado' },
 ];
+
+/**
+ * Espelha ORDER_STATUS_TRANSITIONS do backend (order.controller.ts).
+ * Um pedido só avança no fluxo ou é cancelado — nunca "volta" nem pula
+ * etapas, e nada muda a partir de um estado terminal (DELIVERED/CANCELLED).
+ * Mantido em sincronia manualmente com o backend, que é quem de fato
+ * garante a regra — isso aqui só evita oferecer, na tela, uma opção que a
+ * API já sabemos que vai rejeitar com 409.
+ */
+export const ORDER_STATUS_TRANSITIONS: Record<string, string[]> = {
+  PENDING: ['CONFIRMED', 'CANCELLED'],
+  CONFIRMED: ['PREPARING', 'CANCELLED'],
+  PREPARING: ['READY', 'CANCELLED'],
+  READY: ['DELIVERING', 'DELIVERED', 'CANCELLED'],
+  DELIVERING: ['DELIVERED', 'CANCELLED'],
+  DELIVERED: [],
+  CANCELLED: [],
+};

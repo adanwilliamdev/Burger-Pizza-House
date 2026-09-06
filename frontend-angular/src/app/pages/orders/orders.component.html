@@ -56,12 +56,15 @@
 
             <div class="flex gap-2">
               <select
-                [ngModel]="order.status"
-                (ngModelChange)="updateStatus(order.id, $event)"
+                [value]="order.status"
+                (change)="onStatusChange(order, $event)"
+                [disabled]="isTerminalStatus(order)"
                 class="text-sm border border-line dark:border-gray-700 dark:bg-gray-800 rounded-xl px-3 py-1.5
-                       focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all duration-200"
+                       focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all duration-200
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+                [title]="isTerminalStatus(order) ? 'Este pedido não pode mais mudar de status' : ''"
               >
-                @for (opt of statusOptions; track opt.value) {
+                @for (opt of statusOptionsFor(order); track opt.value) {
                   <option [value]="opt.value">{{ opt.label }}</option>
                 }
               </select>

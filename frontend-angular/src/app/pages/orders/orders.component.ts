@@ -20,6 +20,7 @@ import {
   ORDER_STATUS_LABEL,
   ORDER_STATUS_OPTIONS,
   ORDER_STATUS_TONE,
+  ORDER_STATUS_TRANSITIONS,
 } from '../../shared/utils/order-status';
 
 interface CartItem {
@@ -86,7 +87,6 @@ export class OrdersComponent {
   readonly statusLabel = ORDER_STATUS_LABEL;
   readonly statusTone = ORDER_STATUS_TONE;
   readonly statusIcon = ORDER_STATUS_ICON;
-  readonly statusOptions = ORDER_STATUS_OPTIONS;
   readonly typeOptions = TYPE_OPTIONS;
   readonly paymentOptions = PAYMENT_OPTIONS;
 
@@ -128,13 +128,34 @@ export class OrdersComponent {
     }
   }
 
-  async updateStatus(id: string, status: string): Promise<void> {
+  /** Opções do <select>: sempre inclui o status atual + só as transições que a API aceita. */
+  statusOptionsFor(order: Order): { value: string; label: string }[] {
+    const allowedNext = ORDER_STATUS_TRANSITIONS[order.status] || [];
+    return ORDER_STATUS_OPTIONS.filter(
+      (opt) => opt.value === order.status || allowedNext.includes(opt.value)
+    );
+  }
+
+  /** Estados terminais (entregue/cancelado) não têm mais nenhuma transição possível. */
+  isTerminalStatus(order: Order): boolean {
+    return (ORDER_STATUS_TRANSITIONS[order.status] || []).length === 0;
+  }
+
+  async onStatusChange(order: Order, event: Event): Promise<void> {
+    const select = event.target as HTMLSelectElement;
+    const newStatus = select.value;
+    const previousStatus = order.status;
+
     try {
-      await this.ordersService.updateStatus(id, status);
+      await this.ordersService.updateStatus(order.id, newStatus);
       this.toast.success('Status atualizado!');
       await this.fetchOrders();
     } catch {
       this.toast.error('Erro ao atualizar status');
+      // A chamada falhou (ex: transição inválida, 409) — o <select> nativo já
+      // exibe a opção que o usuário escolheu independente do Angular, então
+      // sem isso ele ficaria mostrando um status que nunca foi de fato salvo.
+      select.value = previousStatus;
     }
   }
 
