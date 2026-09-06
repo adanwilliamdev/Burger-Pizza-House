@@ -1,0 +1,106 @@
+<div class="min-h-screen flex bg-surface dark:bg-gray-900">
+  <!-- Painel ilustrativo -->
+  <div class="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-sidebar via-gray-800 to-primary/40 items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_20%,white,transparent_35%)]"></div>
+    <div class="relative z-10 text-white max-w-md px-10">
+      <div class="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-soft-lg">
+        <svg [lucideIcon]="Pizza" class="w-9 h-9 text-white"></svg>
+      </div>
+      <h2 class="text-3xl font-bold mb-3 leading-tight">Gerencie sua operação em um só lugar</h2>
+      <p class="text-gray-300 text-sm mb-10">
+        Produtos, pedidos e estoque, tudo integrado para o seu negócio rodar sem atrito.
+      </p>
+
+      <div class="space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+            <svg [lucideIcon]="ClipboardList" class="w-5 h-5"></svg>
+          </div>
+          <span class="text-sm text-gray-200">Acompanhe pedidos em tempo real</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+            <svg [lucideIcon]="Package" class="w-5 h-5"></svg>
+          </div>
+          <span class="text-sm text-gray-200">Controle total do seu estoque</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+            <svg [lucideIcon]="TrendingUp" class="w-5 h-5"></svg>
+          </div>
+          <span class="text-sm text-gray-200">Métricas claras para decidir melhor</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulário -->
+  <div class="flex-1 flex items-center justify-center p-6">
+    <div class="w-full max-w-sm">
+      <div class="text-center lg:text-left mb-8">
+        <div class="inline-flex p-3 bg-primary rounded-2xl mb-4 lg:hidden">
+          <svg [lucideIcon]="Pizza" class="w-8 h-8 text-white"></svg>
+        </div>
+        <h1 class="text-page-title">Burger &amp; Pizza House <span class="text-primary">ERP</span></h1>
+        <p class="text-caption mt-2">Entre com sua conta para continuar</p>
+      </div>
+
+      <form (submit)="$event.preventDefault(); handleSubmit()" class="space-y-4">
+        <div>
+          <label class="input-label">E-mail</label>
+          <input
+            type="email"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+            name="email"
+            class="input-field"
+            placeholder="admin@burgerpizzahouse.com"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="input-label">Senha</label>
+          <div class="relative">
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              [ngModel]="password()"
+              (ngModelChange)="password.set($event)"
+              name="password"
+              class="input-field pr-10"
+              placeholder="••••••••"
+              required
+            />
+            <button
+              type="button"
+              (click)="showPassword.set(!showPassword())"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink dark:hover:text-gray-200"
+              tabindex="-1"
+            >
+              <svg [lucideIcon]="showPassword() ? EyeOff : Eye" class="w-4 h-4"></svg>
+            </button>
+          </div>
+        </div>
+
+        <label class="flex items-center gap-2 text-sm text-muted cursor-pointer select-none">
+          <input
+            type="checkbox"
+            [ngModel]="rememberMe()"
+            (ngModelChange)="rememberMe.set($event)"
+            name="rememberMe"
+            class="w-4 h-4 rounded border-line text-primary focus:ring-primary/40"
+          />
+          Lembrar meu e-mail
+        </label>
+
+        <button type="submit" [disabled]="loading()" class="btn-primary w-full py-3 text-sm font-semibold disabled:opacity-50">
+          {{ loading() ? 'Entrando...' : 'Entrar' }}
+        </button>
+
+        <p class="text-xs text-muted text-center mt-4">
+          Credenciais: admin&#64;burgerpizzahouse.com / admin123
+        </p>
+      </form>
+    </div>
+  </div>
+</div>

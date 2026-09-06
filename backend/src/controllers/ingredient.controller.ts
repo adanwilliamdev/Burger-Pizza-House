@@ -56,7 +56,7 @@ export class IngredientController {
             }
         });
 
-        res.json(updated);
+        return res.json(updated);
     }
 
     static async update(req: AuthRequest, res: Response) {
@@ -95,7 +95,7 @@ export class IngredientController {
             where: { id }
         });
 
-        res.status(204).send();
+        return res.status(204).send();
     }
 
     static async getLowStock(req: Request, res: Response) {

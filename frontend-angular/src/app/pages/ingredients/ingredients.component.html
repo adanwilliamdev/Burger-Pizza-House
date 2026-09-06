@@ -1,0 +1,164 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-page-title">Estoque</h1>
+      <p class="text-caption mt-1">Gerencie seus ingredientes</p>
+    </div>
+    <button (click)="openCreateModal()" class="btn-primary flex items-center gap-2">
+      <svg [lucideIcon]="Plus" class="w-4 h-4"></svg>
+      Novo Ingrediente
+    </button>
+  </div>
+
+  <div class="table-shell">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr>
+            <th class="table-header-cell">Ingrediente</th>
+            <th class="table-header-cell">Estoque Atual</th>
+            <th class="table-header-cell">Estoque Mínimo</th>
+            <th class="table-header-cell">Status</th>
+            <th class="table-header-cell">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <app-skeleton-table-rows [rows]="5" [cols]="5" />
+          } @else if (ingredients().length === 0) {
+            <tr>
+              <td colspan="5">
+                <app-empty-state
+                  [icon]="Package"
+                  title="Nenhum ingrediente cadastrado"
+                  description="Cadastre seu primeiro ingrediente para começar a controlar o estoque."
+                />
+              </td>
+            </tr>
+          } @else {
+            @for (ingredient of ingredients(); track ingredient.id) {
+              <tr class="table-row">
+                <td class="py-3 px-4 font-medium text-sm">{{ ingredient.name }}</td>
+                <td class="py-3 px-4 text-sm">{{ ingredient.currentStock }} {{ ingredient.unit }}</td>
+                <td class="py-3 px-4 text-sm text-muted">{{ ingredient.minStock }} {{ ingredient.unit }}</td>
+                <td class="py-3 px-4">
+                  @if (isLow(ingredient)) {
+                    <span class="badge-danger">
+                      <svg [lucideIcon]="AlertTriangle" class="w-3 h-3"></svg>
+                      Estoque Baixo
+                    </span>
+                  } @else {
+                    <span class="badge-success">
+                      <svg [lucideIcon]="CheckCircle2" class="w-3 h-3"></svg>
+                      OK
+                    </span>
+                  }
+                </td>
+                <td class="py-3 px-4">
+                  <button (click)="openEditModal(ingredient)" class="btn-icon hover:text-info hover:bg-info/10" title="Editar ingrediente">
+                    <svg [lucideIcon]="Edit" class="w-4 h-4"></svg>
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  @if (showModal()) {
+    <div class="modal-overlay">
+      <div class="modal-panel max-w-md">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-card-title text-lg">{{ editingIngredient() ? 'Editar Ingrediente' : 'Novo Ingrediente' }}</h2>
+          <button (click)="closeModal()" class="btn-icon">
+            <svg [lucideIcon]="X" class="w-5 h-5"></svg>
+          </button>
+        </div>
+
+        <form (submit)="$event.preventDefault(); handleSave()" class="space-y-4">
+          <div>
+            <label class="input-label">Nome</label>
+            <input
+              type="text"
+              required
+              [ngModel]="form().name"
+              (ngModelChange)="updateForm('name', $event)"
+              name="name"
+              class="input-field"
+              placeholder="Mussarela"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="input-label">Unidade</label>
+              <select [ngModel]="form().unit" (ngModelChange)="updateForm('unit', $event)" name="unit" class="input-field">
+                @for (opt of unitOptions; track opt.value) {
+                  <option [value]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="input-label">Custo por unidade (R$)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                [ngModel]="form().costPerUnit"
+                (ngModelChange)="updateForm('costPerUnit', $event)"
+                name="costPerUnit"
+                class="input-field"
+                placeholder="0.05"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            @if (!editingIngredient()) {
+              <div>
+                <label class="input-label">Estoque inicial</label>
+                <input
+                  type="number"
+                  min="0"
+                  [ngModel]="form().currentStock"
+                  (ngModelChange)="updateForm('currentStock', $event)"
+                  name="currentStock"
+                  class="input-field"
+                  placeholder="0"
+                />
+              </div>
+            }
+            <div>
+              <label class="input-label">Estoque mínimo</label>
+              <input
+                type="number"
+                min="0"
+                [ngModel]="form().minStock"
+                (ngModelChange)="updateForm('minStock', $event)"
+                name="minStock"
+                class="input-field"
+                placeholder="0"
+              />
+            </div>
+          </div>
+
+          @if (editingIngredient()) {
+            <p class="text-caption">
+              Para ajustar a quantidade em estoque, use a movimentação de estoque (entrada/saída) em vez desta tela.
+            </p>
+          }
+
+          <div class="flex gap-3 pt-2">
+            <button type="button" (click)="closeModal()" class="btn-secondary flex-1">Cancelar</button>
+            <button type="submit" [disabled]="saving()" class="btn-primary flex-1 disabled:opacity-50">
+              {{ saving() ? 'Salvando...' : editingIngredient() ? 'Salvar alterações' : 'Salvar' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

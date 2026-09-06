@@ -315,6 +315,6 @@ export class OrderController {
             }
         });
 
-        res.json(order);
+        return res.json(order);
     }
 }

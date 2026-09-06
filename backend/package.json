@@ -4,7 +4,7 @@
   "description": "ERP para Burger & Pizza House - Backend",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "nodemon src/server.ts",
+    "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
@@ -34,11 +34,11 @@
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.5",
-    "@types/node": "^20.10.6",
+    "@types/node": "^20.19.43",
     "jest": "^29.7.0",
-    "nodemon": "^3.0.2",
+    "nodemon": "^3.1.14",
     "ts-jest": "^29.4.12",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.9.3"
   }
 }

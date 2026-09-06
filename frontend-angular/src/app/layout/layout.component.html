@@ -1,0 +1,139 @@
+<div class="flex h-screen bg-surface dark:bg-gray-900 overflow-hidden">
+  <!-- Overlay mobile -->
+  @if (mobileOpen()) {
+    <div class="fixed inset-0 bg-black/50 z-40 lg:hidden" (click)="closeMobileMenu()"></div>
+  }
+
+  <!-- Sidebar -->
+  <aside
+    class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-sidebar text-white flex flex-col transition-all duration-200 ease-in-out"
+    [class.lg:w-20]="collapsed()"
+    [class.lg:w-64]="!collapsed()"
+    [class.translate-x-0]="mobileOpen()"
+    [class.-translate-x-full]="!mobileOpen()"
+    [class.lg:translate-x-0]="true"
+  >
+    <div class="p-4 flex items-center justify-between h-18 border-b border-white/10">
+      <div class="flex items-center gap-2 overflow-hidden" [class.lg:justify-center]="collapsed()" [class.lg:w-full]="collapsed()">
+        <svg [lucideIcon]="Home" class="w-7 h-7 text-primary shrink-0"></svg>
+        @if (!collapsed()) {
+          <h1 class="text-lg font-bold whitespace-nowrap">
+            <span class="text-primary">Burger &amp; Pizza House</span>
+          </h1>
+        }
+      </div>
+      <button (click)="closeMobileMenu()" class="lg:hidden text-gray-400 hover:text-white">
+        <svg [lucideIcon]="X" class="w-5 h-5"></svg>
+      </button>
+    </div>
+
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto scrollbar-hide">
+      @for (item of navItems; track item.to) {
+        <div class="relative group">
+          <a
+            [routerLink]="item.to"
+            routerLinkActive="bg-sidebar-active text-white"
+            [routerLinkActiveOptions]="{ exact: false }"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors duration-200 text-sm font-medium text-gray-300 hover:bg-sidebar-hover hover:text-white"
+            [class.lg:justify-center]="collapsed()"
+          >
+            <svg [lucideIcon]="item.icon" class="w-5 h-5 shrink-0"></svg>
+            @if (!collapsed()) {
+              <span>{{ item.label }}</span>
+            }
+          </a>
+          @if (collapsed()) {
+            <span
+              class="hidden lg:group-hover:flex absolute left-full top-1/2 -translate-y-1/2 ml-2 whitespace-nowrap
+                     bg-gray-800 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-soft-lg z-50"
+            >
+              {{ item.label }}
+            </span>
+          }
+        </div>
+      }
+    </nav>
+
+    <div class="p-3 border-t border-white/10">
+      <button
+        (click)="toggleCollapsed()"
+        class="hidden lg:flex w-full items-center justify-center gap-2 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-sidebar-hover transition-colors duration-200"
+      >
+        <svg [lucideIcon]="collapsed() ? ChevronsRight : ChevronsLeft" class="w-5 h-5"></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main area -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <header class="h-18 shrink-0 bg-card dark:bg-gray-800 border-b border-line dark:border-gray-700 flex items-center gap-3 px-4 lg:px-6">
+      <button (click)="openMobileMenu()" class="btn-icon lg:hidden" aria-label="Abrir menu">
+        <svg [lucideIcon]="Menu" class="w-5 h-5"></svg>
+      </button>
+
+      <div class="relative flex-1 max-w-md">
+        <svg [lucideIcon]="Search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted"></svg>
+        <input
+          #searchInput
+          type="text"
+          placeholder="Pesquisar... (Ctrl+K)"
+          class="w-full pl-10 pr-3 py-2 bg-surface dark:bg-gray-900 border border-line dark:border-gray-700 rounded-2xl text-sm
+                 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all duration-200"
+        />
+      </div>
+
+      <div class="flex-1"></div>
+
+      <!-- Notificações -->
+      <div class="relative">
+        <button (click)="toggleNotif()" class="btn-icon relative" aria-label="Notificações">
+          <svg [lucideIcon]="Bell" class="w-5 h-5"></svg>
+        </button>
+        @if (notifOpen()) {
+          <div class="absolute right-0 mt-2 w-72 bg-card dark:bg-gray-800 dark:border dark:border-gray-700 rounded-2xl shadow-soft-lg p-4 z-50">
+            <p class="text-card-title mb-1">Notificações</p>
+            <p class="text-caption">Nenhuma notificação nova por aqui.</p>
+          </div>
+        }
+      </div>
+
+      <!-- Dark mode -->
+      <button (click)="theme.toggle()" class="btn-icon" aria-label="Alternar tema">
+        <svg [lucideIcon]="theme.isDark() ? Sun : Moon" class="w-5 h-5"></svg>
+      </button>
+
+      <!-- Usuário -->
+      <div class="relative">
+        <button
+          (click)="toggleUserMenu()"
+          class="flex items-center gap-2 pl-2 pr-1 py-1 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+        >
+          <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+            <svg [lucideIcon]="User" class="w-5 h-5 text-primary"></svg>
+          </div>
+          <div class="hidden md:block text-left">
+            <p class="text-sm font-semibold leading-tight">{{ auth.user()?.name || 'Usuário' }}</p>
+            <p class="text-caption leading-tight">{{ auth.user()?.role || 'OPERATOR' }}</p>
+          </div>
+        </button>
+        @if (userMenuOpen()) {
+          <div class="absolute right-0 mt-2 w-48 bg-card dark:bg-gray-800 dark:border dark:border-gray-700 rounded-2xl shadow-soft-lg py-2 z-50">
+            <button
+              (click)="logout()"
+              class="w-full flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors duration-200"
+            >
+              <svg [lucideIcon]="LogOut" class="w-4 h-4"></svg>
+              Sair
+            </button>
+          </div>
+        }
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-auto">
+      <div class="p-4 sm:p-6 lg:p-8">
+        <router-outlet />
+      </div>
+    </main>
+  </div>
+</div>
