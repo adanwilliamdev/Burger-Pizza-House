@@ -133,12 +133,17 @@ export class DashboardComponent {
 
   private async fetchInitial(): Promise<void> {
     try {
-      const [stats, orders] = await Promise.all([
+      // O dashboard só mostra os 5 pedidos mais recentes (ver
+      // `recentOrders` abaixo) — antes buscava a listagem inteira (até 500
+      // pedidos) só para descartar quase tudo com um slice(0, 5) no
+      // cliente. Pedindo a 1ª página com pageSize 5 já traz só o
+      // necessário.
+      const [stats, ordersPage] = await Promise.all([
         this.dashboardService.getStats(),
-        this.ordersService.getAll(),
+        this.ordersService.getPage(1, 5),
       ]);
       this.stats.set(stats);
-      this.orders.set(orders);
+      this.orders.set(ordersPage.items);
     } catch {
       this.toast.error('Erro ao carregar dados do dashboard');
     } finally {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Ingredient } from '@prisma/client';
 import prisma from '../models/prisma';
+import { roundMoney } from '../utils/money';
 
 export class DashboardController {
     static async getStats(req: Request, res: Response) {
@@ -26,9 +26,14 @@ export class DashboardController {
                     }
                 }
             }),
-            prisma.ingredient.findMany().then(
-                (all: Ingredient[]) => all.filter((i: Ingredient) => i.currentStock <= i.minStock).length
-            ),
+            // Comparação entre duas colunas (currentStock <= minStock) não é
+            // suportada pelo query builder do Prisma, então antes isso
+            // trazia TODOS os ingredientes para a memória da API só para
+            // filtrar em JS. Com $queryRaw a contagem é feita no próprio
+            // banco, sem trafegar linhas desnecessárias.
+            prisma.$queryRaw<{ count: bigint }[]>`
+                SELECT COUNT(*) as count FROM ingredients WHERE currentStock <= minStock
+            `.then((rows: { count: bigint }[]) => Number(rows[0]?.count ?? 0)),
             prisma.orderItem.groupBy({
                 by: ['productId'],
                 _sum: {
@@ -43,23 +48,25 @@ export class DashboardController {
             })
         ]);
 
-        // Buscar detalhes dos produtos mais vendidos
-        const topProductsDetails = await Promise.all(
-            topProducts.map(async (item: { productId: string; _sum: { quantity: number | null } }) => {
-                const product = await prisma.product.findUnique({
-                    where: { id: item.productId },
-                    select: {
-                        id: true,
-                        name: true,
-                        price: true
-                    }
-                });
-                return {
-                    ...product,
-                    totalSold: item._sum.quantity
-                };
-            })
+        // Buscar detalhes dos produtos mais vendidos numa única query (antes
+        // era um findUnique por produto dentro do map — N+1: com 5 produtos
+        // eram 5 round-trips extras ao banco só para montar essa lista).
+        const topProductIds = topProducts.map((item: { productId: string }) => item.productId);
+        const topProductsRecords = await prisma.product.findMany({
+            where: { id: { in: topProductIds } },
+            select: {
+                id: true,
+                name: true,
+                price: true
+            }
+        });
+        const topProductById = new Map(
+            topProductsRecords.map((p: { id: string; name: string; price: number }) => [p.id, p])
         );
+        const topProductsDetails = topProducts.map((item: { productId: string; _sum: { quantity: number | null } }) => {
+            const product = topProductById.get(item.productId) ?? { id: item.productId, name: '', price: 0 };
+            return { ...product, totalSold: item._sum.quantity };
+        });
 
         const todayOrders = await prisma.order.count({
             where: {
@@ -85,11 +92,15 @@ export class DashboardController {
 
         res.json({
             totalOrders,
-            totalRevenue: totalRevenue._sum.total || 0,
+            // SUM em floats acumulados ao longo de muitos pedidos pode
+            // drift (ex: 1234.5600000000002). Arredondamos aqui pra
+            // exibição, na saída da API, sem precisar mudar como o valor
+            // é armazenado.
+            totalRevenue: roundMoney(totalRevenue._sum.total || 0),
             pendingOrders,
             lowStock,
             todayOrders,
-            todayRevenue: todayRevenue._sum.total || 0,
+            todayRevenue: roundMoney(todayRevenue._sum.total || 0),
             topProducts: topProductsDetails
         });
     }
@@ -133,7 +144,7 @@ export class DashboardController {
 
                 return {
                     date: date.toISOString().split('T')[0],
-                    revenue: result._sum.total || 0
+                    revenue: roundMoney(result._sum.total || 0)
                 };
             })
         );

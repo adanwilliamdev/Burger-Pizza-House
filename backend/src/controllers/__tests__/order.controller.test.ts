@@ -18,7 +18,7 @@ const mockTx = {
 
 const mockPrisma = {
     $transaction: jest.fn(async (callback: (tx: typeof mockTx) => Promise<any>) => callback(mockTx)),
-    order: { findUnique: jest.fn(), update: jest.fn() },
+    order: { findUnique: jest.fn(), update: jest.fn(), findMany: jest.fn(), count: jest.fn() },
     auditLog: { create: jest.fn() }
 };
 
@@ -160,6 +160,82 @@ describe('OrderController.create', () => {
 
         expect(res.status).toHaveBeenCalledWith(400);
         expect(mockTx.order.create).not.toHaveBeenCalled();
+    });
+
+    it('arredonda o total pra evitar drift de ponto flutuante (0.1 + 0.2 = 0.3, não 0.30000000000000004)', async () => {
+        // Preço escolhido de propósito: 3 unidades a R$0,10 sem arredondar
+        // dá 0.1 * 3 = 0.30000000000000004 em ponto flutuante.
+        mockTx.product.findUnique.mockResolvedValue({
+            id: 'prod-1',
+            name: 'Refrigerante',
+            price: 0.1,
+            isActive: true
+        });
+        mockTx.productIngredient.findMany.mockResolvedValue([]);
+
+        const req = makeReq({ body: { ...validBody, items: [{ productId: 'prod-1', quantity: 3 }] } });
+        const res = makeRes();
+
+        await OrderController.create(req, res);
+
+        expect(mockTx.order.create).toHaveBeenCalledWith(
+            expect.objectContaining({
+                data: expect.objectContaining({ total: 0.3 })
+            })
+        );
+    });
+});
+
+describe('OrderController.findAll', () => {
+    function makeFindAllReq(query: any = {}) {
+        return { query, params: {}, body: {} } as any;
+    }
+
+    it('sem page/pageSize, mantém compatibilidade e devolve um array puro (comportamento antigo)', async () => {
+        const orders = [{ id: 'order-1' }, { id: 'order-2' }];
+        mockPrisma.order.findMany.mockResolvedValue(orders);
+        mockPrisma.order.count.mockResolvedValue(2);
+
+        const req = makeFindAllReq();
+        const res = makeRes();
+
+        await OrderController.findAll(req, res);
+
+        expect(res.json).toHaveBeenCalledWith(orders);
+        // Sem paginação explícita, mantém o teto de segurança de 500 e não pagina.
+        expect(mockPrisma.order.findMany).toHaveBeenCalledWith(
+            expect.objectContaining({ skip: 0, take: 500 })
+        );
+    });
+
+    it('com page/pageSize, devolve { items, total, page, pageSize }', async () => {
+        const orders = [{ id: 'order-3' }];
+        mockPrisma.order.findMany.mockResolvedValue(orders);
+        mockPrisma.order.count.mockResolvedValue(21);
+
+        const req = makeFindAllReq({ page: '2', pageSize: '20' });
+        const res = makeRes();
+
+        await OrderController.findAll(req, res);
+
+        expect(mockPrisma.order.findMany).toHaveBeenCalledWith(
+            expect.objectContaining({ skip: 20, take: 20 })
+        );
+        expect(res.json).toHaveBeenCalledWith({ items: orders, total: 21, page: 2, pageSize: 20 });
+    });
+
+    it('limita pageSize a no máximo 100, mesmo se o cliente pedir mais', async () => {
+        mockPrisma.order.findMany.mockResolvedValue([]);
+        mockPrisma.order.count.mockResolvedValue(0);
+
+        const req = makeFindAllReq({ page: '1', pageSize: '9999' });
+        const res = makeRes();
+
+        await OrderController.findAll(req, res);
+
+        expect(mockPrisma.order.findMany).toHaveBeenCalledWith(
+            expect.objectContaining({ skip: 0, take: 100 })
+        );
     });
 });
 

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../models/prisma';
 import { AuthRequest } from '../middlewares/auth';
 import { CreateOrderRequest } from '../types';
+import { roundMoney } from '../utils/money';
 
 /**
  * Erro de negócio (não é um bug) usado para abortar a transação quando não
@@ -55,8 +56,8 @@ export class OrderController {
                     }
 
                     const unitPrice = product.price;
-                    const totalPrice = unitPrice * item.quantity;
-                    total += totalPrice;
+                    const totalPrice = roundMoney(unitPrice * item.quantity);
+                    total = roundMoney(total + totalPrice);
 
                     items.push({
                         productId: item.productId,
@@ -80,7 +81,7 @@ export class OrderController {
                     );
                 }
 
-                total = subtotal - discount + deliveryFee;
+                total = roundMoney(subtotal - discount + deliveryFee);
 
                 // Somar a quantidade necessária de cada ingrediente em TODOS os
                 // itens do pedido antes de decidir se dá pra confirmar o
@@ -204,44 +205,61 @@ export class OrderController {
     static async findAll(req: Request, res: Response) {
         const { status, type, startDate, endDate } = req.query;
 
-        const orders = await prisma.order.findMany({
-            where: {
-                ...(status && { status: status as any }),
-                ...(type && { type: type as any }),
-                ...(startDate && endDate && {
-                    createdAt: {
-                        gte: new Date(startDate as string),
-                        lte: new Date(endDate as string)
-                    }
-                })
-            },
-            include: {
-                items: {
-                    include: {
-                        product: true
+        // Paginação real: `page`/`pageSize` são opcionais para não quebrar
+        // quem já integrava com a API sem eles (cai no default abaixo, que
+        // mantém o mesmo teto de 500 registros de antes). Passando os dois
+        // parâmetros, o cliente passa a receber { items, total, page,
+        // pageSize } em vez do array puro.
+        const rawPage = Number(req.query.page);
+        const rawPageSize = Number(req.query.pageSize);
+        const isPaginated = Number.isFinite(rawPage) && Number.isFinite(rawPageSize);
+        const page = isPaginated ? Math.max(1, Math.trunc(rawPage)) : 1;
+        const pageSize = isPaginated ? Math.min(100, Math.max(1, Math.trunc(rawPageSize))) : 500;
+
+        const where = {
+            ...(status && { status: status as any }),
+            ...(type && { type: type as any }),
+            ...(startDate && endDate && {
+                createdAt: {
+                    gte: new Date(startDate as string),
+                    lte: new Date(endDate as string)
+                }
+            })
+        };
+
+        const [orders, total] = await Promise.all([
+            prisma.order.findMany({
+                where,
+                include: {
+                    items: {
+                        include: {
+                            product: true
+                        }
+                    },
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true
+                        }
                     }
                 },
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true
-                    }
-                }
-            },
-            orderBy: {
-                createdAt: 'desc'
-            },
-            // Sem paginação real ainda (o frontend em Orders.tsx/Dashboard.tsx
-            // espera um array puro em response.data) — por ora só um teto de
-            // segurança para não trazer o histórico inteiro de uma vez.
-            // Ver README/roadmap: paginação de verdade requer atualizar o
-            // frontend para consumir { items, total, page } antes de mudar
-            // este formato de resposta.
-            take: 500
-        });
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                skip: (page - 1) * pageSize,
+                take: pageSize
+            }),
+            prisma.order.count({ where })
+        ]);
 
-        res.json(orders);
+        if (!isPaginated) {
+            // Compatibilidade com clientes existentes que ainda esperam um
+            // array puro em response.data.
+            return res.json(orders);
+        }
+
+        return res.json({ items: orders, total, page, pageSize });
     }
 
     static async findOne(req: Request, res: Response) {

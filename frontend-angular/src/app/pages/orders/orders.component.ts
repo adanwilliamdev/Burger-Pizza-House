@@ -90,7 +90,12 @@ export class OrdersComponent {
   readonly typeOptions = TYPE_OPTIONS;
   readonly paymentOptions = PAYMENT_OPTIONS;
 
+  readonly pageSize = 20;
+
   readonly orders = signal<Order[]>([]);
+  readonly totalOrders = signal(0);
+  readonly page = signal(1);
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalOrders() / this.pageSize)));
   readonly products = signal<Product[]>([]);
   readonly loading = signal(true);
   readonly showModal = signal(false);
@@ -112,12 +117,21 @@ export class OrdersComponent {
   private async fetchOrders(): Promise<void> {
     this.loading.set(true);
     try {
-      this.orders.set(await this.ordersService.getAll());
+      const result = await this.ordersService.getPage(this.page(), this.pageSize);
+      this.orders.set(result.items);
+      this.totalOrders.set(result.total);
     } catch {
       this.toast.error('Erro ao carregar pedidos');
     } finally {
       this.loading.set(false);
     }
+  }
+
+  goToPage(page: number): void {
+    const clamped = Math.min(Math.max(1, page), this.totalPages());
+    if (clamped === this.page()) return;
+    this.page.set(clamped);
+    this.fetchOrders();
   }
 
   private async fetchProducts(): Promise<void> {
@@ -236,6 +250,9 @@ export class OrdersComponent {
       });
       this.toast.success('Pedido criado!');
       this.closeModal();
+      // Volta pra primeira página pra mostrar o pedido recém-criado
+      // (a listagem é ordenada por mais recente primeiro).
+      this.page.set(1);
       await this.fetchOrders();
     } catch {
       this.toast.error('Erro ao criar pedido');

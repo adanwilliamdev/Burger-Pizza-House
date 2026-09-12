@@ -16,13 +16,27 @@ export interface CreateOrderPayload {
   items: Array<{ productId: string; quantity: number }>;
 }
 
+export interface PaginatedOrders {
+  items: Order[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiUrl}/orders`;
 
-  getAll(): Promise<Order[]> {
-    return firstValueFrom(this.http.get<Order[]>(this.baseUrl));
+  /**
+   * Passando `page`/`pageSize` a API responde no formato paginado
+   * ({ items, total, page, pageSize }); sem eles, mantém a resposta antiga
+   * (array puro, com um teto de 500 registros) por compatibilidade.
+   */
+  getPage(page: number, pageSize: number): Promise<PaginatedOrders> {
+    return firstValueFrom(
+      this.http.get<PaginatedOrders>(this.baseUrl, { params: { page, pageSize } })
+    );
   }
 
   create(payload: CreateOrderPayload): Promise<Order> {
