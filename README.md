@@ -2,15 +2,15 @@
 
 <div align="center">
 
-**Sistema de gestão para pizzarias e hamburguerias**
+### Sistema de gestão para pizzarias e hamburguerias
 
-Aplicação web completa para gerenciamento de pedidos, produtos, estoque e indicadores operacionais, com autenticação segura e interface responsiva.
+Aplicação web full stack para gerenciamento de **pedidos, produtos, estoque e indicadores operacionais**, com autenticação segura, regras de negócio e interface responsiva.
 
-[![Angular](https://img.shields.io/badge/Angular-20-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
-[![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Angular](https://img.shields.io/badge/Angular-20-DD0031?logo=angular\&logoColor=white)](https://angular.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=node.js\&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript\&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?logo=tailwindcss\&logoColor=white)](https://tailwindcss.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma\&logoColor=white)](https://www.prisma.io/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](#-licença)
 
 </div>
@@ -21,16 +21,16 @@ Aplicação web completa para gerenciamento de pedidos, produtos, estoque e indi
 
 O **Burger & Pizza House ERP** é uma aplicação full stack desenvolvida para centralizar a operação de pizzarias e hamburguerias.
 
-O sistema oferece uma experiência completa para gerenciamento de:
+O sistema foi projetado para gerenciar:
 
-- 📊 Indicadores e desempenho operacional
-- 📦 Produtos e categorias
-- 🛒 Pedidos e status de atendimento
-- 🥬 Ingredientes e controle de estoque
-- 🔐 Autenticação e controle de acesso
-- 🎨 Interface responsiva com tema claro e escuro
+* 📊 Indicadores e desempenho operacional
+* 📦 Produtos e categorias
+* 🛒 Pedidos e fluxo de atendimento
+* 🥬 Ingredientes e controle de estoque
+* 🔐 Autenticação e controle de acesso
+* 🎨 Interface responsiva com tema claro e escuro
 
-A aplicação é composta por uma **API REST em Node.js** e um **frontend em Angular 20**, com foco em organização, segurança, validação de dados e regras de negócio.
+A solução utiliza uma **API REST em Node.js + Express** e um **frontend em Angular 20**, com foco em organização, segurança, validação de dados e consistência das regras de negócio.
 
 ---
 
@@ -38,52 +38,71 @@ A aplicação é composta por uma **API REST em Node.js** e um **frontend em Ang
 
 <div align="center">
 
-| Dashboard | Produtos |
-|:---:|:---:|
+|                                        Dashboard                                       |                                        Produtos                                       |
+| :------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
 | <img src="./frontend-angular/public/dashboard.png" width="450" alt="Dashboard do ERP"> | <img src="./frontend-angular/public/produtos.png" width="450" alt="Tela de produtos"> |
 
-| Pedidos | Estoque |
-|:---:|:---:|
+|                                       Pedidos                                       |                                       Estoque                                       |
+| :---------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------: |
 | <img src="./frontend-angular/public/pedidos.png" width="450" alt="Tela de pedidos"> | <img src="./frontend-angular/public/estoque.png" width="450" alt="Tela de estoque"> |
 
 </div>
 
 ---
 
-## 🧭 Índice
-
-- [Funcionalidades](#-funcionalidades)
-- [Stack tecnológica](#-stack-tecnológica)
-- [Estrutura](#-estrutura)
-- [Arquitetura](#-arquitetura)
-- [Instalação e execução](#-instalação-e-execução)
-- [Variáveis de ambiente](#-variáveis-de-ambiente)
-- [Credenciais](#-credenciais)
-- [Atalhos de teclado](#-atalhos-de-teclado)
-- [Design system](#-design-system)
-- [Segurança](#-segurança)
-- [Testes e qualidade](#-testes-e-qualidade)
-- [API REST](#-api-rest)
-- [Scripts](#-scripts)
-- [Roadmap](#-roadmap)
-- [Licença](#-licença)
-- [Autor](#-autor)
-
----
-
 ## ✨ Funcionalidades
 
-**📊 Dashboard** - receita do dia, receita total, ticket médio, total de pedidos, produtos mais vendidos, gráfico de faturamento por período, pedidos recentes e alerta de estoque crítico.
+### 📊 Dashboard
 
-**📦 Produtos** - cadastro, edição, exclusão (soft delete), busca por nome, categorias e controle de preço/custo.
+* Receita do dia e receita total
+* Ticket médio
+* Total de pedidos
+* Produtos mais vendidos
+* Gráfico de faturamento por período
+* Pedidos recentes
+* Alertas de estoque crítico
 
-**🛒 Pedidos** - carrinho de itens, dados do cliente, desconto, taxa de entrega, forma de pagamento, alteração de status com transições validadas e histórico completo.
+### 📦 Produtos
 
-**🥬 Estoque** - cadastro de ingredientes, controle de quantidade, estoque mínimo configurável, alertas visuais e baixa automática ao confirmar pedidos.
+* Cadastro e edição
+* Exclusão com **soft delete**
+* Busca por nome
+* Organização por categorias
+* Controle de preço e custo
 
-**🔐 Autenticação** - login com JWT em cookie `httpOnly`, rotas protegidas (guards) e controle de sessão.
+### 🛒 Pedidos
 
-**🎨 Interface** - layout responsivo, sidebar recolhível, tema claro/escuro/automático, feedback visual (toasts) e atalhos de teclado.
+* Carrinho de itens
+* Dados do cliente
+* Descontos e taxa de entrega
+* Formas de pagamento
+* Alteração de status com transições validadas
+* Histórico completo do pedido
+
+### 🥬 Estoque
+
+* Cadastro de ingredientes
+* Controle de quantidade
+* Estoque mínimo configurável
+* Alertas visuais
+* Baixa automática de ingredientes ao confirmar pedidos
+
+### 🔐 Autenticação
+
+* Login com JWT
+* Token armazenado em cookie `httpOnly`
+* Rotas protegidas
+* Controle de sessão
+* Controle de acesso baseado em função
+
+### 🎨 Interface
+
+* Layout responsivo
+* Sidebar recolhível
+* Tema claro, escuro e automático
+* Feedback visual com toasts
+* Atalhos de teclado
+* Componentes reutilizáveis
 
 ---
 
@@ -91,59 +110,66 @@ A aplicação é composta por uma **API REST em Node.js** e um **frontend em Ang
 
 ### Backend
 
-| Tecnologia | Uso |
-|---|---|
-| Node.js + Express | API REST |
-| TypeScript | Linguagem |
-| Prisma ORM | Acesso ao banco |
-| SQLite | Banco de dados |
-| JWT + Bcrypt | Autenticação e hash de senha |
-| Zod | Validação de entrada |
-| Jest + ts-jest | Testes automatizados |
+| Tecnologia            | Finalidade                     |
+| --------------------- | ------------------------------ |
+| **Node.js + Express** | API REST                       |
+| **TypeScript**        | Linguagem                      |
+| **Prisma ORM**        | Persistência e acesso ao banco |
+| **SQLite**            | Banco de dados                 |
+| **JWT + Bcrypt**      | Autenticação e hash de senhas  |
+| **Zod**               | Validação de dados             |
+| **Jest + ts-jest**    | Testes automatizados           |
 
 ### Frontend
 
-| Tecnologia | Uso |
-|---|---|
-| Angular 20 | Framework (standalone components, signals) |
-| Tailwind CSS v4 | Estilização (sintaxe `@theme`) |
-| `@lucide/angular` | Ícones |
-| `date-fns` | Formatação de datas (locale `pt-BR`) |
-| RxJS + `HttpClient` | Comunicação com a API |
+| Tecnologia                | Finalidade                        |
+| ------------------------- | --------------------------------- |
+| **Angular 20**            | Framework frontend                |
+| **Standalone Components** | Arquitetura de componentes        |
+| **Signals**               | Gerenciamento de estado reativo   |
+| **Tailwind CSS v4**       | Estilização                       |
+| **Lucide Angular**        | Ícones                            |
+| **RxJS + HttpClient**     | Comunicação com a API             |
+| **date-fns**              | Manipulação e formatação de datas |
 
 ---
 
-## 📂 Estrutura
+## 📂 Estrutura do projeto
 
 ```text
 Burger-Pizza-House-Angular
 │
 ├── backend
-│   ├── prisma                   # schema.prisma, migrations, seed
+│   ├── prisma
+│   │   ├── schema.prisma
+│   │   ├── migrations
+│   │   └── seed
+│   │
 │   ├── src
 │   │   ├── controllers
 │   │   ├── middlewares
 │   │   ├── routes
-│   │   ├── schemas              # validação Zod
+│   │   ├── schemas
 │   │   └── server.ts
+│   │
 │   └── package.json
 │
 └── frontend-angular
     ├── src
     │   ├── app
-    │   │   ├── core              # models, services, guards, interceptors
-    │   │   ├── shared            # componentes reutilizáveis (badge, empty state, toast, gráfico...)
-    │   │   ├── layout            # shell com sidebar + topbar
-    │   │   ├── pages             # login, dashboard, products, orders, ingredients, not-found
+    │   │   ├── core
+    │   │   ├── shared
+    │   │   ├── layout
+    │   │   ├── pages
     │   │   ├── app.config.ts
     │   │   └── app.routes.ts
-    │   ├── environments          # apiUrl (dev/prod)
-    │   └── styles.css            # design tokens do Tailwind v4 (@theme)
-    ├── proxy.conf.json           # redireciona /api -> localhost:5000 em dev
+    │   │
+    │   ├── environments
+    │   └── styles.css
+    │
+    ├── proxy.conf.json
     └── package.json
 ```
-
----
 
 ---
 
@@ -151,9 +177,9 @@ Burger-Pizza-House-Angular
 
 ```text
 ┌──────────────────────────────┐
-│        Angular 20            │
-│  UI · Guards · Services      │
-│  RxJS · HttpClient           │
+│          Angular 20          │
+│   UI · Guards · Services     │
+│   RxJS · HttpClient          │
 └──────────────┬───────────────┘
                │ HTTP / REST
                ▼
@@ -170,11 +196,31 @@ Burger-Pizza-House-Angular
 └──────────────────────────────┘
 ```
 
-### Principais responsabilidades
+### Responsabilidades
 
-- **Frontend:** interface, navegação, guards, serviços e comunicação com a API.
-- **Backend:** autenticação, validação, regras de negócio e operações transacionais.
-- **Banco de dados:** persistência dos usuários, produtos, pedidos e ingredientes.
+**Frontend**
+
+* Interface e navegação
+* Guards e controle de acesso
+* Serviços e componentes
+* Comunicação com a API
+
+**Backend**
+
+* Autenticação e autorização
+* Validação de dados
+* Regras de negócio
+* Operações transacionais
+* Controle de estoque
+
+**Banco de dados**
+
+* Usuários
+* Produtos
+* Categorias
+* Pedidos
+* Ingredientes
+* Relacionamentos da aplicação
 
 ---
 
@@ -182,10 +228,11 @@ Burger-Pizza-House-Angular
 
 ### Pré-requisitos
 
-- Node.js **20+** (recomendado 22)
-- npm
+* Node.js **20+**
+* npm
+* Node.js **22** recomendado
 
-### 1. Backend
+### Backend
 
 ```bash
 cd backend
@@ -200,15 +247,21 @@ npm run seed
 npm run dev
 ```
 
-A API estará disponível em `http://localhost:5000` (todas as rotas ficam sob o prefixo `/api`, ex.: `http://localhost:5000/api/products`).
+A API estará disponível em:
 
-> **Windows + erro `Cannot read properties of undefined (reading 'fileExists')` no ts-node?** Isso acontece quando existe um `ts-node` instalado globalmente com versão incompatível. Este projeto já contorna isso via `nodemon.json`. Se ainda ocorrer, rode `npm uninstall -g ts-node`.
+```text
+http://localhost:5000
+```
 
-> **Ambientes com rede restrita (proxies corporativos, sandboxes de CI):** o `prisma generate`/`migrate` baixa os binários da engine na primeira execução. Se o domínio estiver bloqueado, os comandos acima falham com `403 Forbidden` - isso não é um problema no código. Libere o acesso ou rode esses dois comandos em uma máquina com acesso normal à internet antes de subir o servidor.
+As rotas utilizam o prefixo `/api`:
 
-### 2. Frontend Angular
+```text
+http://localhost:5000/api/products
+```
 
-Em outro terminal, com o backend já rodando:
+### Frontend
+
+Em outro terminal:
 
 ```bash
 cd frontend-angular
@@ -216,21 +269,39 @@ npm install
 npm start
 ```
 
-A aplicação estará disponível em `http://localhost:4200`. O `npm start` já sobe com `--proxy-config proxy.conf.json`, que redireciona as chamadas `/api/*` para `http://localhost:5000` - não precisa configurar CORS extra em desenvolvimento.
+A aplicação estará disponível em:
 
-Build de produção:
+```text
+http://localhost:4200
+```
+
+O `npm start` utiliza automaticamente o `proxy.conf.json` para encaminhar as requisições `/api` para o backend.
+
+### Build de produção
 
 ```bash
 npm run build
 ```
 
-Gera os arquivos estáticos em `dist/frontend-angular/browser`. Antes de publicar, ajuste `src/environments/environment.prod.ts` com a URL real da sua API (o build de produção usa esse arquivo automaticamente via `fileReplacements` no `angular.json`).
+Os arquivos serão gerados em:
+
+```text
+dist/frontend-angular/browser
+```
+
+Para produção, configure a URL da API em:
+
+```text
+src/environments/environment.prod.ts
+```
 
 ---
 
 ## ⚙️ Variáveis de ambiente
 
-Backend (`backend/.env`):
+### Backend
+
+Arquivo `backend/.env`:
 
 ```env
 DATABASE_URL="file:./dev.db"
@@ -239,132 +310,169 @@ JWT_SECRET=your_secret_key
 
 PORT=5000
 
-# Origens permitidas para CORS, separadas por vírgula
 CORS_ORIGIN=http://localhost:4200
 ```
 
-> O `.env.example` do backend não traz `CORS_ORIGIN` por padrão - adicione a variável acima (com a porta `4200`, padrão do Angular) se for acessar a API diretamente sem passar pelo proxy do Angular CLI (por exemplo, ao rodar `ng build` + servir os estáticos separadamente).
+`CORS_ORIGIN` aceita múltiplas origens separadas por vírgula.
 
-Frontend Angular (`frontend-angular/src/environments/environment.ts` e `environment.prod.ts`):
+### Frontend
 
 ```ts
 export const environment = {
   production: false,
-  apiUrl: '/api', // em dev, o proxy.conf.json redireciona para o backend
+  apiUrl: '/api'
 };
+```
+
+Em desenvolvimento, o proxy do Angular encaminha as requisições para:
+
+```text
+http://localhost:5000
 ```
 
 ---
 
-## 🔑 Credenciais
+## 🔑 Credenciais de demonstração
 
-| Campo | Valor |
-|---|---|
+| Campo | Valor                        |
+| ----- | ---------------------------- |
 | Email | `admin@burgerpizzahouse.com` |
-| Senha | `admin123` |
+| Senha | `admin123`                   |
 
-> Credenciais de um ambiente de demonstração/desenvolvimento, criadas pelo `npm run seed`. Não reutilize essa senha em um deploy público.
+> As credenciais são criadas pelo `npm run seed` e destinam-se exclusivamente a ambientes de demonstração/desenvolvimento.
 
 ---
 
 ## ⌨️ Atalhos de teclado
 
-| Atalho | Ação |
-|---|---|
-| `Ctrl`/`Cmd` + `K` | Foca no campo de busca do topbar |
-| `Ctrl`/`Cmd` + `N` | Vai para Produtos |
-| `Ctrl`/`Cmd` + `P` | Vai para Pedidos |
+| Atalho           | Ação                    |
+| ---------------- | ----------------------- |
+| `Ctrl / Cmd + K` | Focar no campo de busca |
+| `Ctrl / Cmd + N` | Abrir Produtos          |
+| `Ctrl / Cmd + P` | Abrir Pedidos           |
 
 ---
 
 ## 🎨 Design system
 
-- **Cor primária**: laranja `#F97316` (hover `#EA580C`)
-- **Cores de status**: sucesso (`#22C55E`), erro (`#EF4444`), aviso (`#F59E0B`), info (`#3B82F6`)
-- **Tema escuro** ativado por classe `.dark` na raiz do documento (persistido em `localStorage`)
-- **Componentes**: cards, badges de status, tabelas, modais, inputs e botões com os mesmos tokens visuais
+O projeto utiliza **Tailwind CSS v4** com tokens personalizados definidos em:
 
-Os tokens vivem em `frontend-angular/src/styles.css`, usando a sintaxe `@theme` do Tailwind v4.
+```text
+frontend-angular/src/styles.css
+```
+
+Principais características:
+
+* Cor primária: `#F97316`
+* Estados de sucesso, erro, aviso e informação
+* Tema claro e escuro
+* Persistência do tema via `localStorage`
+* Componentes visuais reutilizáveis
+* Cards, tabelas, badges, modais, inputs e botões padronizados
 
 ---
 
 ## 🔒 Segurança
 
-Medidas aplicadas na API (backend):
+A API possui diversas camadas de proteção:
 
-- **Criação de usuários restrita a administradores** - `POST /api/auth/register` exige um token de um usuário `ADMIN` autenticado. O primeiro admin é criado pelo `npm run seed`.
-- **Token JWT em cookie `httpOnly`**, não em `localStorage` - reduz a superfície de roubo de sessão via XSS. `POST /api/auth/logout` limpa o cookie no servidor.
-- **`JWT_SECRET` obrigatório e com checagem de força mínima** - o servidor recusa subir se a variável não existir ou for muito curta/óbvia.
-- **Validação de entrada com Zod** em todas as rotas de escrita (auth, produtos, ingredientes e pedidos).
-- **Rate limiting**: `/api/auth/login` aceita no máximo 10 tentativas a cada 15 minutos por IP; as demais rotas têm limite geral de 300 requisições/15min.
-- **Helmet** aplicando cabeçalhos HTTP de segurança padrão.
-- **CORS configurável** via `CORS_ORIGIN` no `.env`, com `credentials: true` para permitir o cookie de sessão entre origens diferentes.
-- **Criação de pedido em transação atômica** (`prisma.$transaction`) - numeração sequencial, checagem de estoque e baixa de ingredientes acontecem juntas, sem condição de corrida nem pedido "pela metade".
-- **Checagem de estoque antes de confirmar o pedido** - se faltar ingrediente, o pedido inteiro é rejeitado (`409`) com a lista de itens em falta.
-- **Transições de status validadas** - `PATCH /api/orders/:id/status` só aceita mudanças que fazem sentido no fluxo operacional.
-- **Exclusão segura de produtos e ingredientes** - produtos com pedidos associados são desativados (soft delete); ingredientes referenciados por algum produto não podem ser excluídos.
-- **Mensagens de erro reduzidas em produção** - com `NODE_ENV=production`, erros 5xx inesperados retornam mensagem genérica ao cliente.
-- **Regras de negócio no backend** - o `discount` de um pedido nunca pode superar o subtotal; `discount` e `deliveryFee` são validados como não-negativos.
-- **Rotas protegidas no frontend** - páginas internas redirecionam para `/login` quando não há usuário autenticado, via guard de rota (`authGuard`), sem depender só do 401 da API.
-- **Banco local fora do controle de versão** - `*.db`/`*.sqlite` estão no `.gitignore`.
+* 🔐 JWT armazenado em cookie `httpOnly`
+* 🔑 `JWT_SECRET` obrigatório e validado
+* 🛡️ Helmet para headers de segurança
+* 🚦 Rate limiting para autenticação e demais rotas
+* ✅ Validação de entrada com Zod
+* 👤 Controle de acesso baseado em função
+* 🌐 CORS configurável
+* 💾 Transações atômicas com Prisma
+* 📦 Validação de estoque antes da confirmação de pedidos
+* 🔄 Transições de status validadas
+* 🗑️ Soft delete para registros relacionados
+* 🚫 Proteção contra exposição de detalhes internos de erros
+* 🛣️ Guards de autenticação no frontend
+* 🧹 Banco de dados local excluído do controle de versão
+
+### Regras de negócio
+
+O backend também garante:
+
+* Desconto não pode ultrapassar o subtotal
+* Desconto e taxa de entrega não podem ser negativos
+* Pedidos não podem ser criados sem estoque suficiente
+* Baixa de estoque ocorre dentro da mesma transação do pedido
+* Produtos vinculados a pedidos não são removidos fisicamente
+* Ingredientes utilizados por produtos não podem ser excluídos
 
 ---
 
-## 🧪 Testes e qualidade
+## 🧪 Testes
+
+### Backend
 
 ```bash
 cd backend
 npm test
 ```
 
-30 testes automatizados (Jest + ts-jest):
+O backend possui **30 testes automatizados** utilizando Jest + ts-jest.
 
-- **Schemas de validação**: payloads válidos/inválidos de login, registro e criação de pedido.
-- **`OrderController`**: criação de pedido com estoque suficiente/insuficiente, produto inativo, desconto maior que o subtotal, transições de status válidas/inválidas - com Prisma mockado.
-- **`errorHandler`**: erros 5xx genéricos ocultados em produção, erros de negócio mantendo a mensagem original, detalhes do Prisma não vazando.
+Os testes cobrem:
+
+* Validação de schemas
+* Login e registro
+* Criação de pedidos
+* Controle de estoque
+* Produtos inativos
+* Validação de descontos
+* Transições de status
+* Tratamento de erros
+* Proteção contra exposição de informações internas
+
+### Frontend
 
 ```bash
 cd frontend-angular
 npm test
 ```
 
-Testes unitários com Karma + Jasmine (requer Chrome/Chromium instalado).
+Os testes utilizam **Karma + Jasmine** e requerem Chrome ou Chromium instalado.
 
 ---
 
 ## 📡 API REST
 
-Todas as rotas abaixo estão sob o prefixo `/api`.
+Todas as rotas utilizam o prefixo `/api`.
 
-### Autenticação
+### Authentication
 
-```
+```http
 POST /api/auth/login
 POST /api/auth/logout
 GET  /api/auth/me
-POST /api/auth/register   (requer token de ADMIN)
+POST /api/auth/register
 ```
 
-### Produtos
+> `POST /api/auth/register` requer autenticação de administrador.
 
-```
+### Products
+
+```http
 GET    /api/products
 POST   /api/products
 PUT    /api/products/:id
 DELETE /api/products/:id
 ```
 
-### Pedidos
+### Orders
 
-```
+```http
 GET   /api/orders
 POST  /api/orders
 PATCH /api/orders/:id/status
 ```
 
-### Estoque (ingredientes)
+### Ingredients
 
-```
+```http
 GET  /api/ingredients
 POST /api/ingredients
 PUT  /api/ingredients/:id
@@ -372,7 +480,7 @@ PUT  /api/ingredients/:id
 
 ### Dashboard
 
-```
+```http
 GET /api/dashboard/stats
 GET /api/dashboard/revenue?days=7
 ```
@@ -384,51 +492,49 @@ GET /api/dashboard/revenue?days=7
 ### Backend
 
 ```bash
-npm run dev        # servidor com hot-reload
-npm run build      # compila TypeScript
-npm start          # roda o build compilado
-npm run seed       # popula o banco com dados de demonstração
-npm test           # roda os testes (Jest)
-npx prisma studio  # abre o painel visual do banco
+npm run dev        # Desenvolvimento com hot-reload
+npm run build      # Compila o backend
+npm start          # Executa o build
+npm run seed       # Popula dados de demonstração
+npm test           # Executa os testes
+npx prisma studio  # Abre o Prisma Studio
 ```
 
-### Frontend Angular
+### Frontend
 
 ```bash
-npm start        # ng serve com proxy para o backend (localhost:4200)
-npm run build    # build de produção em dist/frontend-angular
-npm run watch    # build em modo desenvolvimento com watch
-npm test         # ng test (Karma + Jasmine - requer Chrome/Chromium instalado)
+npm start          # Angular + proxy
+npm run build      # Build de produção
+npm run watch      # Build com watch
+npm test           # Executa os testes
 ```
 
 ---
 
 ## 🗺️ Roadmap
 
-- [ ] Relatórios em PDF
-- [ ] Exportação Excel
-- [ ] Integração com impressora térmica
-- [ ] Multiempresa e RBAC
-- [ ] Integração iFood / WhatsApp
-- [ ] Gateway Pix / Cartão
-- [ ] PWA
-- [ ] Backup automático
-- [ ] Programa de fidelidade
+* [ ] Relatórios em PDF
+* [ ] Exportação para Excel
+* [ ] Integração com impressoras térmicas
+* [ ] Multiempresa e RBAC
+* [ ] Integração com iFood e WhatsApp
+* [ ] Gateway Pix e cartão
+* [ ] Progressive Web App (PWA)
+* [ ] Backup automático
+* [ ] Programa de fidelidade
 
 ---
 
 ## 📄 Licença
 
-Distribuído sob a licença MIT.
+Este projeto está distribuído sob a licença **MIT**.
 
 ---
 
 <div align="center">
 
-### 🍕 Burger & Pizza House ERP - Angular
+### 🍕 Burger & Pizza House ERP
 
-Sistema moderno para gestão de pizzarias e hamburguerias.
-
-Backend em Node.js/Express/Prisma, frontend em Angular 20.
+**Modern restaurant management system built with Angular, Node.js and Prisma.**
 
 </div>
