@@ -24,7 +24,7 @@ Sistema de gestão para hamburgueria e pizzaria, desenvolvido com **Python + Dja
 ## 🚀 Executando o projeto
 
 ```bash
-git clone <URL_DO_REPOSITORIO>
+git clone https://github.com/adanwilliamdev/Burger-Pizza-House.git
 cd burger-pizza-house
 
 python -m venv venv
