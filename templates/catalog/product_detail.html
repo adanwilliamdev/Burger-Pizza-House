@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<a href="{% url 'catalog:product_list' %}" class="text-sm text-primary hover:underline">&larr; Voltar</a>
+<div class="card p-6 mt-3 max-w-2xl">
+    <div class="flex items-start justify-between">
+        <div>
+            <h1 class="text-page-title">{{ product.name }}</h1>
+            <p class="text-sm text-gray-500">{{ product.get_category_display }} · {{ product.get_type_display }}</p>
+        </div>
+        <p class="text-2xl font-bold text-primary">R$ {{ product.price|floatformat:2 }}</p>
+    </div>
+    <p class="text-gray-600 mt-4">{{ product.description|default:"Sem descrição." }}</p>
+    <div class="grid grid-cols-2 gap-4 mt-4 text-sm">
+        <p><span class="text-gray-500">Custo:</span> R$ {{ product.cost|default:0|floatformat:2 }}</p>
+        <p><span class="text-gray-500">Tempo de preparo:</span> {{ product.preparation_time }} min</p>
+        <p><span class="text-gray-500">Status:</span> {% if product.is_active %}Ativo{% else %}Inativo{% endif %}</p>
+    </div>
+
+    <h2 class="font-semibold mt-6 mb-2">Receita (ingredientes)</h2>
+    {% if product.ingredients.all %}
+    <ul class="text-sm divide-y divide-gray-100 border rounded-lg">
+        {% for pi in product.ingredients.all %}
+        <li class="px-3 py-2 flex justify-between"><span>{{ pi.ingredient.name }}</span><span class="text-gray-500">{{ pi.quantity }}{{ pi.unit }}</span></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-sm text-gray-400">Nenhum ingrediente cadastrado para este produto.</p>
+    {% endif %}
+</div>
+{% endblock %}

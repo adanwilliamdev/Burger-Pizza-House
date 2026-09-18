@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Pedidos{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <h1 class="text-page-title">Pedidos</h1>
+    <a href="{% url 'orders:order_new' %}" class="btn-primary">+ Novo pedido</a>
+</div>
+
+<form method="get" class="card p-4 mb-6 flex flex-wrap gap-3 items-end">
+    <div>
+        <label class="block text-xs text-gray-500 mb-1">Status</label>
+        <select name="status" class="input">
+            <option value="">Todos</option>
+            {% for value, label in statuses %}
+            <option value="{{ value }}" {% if value == selected_status %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs text-gray-500 mb-1">Tipo</label>
+        <select name="type" class="input">
+            <option value="">Todos</option>
+            {% for value, label in types %}
+            <option value="{{ value }}" {% if value == selected_type %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs text-gray-500 mb-1">De</label>
+        <input type="date" name="start_date" value="{{ start_date }}" class="input">
+    </div>
+    <div>
+        <label class="block text-xs text-gray-500 mb-1">Até</label>
+        <input type="date" name="end_date" value="{{ end_date }}" class="input">
+    </div>
+    <button type="submit" class="btn-secondary">Filtrar</button>
+</form>
+
+<div class="table-shell">
+    <table class="min-w-full text-sm">
+        <thead class="bg-gray-50/60">
+            <tr class="table-row">
+                <th class="table-header-cell">#</th>
+                <th class="table-header-cell">Cliente</th>
+                <th class="table-header-cell">Tipo</th>
+                <th class="table-header-cell">Status</th>
+                <th class="table-header-cell">Total</th>
+                <th class="table-header-cell">Criado em</th>
+                <th class="table-header-cell"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr class="table-row">
+                <td class="px-4 py-3.5 font-semibold">#{{ order.number }}</td>
+                <td class="px-4 py-3.5">{{ order.customer_name|default:"—" }}</td>
+                <td class="px-4 py-3.5">{{ order.get_type_display }}</td>
+                <td class="px-4 py-3.5">{% include "partials/status_badge.html" with status=order.status status_label=order.get_status_display %}</td>
+                <td class="px-4 py-3.5 font-medium">R$ {{ order.total|floatformat:2 }}</td>
+                <td class="px-4 py-3.5 text-gray-500">{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                <td class="px-4 py-3.5"><a href="{% url 'orders:order_detail' order.pk %}" class="text-primary hover:underline">Ver</a></td>
+            </tr>
+            {% empty %}
+            <tr class="table-row"><td colspan="7" class="px-4 py-6 text-center text-gray-400">Nenhum pedido encontrado.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

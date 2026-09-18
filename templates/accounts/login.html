@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Entrar — Burger & Pizza House{% endblock %}
+{% block guest_content %}
+<div class="min-h-screen flex">
+    <div class="hidden lg:flex lg:w-1/2 bg-sidebar text-white flex-col justify-between p-12">
+        <div class="flex items-center gap-2">
+            <svg class="icon w-8 h-8 text-primary" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 13c1 1.5 2.5 2 4 2s3-.5 4-2M9 9h.01M15 9h.01"/></svg>
+            <span class="text-lg font-bold"><span class="text-primary">Burger &amp; Pizza</span> House</span>
+        </div>
+        <div>
+            <h2 class="text-4xl font-bold leading-tight">Gestão completa<br>do seu restaurante.</h2>
+            <p class="text-gray-400 mt-4 max-w-sm">Pedidos, cardápio, estoque de ingredientes e faturamento em um só lugar.</p>
+        </div>
+        <p class="text-xs text-gray-500">🍕🍔 Burger & Pizza House ERP</p>
+    </div>
+
+    <div class="flex-1 flex items-center justify-center px-4 bg-surface">
+        <div class="w-full max-w-sm">
+            <div class="text-center mb-8 lg:hidden">
+                <p class="text-3xl">🍕🍔</p>
+                <h1 class="text-xl font-bold text-ink mt-2">Burger & Pizza House</h1>
+            </div>
+            <h1 class="text-page-title mb-1 hidden lg:block">Bem-vindo de volta</h1>
+            <p class="text-caption mb-6 hidden lg:block">Entre com suas credenciais para continuar</p>
+
+            <form method="post" class="card space-y-4">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="rounded-2xl bg-danger/10 border border-danger/20 text-red-800 text-sm px-3.5 py-2.5">
+                    {{ form.non_field_errors.0 }}
+                </div>
+                {% endif %}
+                <div>
+                    <label class="input-label block text-sm font-medium text-ink mb-1.5">{{ form.username.label }}</label>
+                    {{ form.username }}
+                </div>
+                <div>
+                    <label class="input-label block text-sm font-medium text-ink mb-1.5">{{ form.password.label }}</label>
+                    {{ form.password }}
+                </div>
+                <button type="submit" class="btn-primary w-full">Entrar</button>
+            </form>
+            <p class="text-caption text-center mt-5">Usuário padrão: admin@burgerpizzahouse.com / admin123</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

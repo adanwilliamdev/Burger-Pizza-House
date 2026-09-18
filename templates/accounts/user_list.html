@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Usuários{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-page-title">Usuários</h1>
+    <a href="{% url 'accounts:register' %}" class="btn-primary">+ Novo usuário</a>
+</div>
+<div class="table-shell">
+    <table class="min-w-full text-sm">
+        <thead class="bg-gray-50/60">
+            <tr class="table-row"><th class="table-header-cell">Nome</th><th class="table-header-cell">E-mail</th><th class="table-header-cell">Papel</th></tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr class="table-row">
+                <td class="px-4 py-3.5 font-medium">{{ u.name }}</td>
+                <td class="px-4 py-3.5 text-gray-600">{{ u.email }}</td>
+                <td class="px-4 py-3.5"><span class="badge-primary">{{ u.get_role_display }}</span></td>
+            </tr>
+            {% empty %}
+            <tr class="table-row"><td colspan="3" class="px-4 py-6 text-center text-gray-400">Nenhum usuário cadastrado.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

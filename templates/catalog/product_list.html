@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Produtos{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <h1 class="text-page-title">Produtos</h1>
+    {% if user.is_admin %}
+    <a href="{% url 'catalog:product_create' %}" class="btn-primary">+ Novo produto</a>
+    {% endif %}
+</div>
+
+<form method="get" class="card p-4 mb-6 flex flex-wrap gap-3 items-end">
+    <div>
+        <label class="block text-xs text-gray-500 mb-1">Buscar</label>
+        <input type="text" name="q" value="{{ search }}" class="input" placeholder="Nome do produto">
+    </div>
+    <div>
+        <label class="block text-xs text-gray-500 mb-1">Categoria</label>
+        <select name="category" class="input">
+            <option value="">Todas</option>
+            {% for value, label in categories %}
+            <option value="{{ value }}" {% if value == selected_category %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs text-gray-500 mb-1">Status</label>
+        <select name="is_active" class="input">
+            <option value="true" {% if selected_is_active == "true" %}selected{% endif %}>Ativos</option>
+            <option value="false" {% if selected_is_active == "false" %}selected{% endif %}>Inativos</option>
+            <option value="" {% if selected_is_active == "" %}selected{% endif %}>Todos</option>
+        </select>
+    </div>
+    <button type="submit" class="btn-secondary">Filtrar</button>
+</form>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for product in products %}
+    <div class="card p-4 flex flex-col">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="font-semibold">{{ product.name }}</p>
+                <p class="text-xs text-gray-500">{{ product.get_category_display }}</p>
+            </div>
+            {% if not product.is_active %}<span class="badge-neutral">Inativo</span>{% endif %}
+        </div>
+        <p class="text-sm text-gray-600 mt-2 flex-1">{{ product.description|default:"—" }}</p>
+        <p class="text-lg font-bold text-primary mt-3">R$ {{ product.price|floatformat:2 }}</p>
+        <div class="flex gap-2 mt-3">
+            <a href="{% url 'catalog:product_detail' product.pk %}" class="btn-secondary flex-1 text-xs">Ver</a>
+            {% if user.is_admin %}
+            <a href="{% url 'catalog:product_update' product.pk %}" class="btn-secondary flex-1 text-xs">Editar</a>
+            <form method="post" action="{% url 'catalog:product_delete' product.pk %}" onsubmit="return confirm('Excluir este produto?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger text-xs">Excluir</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-gray-400 col-span-full text-center py-10">Nenhum produto encontrado.</p>
+    {% endfor %}
+</div>
+{% endblock %}

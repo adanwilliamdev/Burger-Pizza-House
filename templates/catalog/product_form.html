@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{% if is_new %}Novo produto{% else %}Editar produto{% endif %}{% endblock %}
+{% block content %}
+<h1 class="text-page-title mb-6">{% if is_new %}Novo produto{% else %}Editar produto{% endif %}</h1>
+<form method="post" class="space-y-6 max-w-2xl">
+    {% csrf_token %}
+    <div class="card p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {% for field in form %}
+        <div class="{% if field.name == 'description' %}sm:col-span-2{% endif %}">
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card p-6">
+        <h2 class="font-semibold mb-3">Receita (ingredientes usados)</h2>
+        {{ formset.management_form }}
+        <div class="space-y-3">
+            {% for ingredient_form in formset %}
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 items-start border-b border-gray-100 pb-3">
+                {% for f in ingredient_form.visible_fields %}
+                <div>{{ f }}</div>
+                {% endfor %}
+                {% for f in ingredient_form.hidden_fields %}{{ f }}{% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="flex gap-2">
+        <button type="submit" class="btn-primary">Salvar</button>
+        <a href="{% url 'catalog:product_list' %}" class="btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

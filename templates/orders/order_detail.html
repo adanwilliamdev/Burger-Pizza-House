@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Pedido #{{ order.number }}{% endblock %}
+{% block content %}
+<a href="{% url 'orders:order_list' %}" class="text-sm text-primary hover:underline">&larr; Voltar</a>
+
+<div class="flex flex-wrap items-center justify-between gap-3 mt-3 mb-6">
+    <h1 class="text-page-title">Pedido #{{ order.number }}</h1>
+    {% include "partials/status_badge.html" with status=order.status status_label=order.get_status_display %}
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 card p-6">
+        <h2 class="font-semibold mb-3">Itens</h2>
+        <ul class="divide-y divide-gray-100 text-sm">
+            {% for item in order.items.all %}
+            <li class="py-2 flex justify-between">
+                <div>
+                    <p class="font-medium">{{ item.quantity }}x {{ item.product.name }}</p>
+                    {% if item.notes %}<p class="text-xs text-gray-500">Obs: {{ item.notes }}</p>{% endif %}
+                    {% if item.half_flavors_list %}<p class="text-xs text-gray-500">Sabores: {{ item.half_flavors_list|join:", " }}</p>{% endif %}
+                </div>
+                <span class="font-medium">R$ {{ item.total_price|floatformat:2 }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        <div class="border-t border-gray-100 mt-3 pt-3 text-sm space-y-1">
+            <div class="flex justify-between"><span class="text-gray-500">Subtotal</span><span>R$ {{ order.subtotal|floatformat:2 }}</span></div>
+            <div class="flex justify-between"><span class="text-gray-500">Desconto</span><span>- R$ {{ order.discount|floatformat:2 }}</span></div>
+            <div class="flex justify-between"><span class="text-gray-500">Taxa de entrega</span><span>R$ {{ order.delivery_fee|floatformat:2 }}</span></div>
+            <div class="flex justify-between font-bold text-base"><span>Total</span><span>R$ {{ order.total|floatformat:2 }}</span></div>
+        </div>
+        {% if order.note %}<p class="text-sm text-gray-500 mt-3">Observações: {{ order.note }}</p>{% endif %}
+    </div>
+
+    <div class="space-y-4">
+        <div class="card p-4 text-sm space-y-1">
+            <h2 class="font-semibold mb-2">Cliente</h2>
+            <p><span class="text-gray-500">Nome:</span> {{ order.customer_name|default:"—" }}</p>
+            <p><span class="text-gray-500">Telefone:</span> {{ order.customer_phone|default:"—" }}</p>
+            <p><span class="text-gray-500">Endereço:</span> {{ order.customer_address|default:"—" }}</p>
+            <p><span class="text-gray-500">Tipo:</span> {{ order.get_type_display }}</p>
+            <p><span class="text-gray-500">Pagamento:</span> {{ order.get_payment_method_display }}</p>
+            <p><span class="text-gray-500">Atendente:</span> {{ order.user.name }}</p>
+            <p><span class="text-gray-500">Criado em:</span> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+        </div>
+
+        {% if next_status_choices %}
+        <div class="card p-4">
+            <h2 class="font-semibold mb-2">Atualizar status</h2>
+            <form method="post" action="{% url 'orders:order_update_status' order.pk %}" class="flex gap-2">
+                {% csrf_token %}
+                <select name="status" class="input">
+                    {% for value, label in next_status_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-primary text-sm">Aplicar</button>
+            </form>
+        </div>
+        {% else %}
+        <p class="text-xs text-gray-400">Este pedido está em um status final e não pode mais mudar.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,45 +1,7 @@
-﻿# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment variables (CRÍTICO!)
+__pycache__/
+*.pyc
+db.sqlite3
+staticfiles/
+venv/
 .env
-.env.local
-.env.production
-.env.*.local
-*.env
-
-# Credenciais
-passwords.txt
-bfg.jar
-*.pem
-*.key
-*.crt
-
-# Banco de dados local (nunca deve ser versionado — pode conter hashes de
-# senha, dados de clientes de teste, etc. Rode `npx prisma migrate dev` +
-# `npm run seed` para recriar localmente.)
-*.db
-*.db-journal
-*.sqlite
-*.sqlite3
-
-# IDE
-.vscode/
-.idea/
-*.iml
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Build
-dist/
-build/
-target/
+tailwind_build/node_modules/
