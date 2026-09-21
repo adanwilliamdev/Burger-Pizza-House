@@ -1,9 +1,0 @@
-{% if status == "DELIVERED" %}<span class="badge-success">{{ status_label }}</span>
-{% elif status == "CANCELLED" %}<span class="badge-neutral">{{ status_label }}</span>
-{% elif status == "PENDING" %}<span class="badge-warning">{{ status_label }}</span>
-{% elif status == "CONFIRMED" %}<span class="badge-info">{{ status_label }}</span>
-{% elif status == "PREPARING" %}<span class="badge-primary">{{ status_label }}</span>
-{% elif status == "READY" %}<span class="badge-info">{{ status_label }}</span>
-{% elif status == "DELIVERING" %}<span class="badge-primary">{{ status_label }}</span>
-{% else %}<span class="badge-neutral">{{ status_label }}</span>
-{% endif %}

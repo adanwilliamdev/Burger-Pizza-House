@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Paleta: sala de forno a lenha — carvão, tijolo e massa. Fundo neutro
+  levemente quente (não o creme #F4F1EA genérico), acento principal um
+  vermelho de molho de tomate (não o terracota padrão), e um dourado de
+  crosta/queijo como acento secundário para estados de atenção (estoque
+  baixo, pendências).
+*/
+@layer base {
+  :root {
+    --background: 30 20% 98%;
+    --foreground: 20 14% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 14% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14% 12%;
+
+    --primary: 8 62% 34%;
+    --primary-foreground: 30 30% 97%;
+
+    --secondary: 30 18% 93%;
+    --secondary-foreground: 20 14% 16%;
+
+    --accent: 38 68% 50%;
+    --accent-foreground: 20 30% 12%;
+
+    --muted: 30 14% 94%;
+    --muted-foreground: 20 8% 42%;
+
+    --destructive: 4 70% 42%;
+    --destructive-foreground: 30 30% 97%;
+
+    --success: 142 40% 32%;
+    --success-foreground: 30 30% 97%;
+
+    --border: 30 14% 88%;
+    --input: 30 14% 88%;
+    --ring: 8 62% 34%;
+
+    --sidebar: 20 22% 11%;
+    --sidebar-foreground: 30 20% 94%;
+    --sidebar-muted: 25 12% 62%;
+    --sidebar-accent: 8 62% 44%;
+
+    --radius: 0.625rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 999px;
+  }
+}
