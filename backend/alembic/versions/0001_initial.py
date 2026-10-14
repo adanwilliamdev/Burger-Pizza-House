@@ -9,6 +9,7 @@ from typing import Sequence, Union
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 revision: str = "0001_initial"
 down_revision: Union[str, None] = None
@@ -17,16 +18,16 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    user_role = sa.Enum("ADMIN", "MANAGER", "OPERATOR", name="user_role")
-    product_category = sa.Enum("PIZZA", "HAMBURGUER", "DRINK", "DESSERT", "SIDE", name="product_category")
-    product_type = sa.Enum("SIMPLE", "PIZZA_HALF", "PIZZA_QUARTER", "COMBO", name="product_type")
-    order_type = sa.Enum("DELIVERY", "TAKEAWAY", "TABLE", name="order_type")
-    order_status = sa.Enum(
+    user_role = postgresql.ENUM("ADMIN", "MANAGER", "OPERATOR", name="user_role", create_type=False)
+    product_category = postgresql.ENUM("PIZZA", "HAMBURGUER", "DRINK", "DESSERT", "SIDE", name="product_category", create_type=False)
+    product_type = postgresql.ENUM("SIMPLE", "PIZZA_HALF", "PIZZA_QUARTER", "COMBO", name="product_type", create_type=False)
+    order_type = postgresql.ENUM("DELIVERY", "TAKEAWAY", "TABLE", name="order_type", create_type=False)
+    order_status = postgresql.ENUM(
         "PENDING", "CONFIRMED", "PREPARING", "READY", "DELIVERING", "DELIVERED", "CANCELLED",
-        name="order_status",
+        name="order_status", create_type=False,
     )
-    payment_method = sa.Enum(
-        "CASH", "CREDIT_CARD", "DEBIT_CARD", "PIX", "IFOOD", "MEAL_TICKET", name="payment_method"
+    payment_method = postgresql.ENUM(
+        "CASH", "CREDIT_CARD", "DEBIT_CARD", "PIX", "IFOOD", "MEAL_TICKET", name="payment_method", create_type=False
     )
 
     bind = op.get_bind()
