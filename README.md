@@ -83,6 +83,28 @@ Pedidos também podem ser cancelados a partir de estados não terminais.
 * Pedidos recentes
 * Cache de indicadores utilizando Redis
 
+## 🛡️ Robustez e operação
+
+* **Estoque sem venda dupla:** as linhas de ingredientes são travadas (`SELECT … FOR UPDATE`, em ordem de id) antes de validar o saldo, então pedidos simultâneos nunca vendem além do estoque. Constraint `CHECK (current_stock >= 0)` como rede de segurança.
+* **Cancelamento devolve o estoque** exatamente como foi consumido, via livro-razão `stock_movements` (também registra ajustes manuais). Pedidos antigos, anteriores ao livro-razão, não têm o que devolver.
+* **Número do pedido único** (advisory lock + índice único).
+* **Auditoria** de criação de pedido, mudança de status e ajuste de estoque.
+* **Dashboard:** 1 query agrupada para o faturamento diário (antes até ~90), fuso `BUSINESS_TIMEZONE` (padrão `America/Sao_Paulo`), cache no Redis invalidado a cada pedido/ajuste; se o Redis cair o dashboard continua funcionando.
+* **Autenticação:** rotação de refresh token (cada uso revoga o anterior), tokens com `jti`, blacklist guardando apenas o hash, bloqueio após `LOGIN_MAX_ATTEMPTS` falhas por e-mail (HTTP 429) e recusa de subir em `ENV=production` com `JWT_SECRET_KEY` padrão/curta.
+* **Health check:** `GET /api/health/ready` verifica Postgres e Redis; o Docker Compose só inicia o frontend com o backend saudável.
+* **Testes e CI:** `backend/tests` (unitários sem dependências + integração com concorrência real) e `.github/workflows/ci.yml` (backend com Postgres/Redis, frontend com lint, `tsc` e build).
+
+```bash
+# testes unitários (sem dependências)
+cd backend && python -m unittest tests.test_stock
+
+# testes de integração (Postgres e Redis no ar, migrações aplicadas)
+pip install -r requirements-dev.txt && alembic upgrade head && python -m app.db.seed && pytest
+```
+
+> ⚠️ A migração `0002_robustness` cria índice **único** em `orders.number`. Em bancos existentes, confira duplicatas antes:
+> `SELECT number, count(*) FROM orders GROUP BY number HAVING count(*) > 1;`
+
 ## 📁 Estrutura
 
 ```text

@@ -117,3 +117,25 @@ class AuditLog(Base):
     entity_id: Mapped[str | None] = mapped_column(String(50), nullable=True)
     details: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class StockMovement(Base):
+    """
+    Livro-razão de estoque: toda entrada/saída de ingrediente vira uma linha.
+    É o que permite devolver ao estoque EXATAMENTE o que um pedido consumiu
+    quando ele é cancelado (mesmo que a receita tenha mudado depois) e
+    auditar de onde veio cada variação de saldo.
+
+    delta < 0 = saída; delta > 0 = entrada.
+    reason: ORDER | ORDER_CANCEL | MANUAL_ADD | MANUAL_REMOVE
+    """
+
+    __tablename__ = "stock_movements"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ingredient_id: Mapped[int] = mapped_column(ForeignKey("ingredients.id", ondelete="CASCADE"), index=True)
+    order_id: Mapped[int | None] = mapped_column(ForeignKey("orders.id", ondelete="SET NULL"), nullable=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"))
+    delta: Mapped[float] = mapped_column(Float)
+    reason: Mapped[str] = mapped_column(String(30))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

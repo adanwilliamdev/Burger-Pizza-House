@@ -42,6 +42,8 @@ async def list_orders(
     type_filter: OrderType | None = Query(default=None, alias="type"),
     start_date: date | None = Query(default=None),
     end_date: date | None = Query(default=None),
+    limit: int = Query(default=500, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
     db: AsyncSession = Depends(get_db),
     _user: User = Depends(get_current_user),
 ):
@@ -58,7 +60,7 @@ async def list_orders(
         stmt = stmt.where(Order.created_at >= start_date)
     if end_date:
         stmt = stmt.where(Order.created_at < date.fromordinal(end_date.toordinal() + 1))
-    stmt = stmt.limit(500)
+    stmt = stmt.limit(limit).offset(offset)
 
     result = await db.execute(stmt)
     orders = result.scalars().unique().all()

@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 
@@ -22,6 +23,9 @@ def _create_token(subject: str, expires_delta: timedelta, token_type: Literal["a
     payload: dict[str, Any] = {
         "sub": subject,
         "type": token_type,
+        # jti único: sem ele, dois tokens emitidos no mesmo segundo seriam idênticos
+        # e revogar um (rotação do refresh) revogaria o outro.
+        "jti": uuid.uuid4().hex,
         "iat": now,
         "exp": now + expires_delta,
     }

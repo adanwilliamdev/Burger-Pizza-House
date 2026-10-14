@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -42,7 +42,8 @@ async def list_products(
     if is_active is not None:
         stmt = stmt.where(Product.is_active == is_active)
     if q:
-        stmt = stmt.where(Product.name.ilike(f"%{q}%"))
+        escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        stmt = stmt.where(Product.name.ilike(f"%{escaped}%", escape="\\"))
     # Mesmo raciocínio do backend original: um cardápio real não passa de
     # algumas centenas de itens, então um teto simples evita crescimento
     # descontrolado sem precisar de paginação de verdade.
@@ -131,8 +132,9 @@ async def delete_product(
     if product is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Produto não encontrado.")
 
-    result = await db.execute(select(OrderItem).where(OrderItem.product_id == product_id))
-    order_item_count = len(result.scalars().all())
+    order_item_count = (
+        await db.execute(select(func.count(OrderItem.id)).where(OrderItem.product_id == product_id))
+    ).scalar() or 0
 
     if order_item_count > 0:
         # Produto já apareceu em algum pedido: apagar de verdade destruiria

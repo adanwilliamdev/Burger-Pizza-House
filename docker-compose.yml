@@ -34,8 +34,16 @@ services:
       DATABASE_URL_SYNC: postgresql+psycopg2://bph_user:bph_password@postgres:5432/burger_pizza_house
       REDIS_URL: redis://redis:6379/0
       CORS_ORIGINS: http://localhost:3000
+      BUSINESS_TIMEZONE: America/Sao_Paulo
     ports:
       - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/health/ready', timeout=3).status == 200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     depends_on:
       postgres:
         condition: service_healthy
@@ -53,7 +61,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres_data:
