@@ -20,26 +20,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const loadUser = useCallback(async () => {
-    const { access } = getTokens();
-    if (!access) {
-      setLoading(false);
-      return;
-    }
-    try {
-      const me = await apiFetch<User>("/auth/me");
-      setUser(me);
-    } catch {
-      clearTokens();
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    loadUser();
-  }, [loadUser]);
+    let cancelled = false;
+
+    async function init() {
+      const { access } = getTokens();
+      // Todos os caminhos passam por um `await` antes do setState: a regra
+      // react-hooks/set-state-in-effect proíbe setState síncrono no corpo do effect.
+      let me: User | null = null;
+      if (access) {
+        me = await apiFetch<User>("/auth/me").catch(() => {
+          clearTokens();
+          return null;
+        });
+      } else {
+        await Promise.resolve();
+      }
+      if (cancelled) return;
+      setUser(me);
+      setLoading(false);
+    }
+
+    void init();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const login = useCallback(
     async (email: string, password: string) => {

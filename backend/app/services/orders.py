@@ -193,14 +193,15 @@ async def update_order_status(db: AsyncSession, *, order: Order, new_status: Ord
     # Relê o pedido com lock: dois "cancelar" simultâneos não podem devolver o estoque duas vezes.
     await db.refresh(order, with_for_update=True)
 
+    old_status = order.status  # lido ANTES de qualquer rollback: o rollback expira o objeto
+
     if new_status not in order.allowed_next_statuses():
         await db.rollback()
         raise OrderError(
-            f'Não é possível mudar o status de "{order.status.value}" para "{new_status.value}"',
+            f'Não é possível mudar o status de "{old_status.value}" para "{new_status.value}"',
             status_code=409,
         )
 
-    old_status = order.status
     order.status = new_status
     db.add(order)
 

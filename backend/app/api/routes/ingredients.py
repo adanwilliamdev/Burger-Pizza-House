@@ -82,14 +82,13 @@ async def adjust_stock(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ingrediente não encontrado.")
 
     if payload.operation == "remove" and ingredient.current_stock < payload.quantity:
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                f"Quantidade a remover ({payload.quantity}) é maior que o estoque atual "
-                f"({ingredient.current_stock})."
-            ),
+        # mensagem montada ANTES do rollback (que expira o objeto e impede ler atributos no async)
+        message = (
+            f"Quantidade a remover ({payload.quantity}) é maior que o estoque atual "
+            f"({ingredient.current_stock})."
         )
+        await db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=message)
 
     delta = payload.quantity if payload.operation == "add" else -payload.quantity
     ingredient.current_stock += delta
