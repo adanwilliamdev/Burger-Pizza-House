@@ -16,24 +16,41 @@ router = APIRouter(prefix="/orders", tags=["orders"])
 
 
 def _serialize(order: Order) -> dict:
-    data = OrderOut.model_validate(order).model_dump()
-    data["user"] = {"id": order.user.id, "name": order.user.name, "email": order.user.email}
-    data["subtotal"] = order.subtotal()
-    data["allowed_next_statuses"] = order.allowed_next_statuses()
-    data["items"] = [
-        {
-            "id": item.id,
-            "product_id": item.product_id,
-            "product_name": item.product.name,
-            "quantity": item.quantity,
-            "unit_price": item.unit_price,
-            "total_price": item.total_price,
-            "notes": item.notes,
-            "half_flavors": item.half_flavors_list(),
-        }
-        for item in order.items
-    ]
-    return data
+    # Montado à mão (e não com OrderOut.model_validate(order)): `subtotal` e
+    # `allowed_next_statuses` são métodos do model e `product_name` vem do
+    # produto relacionado, então a validação direta do ORM falha.
+    return {
+        "id": order.id,
+        "number": order.number,
+        "user": {"id": order.user.id, "name": order.user.name, "email": order.user.email},
+        "customer_name": order.customer_name,
+        "customer_phone": order.customer_phone,
+        "customer_address": order.customer_address,
+        "type": order.type,
+        "status": order.status,
+        "payment_method": order.payment_method,
+        "total": order.total,
+        "discount": order.discount,
+        "delivery_fee": order.delivery_fee,
+        "subtotal": order.subtotal(),
+        "note": order.note,
+        "created_at": order.created_at,
+        "updated_at": order.updated_at,
+        "allowed_next_statuses": order.allowed_next_statuses(),
+        "items": [
+            {
+                "id": item.id,
+                "product_id": item.product_id,
+                "product_name": item.product.name,
+                "quantity": item.quantity,
+                "unit_price": item.unit_price,
+                "total_price": item.total_price,
+                "notes": item.notes,
+                "half_flavors": item.half_flavors_list(),
+            }
+            for item in order.items
+        ],
+    }
 
 
 @router.get("", response_model=list[OrderOut])

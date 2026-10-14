@@ -14,18 +14,32 @@ router = APIRouter(prefix="/products", tags=["products"])
 
 
 def _serialize(product: Product) -> dict:
-    data = ProductOut.model_validate(product).model_dump()
-    data["ingredients"] = [
-        {
-            "id": pi.id,
-            "ingredient_id": pi.ingredient_id,
-            "ingredient_name": pi.ingredient.name,
-            "quantity": pi.quantity,
-            "unit": pi.unit,
-        }
-        for pi in product.ingredients
-    ]
-    return data
+    # Dict manual: ProductOut.model_validate(product) falha porque a receita
+    # (ProductIngredient) não tem `ingredient_name` — ele vem do ingrediente relacionado.
+    return {
+        "id": product.id,
+        "name": product.name,
+        "description": product.description,
+        "price": product.price,
+        "cost": product.cost,
+        "category": product.category,
+        "type": product.type,
+        "is_active": product.is_active,
+        "image": product.image,
+        "preparation_time": product.preparation_time,
+        "created_at": product.created_at,
+        "updated_at": product.updated_at,
+        "ingredients": [
+            {
+                "id": pi.id,
+                "ingredient_id": pi.ingredient_id,
+                "ingredient_name": pi.ingredient.name,
+                "quantity": pi.quantity,
+                "unit": pi.unit,
+            }
+            for pi in product.ingredients
+        ],
+    }
 
 
 @router.get("", response_model=list[ProductOut])
