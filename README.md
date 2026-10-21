@@ -1,252 +1,112 @@
-# 🍕 Burger & Pizza House — ERP
+# 🔥 Burger & Pizza House
 
-Sistema de gestão para pizzarias e hamburguerias, desenvolvido para gerenciamento de produtos, estoque, pedidos, usuários e indicadores operacionais.
+ERP para hamburgueria e pizzaria: **pedidos**, **catálogo de produtos com receita**, **estoque de ingredientes** e **dashboard** de vendas. Aplicação 100% Java: uma única aplicação Spring Boot que serve a interface web, a API REST e fala com PostgreSQL e Redis.
 
-## 🛠️ Stack
+## Stack
 
-### Frontend
+| Camada | Tecnologia |
+|---|---|
+| Linguagem / build | Java 21, Maven |
+| Aplicação | Spring Boot 3.3 (Spring MVC) |
+| Interface web | Thymeleaf (renderização no servidor, sem JavaScript obrigatório) + CSS próprio |
+| Segurança | Spring Security — sessão + CSRF na interface; JWT (access/refresh) na API |
+| Persistência | Spring Data JPA / Hibernate, PostgreSQL 16, migrações com Flyway |
+| Cache e controle | Redis 7 (cache do dashboard, blacklist de tokens, anti força bruta) |
+| Documentação da API | springdoc-openapi (Swagger UI) |
+| Testes | JUnit 5 (unitários + integração com concorrência real) |
+| Infra | Docker, Docker Compose, GitHub Actions |
 
-<p>
-  <img src="https://img.shields.io/badge/Next.js%2016-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js">
-  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
-  <img src="https://img.shields.io/badge/Tailwind%20CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
-  <img src="https://img.shields.io/badge/shadcn%2Fui-000000?style=for-the-badge&logo=shadcnui&logoColor=white" alt="shadcn/ui">
-  <img src="https://img.shields.io/badge/TanStack%20Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white" alt="TanStack Query">
-</p>
+## Funcionalidades
 
-### Backend
+- **Pedidos**: carrinho com observações por item, desconto, taxa de entrega, tipo (entrega/retirada/mesa) e forma de pagamento; numeração sequencial; fluxo de status (`Pendente → Confirmado → Preparando → Pronto → Saiu para entrega → Entregue`, com cancelamento a partir de qualquer estado não final).
+- **Catálogo**: produtos por categoria com **receita** (ingredientes e quantidades). Produto que já tem pedidos é desativado em vez de apagado, preservando o histórico.
+- **Estoque**: ingredientes com estoque mínimo, alerta de estoque baixo, ajuste manual (entrada/saída) e livro-razão de movimentações.
+- **Dashboard**: faturamento e pedidos do dia, pedidos em andamento, estoque baixo, mais vendidos e faturamento por dia (7/14/30/90 dias), no fuso do negócio.
+- **Perfis**: `ADMIN` gerencia produtos, ingredientes e usuários; `MANAGER` e `OPERATOR` operam pedidos e consultam o painel.
 
-<p>
-  <img src="https://img.shields.io/badge/Python%203.12+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
-  <img src="https://img.shields.io/badge/Pydantic-E92063?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic">
-  <img src="https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white" alt="SQLAlchemy">
-  <img src="https://img.shields.io/badge/Alembic-333333?style=for-the-badge" alt="Alembic">
-</p>
+## Garantias de robustez
 
-### Banco de Dados & Infraestrutura
+- **Nunca vende estoque que não existe**, nem com pedidos simultâneos: as linhas de ingredientes são travadas (`SELECT … FOR UPDATE`, sempre em ordem de id, sem deadlock) *antes* de validar o saldo. Há ainda um `CHECK (current_stock >= 0)` no banco como rede de segurança.
+- **Pedido atômico**: pedido, itens, baixa de estoque, movimentos e auditoria numa única transação. Falta de estoque devolve a lista exata de ingredientes em falta.
+- **Cancelamento devolve o estoque exatamente uma vez**, com base no livro-razão (`stock_movements`), mesmo que a receita mude depois.
+- **Número do pedido sem repetição** (advisory lock da transação + índice único).
+- **Dinheiro e quantidades em `NUMERIC`/`BigDecimal`** — sem erro de ponto flutuante.
+- **Redis é auxiliar**: se cair, o sistema continua vendendo (só a blacklist de tokens falha "fechada": recusa a operação em vez de aceitar token possivelmente revogado).
+- **Segurança**: JWT com `jti` único e rotação de refresh token; bloqueio temporário de login após N falhas; a aplicação se recusa a subir em `APP_ENV=production` com a chave JWT padrão/curta.
 
-<p>
-  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
-  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
-  <img src="https://img.shields.io/badge/Docker%20Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose">
-</p>
+## Como rodar
 
-## ✨ Funcionalidades
-
-### 📦 Catálogo
-
-* Cadastro e gerenciamento de produtos
-* Pizzas
-* Hambúrgueres
-* Bebidas
-* Sobremesas
-* Acompanhamentos
-* Definição de receitas e ingredientes por produto
-
-### 📊 Estoque
-
-* Controle de estoque por ingrediente
-* Definição de estoque mínimo
-* Baixa automática de ingredientes ao realizar pedidos
-* Validação da disponibilidade dos ingredientes
-* Bloqueio de pedidos quando não existe estoque suficiente
-
-### 🛒 Pedidos
-
-* Criação e gerenciamento de pedidos
-* Numeração sequencial
-* Cálculo automático de subtotal, desconto, taxa de entrega e total
-* Controle completo do ciclo de vida dos pedidos
-
-```text
-PENDING → CONFIRMED → PREPARING → READY → DELIVERING → DELIVERED
-```
-
-Pedidos também podem ser cancelados a partir de estados não terminais.
-
-### 👥 Usuários e Permissões
-
-| Perfil     | Permissões                                    |
-| ---------- | --------------------------------------------- |
-| `ADMIN`    | Gerenciamento completo do sistema             |
-| `MANAGER`  | Operação e acompanhamento do negócio          |
-| `OPERATOR` | Operação de pedidos e consulta de indicadores |
-
-### 📈 Dashboard
-
-* Faturamento por período
-* Pedidos pendentes
-* Ingredientes com estoque baixo
-* Produtos mais vendidos
-* Pedidos recentes
-* Cache de indicadores utilizando Redis
-
-## 🛡️ Robustez e operação
-
-* **Estoque sem venda dupla:** as linhas de ingredientes são travadas (`SELECT … FOR UPDATE`, em ordem de id) antes de validar o saldo, então pedidos simultâneos nunca vendem além do estoque. Constraint `CHECK (current_stock >= 0)` como rede de segurança.
-* **Cancelamento devolve o estoque** exatamente como foi consumido, via livro-razão `stock_movements` (também registra ajustes manuais). Pedidos antigos, anteriores ao livro-razão, não têm o que devolver.
-* **Número do pedido único** (advisory lock + índice único).
-* **Auditoria** de criação de pedido, mudança de status e ajuste de estoque.
-* **Dashboard:** 1 query agrupada para o faturamento diário (antes até ~90), fuso `BUSINESS_TIMEZONE` (padrão `America/Sao_Paulo`), cache no Redis invalidado a cada pedido/ajuste; se o Redis cair o dashboard continua funcionando.
-* **Autenticação:** rotação de refresh token (cada uso revoga o anterior), tokens com `jti`, blacklist guardando apenas o hash, bloqueio após `LOGIN_MAX_ATTEMPTS` falhas por e-mail (HTTP 429) e recusa de subir em `ENV=production` com `JWT_SECRET_KEY` padrão/curta.
-* **Health check:** `GET /api/health/ready` verifica Postgres e Redis; o Docker Compose só inicia o frontend com o backend saudável.
-* **Testes e CI:** `backend/tests` (unitários sem dependências + integração com concorrência real) e `.github/workflows/ci.yml` (backend com Postgres/Redis, frontend com lint, `tsc` e build).
+### Docker (recomendado)
 
 ```bash
-# testes unitários (sem dependências)
-cd backend && python -m unittest tests.test_stock
-
-# testes de integração (Postgres e Redis no ar, migrações aplicadas)
-pip install -r requirements-dev.txt && alembic upgrade head && python -m app.db.seed && pytest
-```
-
-> ⚠️ A migração `0002_robustness` cria índice **único** em `orders.number`. Em bancos existentes, confira duplicatas antes:
-> `SELECT number, count(*) FROM orders GROUP BY number HAVING count(*) > 1;`
-
-## 📁 Estrutura
-
-```text
-burger-pizza-house/
-│
-├── backend/
-│   ├── app/
-│   ├── alembic/
-│   ├── requirements.txt
-│   └── .env.example
-│
-├── frontend/
-│   ├── app/
-│   ├── components/
-│   ├── lib/
-│   └── .env.example
-│
-├── docker-compose.yml
-└── README.md
-```
-
-## ⚙️ Como executar
-
-### 🐳 Docker Compose
-
-```bash
-cp backend/.env.example backend/.env
-
 docker compose up --build
 ```
 
-O ambiente inicia PostgreSQL, Redis, backend, frontend, migrações e dados iniciais.
+- Aplicação: http://localhost:8080
+- API (Swagger): http://localhost:8080/docs
+- Saúde: http://localhost:8080/api/health e `/api/health/ready`
 
-Acesse:
+Login inicial: `admin@burgerpizzahouse.com` / `admin123` (**troque a senha em produção** com `SEED_ADMIN_PASSWORD` antes do primeiro start).
 
-```text
-http://localhost:3000
-```
+Opcional: `cp .env.example .env` para ajustar variáveis (o Compose lê o arquivo automaticamente).
 
-### 🔐 Credenciais iniciais
+### Local (sem Docker para a aplicação)
 
-```text
-E-mail: admin@burgerpizzahouse.com
-Senha: admin123
-```
-
-## 🛠️ Execução manual
-
-### Backend
+Requisitos: JDK 21, Maven 3.9+, PostgreSQL e Redis em execução.
 
 ```bash
-cd backend
-
-python3.12 -m venv .venv
-source .venv/bin/activate
-
-pip install -r requirements.txt
-
-cp .env.example .env
-
-alembic upgrade head
-
-python -m app.db.seed
-
-uvicorn app.main:app --reload
+docker compose up -d postgres redis   # só as dependências
+mvn spring-boot:run
 ```
 
-API:
+As migrações (Flyway) e os dados iniciais rodam automaticamente na inicialização. O seed é idempotente e nunca sobrescreve dados existentes; desligue com `APP_SEED_ENABLED=false`.
 
-```text
-http://localhost:8000/docs
-```
-
-### Frontend
+## Testes
 
 ```bash
-cd frontend
-
-npm install
-
-cp .env.example .env
-
-npm run dev
+mvn test      # unitários (cálculo de estoque, dinheiro, fluxo de status)
+mvn verify    # + integração com concorrência real (exige PostgreSQL e Redis no ar)
 ```
 
-Frontend:
+Os testes de integração cobrem: pedidos simultâneos que nunca vendem além do estoque, números de pedido únicos sob concorrência e cancelamento simultâneo devolvendo o estoque uma única vez.
 
-```text
-http://localhost:3000
+## API REST
+
+Prefixo `/api`, autenticada por `Authorization: Bearer <access_token>`. Documentação interativa em `/docs`.
+
+| Recurso | Endpoints |
+|---|---|
+| Auth | `POST /api/auth/login`, `/refresh`, `/logout`; `GET /api/auth/me` |
+| Pedidos | `GET/POST /api/orders`, `GET /api/orders/{id}`, `POST /api/orders/{id}/status` |
+| Produtos | `GET /api/products`, `GET /api/products/{id}`; admin: `POST`, `PUT`, `DELETE` |
+| Ingredientes | `GET /api/ingredients` (`?low_stock=true`); admin: `POST`, `PUT`, `DELETE`, `POST /{id}/stock` |
+| Usuários | admin: `GET/POST /api/users` |
+| Dashboard | `GET /api/dashboard?days=7` |
+
+Erros no formato `{"detail": "mensagem"}`; falta de estoque responde `409` com `{"detail": {"message": "...", "shortages": [...]}}`.
+
+## Configuração (variáveis de ambiente)
+
+Veja `.env.example`. Principais: `DATABASE_URL`, `DATABASE_USER`, `DATABASE_PASSWORD`, `REDIS_URL`, `JWT_SECRET_KEY`, `APP_ENV`, `BUSINESS_TIMEZONE`, `CORS_ORIGINS`, `LOGIN_MAX_ATTEMPTS`, `LOGIN_LOCK_SECONDS`, `APP_SEED_ENABLED`, `SEED_ADMIN_PASSWORD`.
+
+## Estrutura
+
+```
+src/main/java/com/burgerpizzahouse/
+├── config/       propriedades, segurança, seed, OpenAPI
+├── domain/       entidades JPA e enums
+├── repository/   Spring Data (inclui as consultas com lock)
+├── service/      regras de negócio (pedidos, estoque, dashboard, auth)
+├── security/     JWT, filtros e handlers de login
+├── api/          controllers REST (/api/**)
+├── dto/          contratos da API
+└── web/          controllers e formulários da interface (Thymeleaf)
+src/main/resources/
+├── db/migration/ migrações Flyway
+├── templates/    páginas Thymeleaf
+└── static/       CSS e favicon
 ```
 
-## 🔐 Autenticação
+## Observação sobre o cardápio e receitas
 
-A aplicação utiliza autenticação baseada em **JWT**, incluindo:
-
-* Access Token
-* Refresh Token
-* Controle de sessão
-* Blacklist de Refresh Tokens utilizando Redis
-
-## 🧠 Regras de Negócio
-
-### Validação de estoque
-
-Antes da confirmação de um pedido, o sistema calcula a quantidade total necessária de cada ingrediente considerando todos os itens do carrinho.
-
-Isso evita inconsistências quando diferentes produtos utilizam o mesmo ingrediente.
-
-### Produtos associados a pedidos
-
-Produtos utilizados em pedidos existentes podem ser desativados sem comprometer o histórico das operações.
-
-### Cache
-
-Os principais agregados do dashboard utilizam **Redis** com cache de 30 segundos.
-
-## 🌐 API
-
-A API REST é disponibilizada pelo **FastAPI**.
-
-Documentação interativa:
-
-```text
-http://localhost:8000/docs
-```
-
-## 🔧 Variáveis de Ambiente
-
-Configure:
-
-```text
-backend/.env
-frontend/.env
-```
-
-Os arquivos de exemplo estão disponíveis em:
-
-```text
-backend/.env.example
-frontend/.env.example
-```
-
-## 📌 Status
-
-Projeto em desenvolvimento, com foco em gerenciamento operacional para estabelecimentos do segmento de alimentação.
+No formulário de produto são exibidas linhas em branco para a receita; para mais ingredientes do que as linhas exibidas, salve e edite o produto novamente (cada edição abre novas linhas).

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page((${ingredientId == null} ? 'Novo ingrediente' : 'Editar ingrediente'), 'ingredients', ~{::section})}">
+<body>
+<section>
+  <div class="form-narrow stack">
+    <div class="alert alert-error" role="alert" th:if="${errors != null and !errors.isEmpty()}">
+      <ul><li th:each="e : ${errors}" th:text="${e}">Erro</li></ul>
+    </div>
+
+    <div class="card" th:if="${ingredientId != null and ingredient != null}">
+      <div class="card-header"><h2 class="card-title">Ajustar estoque</h2></div>
+      <div class="card-body">
+        <form class="row" method="post" th:action="@{/ingredients/{id}/stock(id=${ingredientId})}">
+          <select class="select" name="operation" style="width:140px" aria-label="Operação">
+            <option value="add">Adicionar</option>
+            <option value="remove">Remover</option>
+          </select>
+          <input class="input" name="quantity" type="number" min="0" step="0.01" style="width:150px"
+                 th:placeholder="'Qtd. (' + ${ingredient.unit()} + ')'" required aria-label="Quantidade">
+          <button class="btn outline" type="submit">Confirmar</button>
+          <p class="small muted" style="width:100%"
+             th:text="'Estoque atual: ' + ${@fmt.qty(ingredient.currentStock())} + ' ' + ${ingredient.unit()}">Estoque atual</p>
+        </form>
+      </div>
+    </div>
+
+    <form class="stack" method="post" th:object="${form}"
+          th:action="${ingredientId == null} ? @{/ingredients} : @{/ingredients/{id}(id=${ingredientId})}">
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">Dados do ingrediente</h2></div>
+        <div class="card-body form-grid">
+          <div class="field full"><label for="name">Nome</label>
+            <input class="input" id="name" th:field="*{name}" required maxlength="150"></div>
+          <div class="field"><label for="unit">Unidade de medida</label>
+            <input class="input" id="unit" th:field="*{unit}" maxlength="10" placeholder="g, kg, L, un…"></div>
+          <div class="field"><label for="costPerUnit">Custo por unidade (R$)</label>
+            <input class="input" id="costPerUnit" type="number" min="0" step="0.01" th:field="*{costPerUnit}" required></div>
+          <div class="field"><label for="currentStock">Estoque atual</label>
+            <input class="input" id="currentStock" type="number" min="0" step="0.01" th:field="*{currentStock}"></div>
+          <div class="field"><label for="minStock">Estoque mínimo</label>
+            <input class="input" id="minStock" type="number" min="0" step="0.01" th:field="*{minStock}">
+            <span class="hint">Neste valor ou abaixo, o ingrediente aparece como estoque baixo no dashboard.</span></div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <a class="btn outline" th:href="@{/ingredients}">Cancelar</a>
+        <button class="btn" type="submit" th:text="${ingredientId == null} ? 'Criar ingrediente' : 'Salvar alterações'">Salvar</button>
+      </div>
+    </form>
+  </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page((${productId == null} ? 'Novo produto' : 'Editar produto'), 'products', ~{::section})}">
+<body>
+<section>
+  <form class="form-narrow stack" method="post" th:object="${form}"
+        th:action="${productId == null} ? @{/products} : @{/products/{id}(id=${productId})}">
+    <div class="alert alert-error" role="alert" th:if="${errors != null and !errors.isEmpty()}">
+      <ul><li th:each="e : ${errors}" th:text="${e}">Erro</li></ul>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Dados gerais</h2></div>
+      <div class="card-body form-grid">
+        <div class="field full"><label for="name">Nome</label>
+          <input class="input" id="name" th:field="*{name}" required maxlength="150"></div>
+        <div class="field full"><label for="description">Descrição</label>
+          <textarea class="textarea" id="description" th:field="*{description}"></textarea></div>
+        <div class="field"><label for="price">Preço de venda (R$)</label>
+          <input class="input" id="price" type="number" min="0" step="0.01" th:field="*{price}" required></div>
+        <div class="field"><label for="cost">Custo estimado (R$)</label>
+          <input class="input" id="cost" type="number" min="0" step="0.01" th:field="*{cost}"></div>
+        <div class="field"><label for="category">Categoria</label>
+          <select class="select" id="category" th:field="*{category}">
+            <option th:each="c : ${categories}" th:value="${c}" th:text="${c.label}">Pizza</option>
+          </select></div>
+        <div class="field"><label for="type">Tipo</label>
+          <select class="select" id="type" th:field="*{type}">
+            <option th:each="t : ${productTypes}" th:value="${t}" th:text="${t.label}">Simples</option>
+          </select></div>
+        <div class="field"><label for="preparationTime">Tempo de preparo (min)</label>
+          <input class="input" id="preparationTime" type="number" min="1" th:field="*{preparationTime}"></div>
+        <div class="field"><label>Situação</label>
+          <label class="check" style="height:38px"><input type="checkbox" th:field="*{active}"> Produto ativo (aparece no cardápio)</label></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Receita (ingredientes)</h2></div>
+      <div class="card-body stack-sm">
+        <p class="muted small">Deixe em branco as linhas que não usar. Para mais linhas, salve e edite novamente.
+          Cada pedido baixa do estoque estas quantidades por unidade vendida.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ingrediente</th><th style="width:130px">Quantidade</th><th style="width:100px">Unidade</th></tr></thead>
+            <tbody>
+              <tr th:each="row, st : *{lines}">
+                <td>
+                  <select class="select" th:field="*{lines[__${st.index}__].ingredientId}" aria-label="Ingrediente">
+                    <option value="">— selecione —</option>
+                    <option th:each="i : ${ingredients}" th:value="${i.id()}" th:text="${i.name()} + ' (' + ${i.unit()} + ')'">Farinha</option>
+                  </select>
+                </td>
+                <td><input class="input" type="number" min="0" step="0.01" th:field="*{lines[__${st.index}__].quantity}" aria-label="Quantidade"></td>
+                <td><input class="input" th:field="*{lines[__${st.index}__].unit}" maxlength="10" placeholder="auto" aria-label="Unidade"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a class="btn outline" th:href="@{/products}">Cancelar</a>
+      <button class="btn" type="submit" th:text="${productId == null} ? 'Criar produto' : 'Salvar alterações'">Salvar</button>
+    </div>
+  </form>
+</section>
+</body>
+</html>

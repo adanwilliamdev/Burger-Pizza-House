@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: page('Ingredientes', 'ingredients', ~{::section})}">
+<body>
+<section class="stack">
+  <div class="page-actions" sec:authorize="hasRole('ADMIN')">
+    <a class="btn" th:href="@{/ingredients/new}">+ Novo ingrediente</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body row">
+      <a class="btn sm" th:classappend="${lowStockOnly} ? '' : 'outline'"
+         th:href="${lowStockOnly} ? @{/ingredients} : @{/ingredients(low_stock=true)}">⚠ Somente estoque baixo</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body flush table-wrap">
+      <table th:if="${!ingredients.isEmpty()}">
+        <thead>
+          <tr><th>Nome</th><th>Estoque atual</th><th>Estoque mínimo</th><th>Custo/unidade</th><th class="actions" sec:authorize="hasRole('ADMIN')">Ações</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="i : ${ingredients}">
+            <td style="font-weight:500" th:text="${i.name()}">Farinha</td>
+            <td>
+              <span th:text="${@fmt.qty(i.currentStock())} + ' ' + ${i.unit()}">0 kg</span>
+              <span class="badge danger" th:if="${i.isLowStock()}">⚠ Baixo</span>
+            </td>
+            <td th:text="${@fmt.qty(i.minStock())} + ' ' + ${i.unit()}">0 kg</td>
+            <td th:text="${@fmt.money(i.costPerUnit())}">R$ 0,00</td>
+            <td class="actions" sec:authorize="hasRole('ADMIN')">
+              <a class="btn ghost sm" th:href="@{/ingredients/{id}/edit(id=${i.id()})}">Editar</a>
+              <form class="inline-form" method="post" th:action="@{/ingredients/{id}/delete(id=${i.id()})}"
+                    onsubmit="return confirm('Excluir este ingrediente?')">
+                <button class="btn ghost sm" type="submit" style="color:var(--destructive)">Excluir</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="empty" th:if="${ingredients.isEmpty()}">Nenhum ingrediente encontrado.</p>
+    </div>
+  </div>
+</section>
+</body>
+</html>

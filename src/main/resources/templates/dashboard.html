@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: page('Dashboard', 'dashboard', ~{::section})}">
+<body>
+<section class="stack">
+  <form class="page-actions" method="get" th:action="@{/dashboard}">
+    <select class="select" name="days" style="width:170px" aria-label="Período">
+      <option th:each="p : ${periods}" th:value="${p}" th:text="'Últimos ' + ${p} + ' dias'" th:selected="${p == days}">Últimos 7 dias</option>
+    </select>
+    <button class="btn outline" type="submit">Aplicar</button>
+  </form>
+
+  <div class="grid grid-4">
+    <div class="card stat"><div class="ico">$</div>
+      <div><p class="label">Faturamento hoje</p><p class="value" th:text="${@fmt.money(summary.todayRevenue())}">R$ 0,00</p></div></div>
+    <div class="card stat"><div class="ico">🛍</div>
+      <div><p class="label">Pedidos hoje</p><p class="value" th:text="${summary.todayOrders()}">0</p></div></div>
+    <div class="card stat"><div class="ico">⏱</div>
+      <div><p class="label">Pedidos em andamento</p><p class="value" th:text="${summary.pendingOrders()}">0</p></div></div>
+    <div class="card stat" th:classappend="${summary.lowStock() > 0} ? 'warn'"><div class="ico">⚠</div>
+      <div><p class="label">Ingredientes em estoque baixo</p><p class="value" th:text="${summary.lowStock()}">0</p></div></div>
+  </div>
+
+  <div class="grid grid-main">
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Faturamento por dia</h2></div>
+      <div class="card-body">
+        <div class="bars">
+          <div class="bar-col" th:each="d : ${summary.revenueByDay()}">
+            <div class="bar" th:style="'height:' + ${d.percent()} + '%'"
+                 th:title="${d.label()} + ' — ' + ${@fmt.money(d.revenue())}"></div>
+            <span class="bar-label" th:text="${d.label()}">01/01</span>
+          </div>
+        </div>
+        <p class="small muted" style="margin-top:8px">Pedidos entregues por dia (fuso do negócio). Passe o mouse sobre a barra para ver o valor.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Mais vendidos</h2></div>
+      <div class="card-body stack-sm">
+        <p class="muted" th:if="${summary.topProducts().isEmpty()}">Ainda não há vendas registradas.</p>
+        <div class="row-between" th:each="p, st : ${summary.topProducts()}">
+          <div class="rank"><span class="n" th:text="${st.count}">1</span><span style="font-weight:500" th:text="${p.name()}">Produto</span></div>
+          <span class="muted" th:text="${p.totalSold()} + ' un.'">0 un.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2 class="card-title">Pedidos recentes</h2></div>
+    <div class="card-body flush table-wrap">
+      <table>
+        <thead><tr><th>Nº</th><th>Cliente</th><th>Status</th><th>Total</th><th>Quando</th></tr></thead>
+        <tbody>
+          <tr th:each="o : ${summary.recentOrders()}">
+            <td><a class="link" th:href="@{/orders/{id}(id=${o.id()})}" th:text="'#' + ${o.number()}">#1</a></td>
+            <td th:text="${o.customerName() ?: '—'}">—</td>
+            <td><span class="badge" th:classappend="${o.status().cssClass}" th:text="${o.status().label}">Pendente</span></td>
+            <td th:text="${@fmt.money(o.total())}">R$ 0,00</td>
+            <td class="muted" th:text="${@fmt.dateTime(o.createdAt())}">—</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="empty" th:if="${summary.recentOrders().isEmpty()}">Nenhum pedido ainda.</p>
+    </div>
+  </div>
+</section>
+</body>
+</html>

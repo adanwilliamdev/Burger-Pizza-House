@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: page('Usuários', 'users', ~{::section})}">
+<body>
+<section class="stack">
+  <div class="page-actions"><a class="btn" th:href="@{/users/new}">+ Novo usuário</a></div>
+  <div class="card">
+    <div class="card-body flush table-wrap">
+      <table>
+        <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Situação</th></tr></thead>
+        <tbody>
+          <tr th:each="u : ${users}">
+            <td style="font-weight:500" th:text="${u.name()}">Nome</td>
+            <td th:text="${u.email()}">email</td>
+            <td th:text="${u.role().label}">Operador</td>
+            <td><span class="badge" th:classappend="${u.isActive()} ? 'success'" th:text="${u.isActive()} ? 'Ativo' : 'Inativo'">Ativo</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</body>
+</html>

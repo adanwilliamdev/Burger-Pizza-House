@@ -25,43 +25,34 @@ services:
       timeout: 5s
       retries: 10
 
-  backend:
-    build: ./backend
-    env_file:
-      - ./backend/.env
+  app:
+    build: .
     environment:
-      DATABASE_URL: postgresql+asyncpg://bph_user:bph_password@postgres:5432/burger_pizza_house
-      DATABASE_URL_SYNC: postgresql+psycopg2://bph_user:bph_password@postgres:5432/burger_pizza_house
+      APP_ENV: ${APP_ENV:-development}
+      DATABASE_URL: jdbc:postgresql://postgres:5432/burger_pizza_house
+      DATABASE_USER: bph_user
+      DATABASE_PASSWORD: bph_password
       REDIS_URL: redis://redis:6379/0
-      CORS_ORIGINS: http://localhost:3000
-      BUSINESS_TIMEZONE: America/Sao_Paulo
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-troque-esta-chave-em-producao-para-algo-aleatorio-e-longo}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      BUSINESS_TIMEZONE: ${BUSINESS_TIMEZONE:-America/Sao_Paulo}
+      LOGIN_MAX_ATTEMPTS: ${LOGIN_MAX_ATTEMPTS:-5}
+      LOGIN_LOCK_SECONDS: ${LOGIN_LOCK_SECONDS:-900}
+      APP_SEED_ENABLED: ${APP_SEED_ENABLED:-true}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-admin123}
     ports:
-      - "8000:8000"
+      - "8080:8080"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/health/ready', timeout=3).status == 200 else 1)"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/health/ready >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 30s
+      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_healthy
-    command: >
-      sh -c "alembic upgrade head &&
-             python -m app.db.seed &&
-             uvicorn app.main:app --host 0.0.0.0 --port 8000"
-
-  frontend:
-    build: ./frontend
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000/api
-    ports:
-      - "3000:3000"
-    depends_on:
-      backend:
         condition: service_healthy
 
 volumes:

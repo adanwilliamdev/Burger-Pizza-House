@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="page(title, active, content)">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title} + ' — Burger & Pizza House'">Burger &amp; Pizza House</title>
+  <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="flame">🔥</span> Burger &amp; Pizza House</div>
+    <nav class="nav">
+      <a th:href="@{/dashboard}" th:classappend="${active == 'dashboard'} ? 'active'">Dashboard</a>
+      <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? 'active'">Pedidos</a>
+      <a th:href="@{/products}" th:classappend="${active == 'products'} ? 'active'">Produtos</a>
+      <a th:href="@{/ingredients}" th:classappend="${active == 'ingredients'} ? 'active'">Ingredientes</a>
+      <a th:href="@{/users}" th:classappend="${active == 'users'} ? 'active'" sec:authorize="hasRole('ADMIN')">Usuários</a>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="btn-new" th:href="@{/orders/new}">🛍 Novo pedido</a>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <h1 th:text="${title}">Título</h1>
+      <details class="user-menu">
+        <summary><div class="avatar" th:text="${@fmt.initials(#authentication.principal.name)}">AD</div></summary>
+        <div class="menu">
+          <div class="who">
+            <strong th:text="${#authentication.principal.name}">Nome</strong>
+            <span class="muted small" th:text="${#authentication.principal.role.label}">Perfil</span>
+          </div>
+          <hr>
+          <a th:href="@{/me}">Meu perfil</a>
+          <form th:action="@{/logout}" method="post" class="inline-form">
+            <button type="submit" class="danger">Sair</button>
+          </form>
+        </div>
+      </details>
+    </header>
+
+    <main class="content">
+      <div class="alert alert-success" role="status" th:if="${success}" th:text="${success}"></div>
+      <div class="alert alert-error" role="alert" th:if="${error}" th:text="${error}"></div>
+      <th:block th:replace="${content}"></th:block>
+    </main>
+  </div>
+
+  <nav class="mobile-nav">
+    <a th:href="@{/dashboard}" th:classappend="${active == 'dashboard'} ? 'active'">Painel</a>
+    <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? 'active'">Pedidos</a>
+    <a th:href="@{/orders/new}">Novo</a>
+    <a th:href="@{/products}" th:classappend="${active == 'products'} ? 'active'">Produtos</a>
+    <a th:href="@{/ingredients}" th:classappend="${active == 'ingredients'} ? 'active'">Estoque</a>
+  </nav>
+</div>
+</body>
+</html>

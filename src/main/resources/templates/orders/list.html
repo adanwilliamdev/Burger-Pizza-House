@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: page('Pedidos', 'orders', ~{::section})}">
+<body>
+<section class="stack">
+  <div class="page-actions"><a class="btn" th:href="@{/orders/new}">+ Novo pedido</a></div>
+
+  <div class="card">
+    <form class="card-body row" method="get" th:action="@{/orders}">
+      <select class="select" name="status" style="width:200px" aria-label="Status">
+        <option value="">Todos os status</option>
+        <option th:each="s : ${orderStatuses}" th:value="${s.name()}" th:text="${s.label}" th:selected="${filterStatus == s}">Pendente</option>
+      </select>
+      <select class="select" name="type" style="width:180px" aria-label="Tipo">
+        <option value="">Todos os tipos</option>
+        <option th:each="t : ${orderTypes}" th:value="${t.name()}" th:text="${t.label}" th:selected="${filterType == t}">Entrega</option>
+      </select>
+      <button class="btn outline" type="submit">Filtrar</button>
+      <a class="btn ghost" th:href="@{/orders}">Limpar</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-body flush table-wrap">
+      <table th:if="${!orders.isEmpty()}">
+        <thead><tr><th>Nº</th><th>Cliente</th><th>Tipo</th><th>Status</th><th>Total</th><th>Criado em</th></tr></thead>
+        <tbody>
+          <tr th:each="o : ${orders}">
+            <td><a class="link" th:href="@{/orders/{id}(id=${o.id()})}" th:text="'#' + ${o.number()}">#1</a></td>
+            <td th:text="${o.customerName() ?: '—'}">—</td>
+            <td th:text="${o.type().label}">Entrega</td>
+            <td><span class="badge" th:classappend="${o.status().cssClass}" th:text="${o.status().label}">Pendente</span></td>
+            <td th:text="${@fmt.money(o.total())}">R$ 0,00</td>
+            <td class="muted" th:text="${@fmt.dateTime(o.createdAt())}">—</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="empty" th:if="${orders.isEmpty()}">Nenhum pedido encontrado para os filtros selecionados.</p>
+    </div>
+  </div>
+</section>
+</body>
+</html>

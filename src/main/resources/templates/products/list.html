@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: page('Produtos', 'products', ~{::section})}">
+<body>
+<section class="stack">
+  <div class="page-actions" sec:authorize="hasRole('ADMIN')">
+    <a class="btn" th:href="@{/products/new}">+ Novo produto</a>
+  </div>
+
+  <div class="card">
+    <form class="card-body row" method="get" th:action="@{/products}">
+      <input class="input" type="search" name="q" placeholder="Buscar por nome…" style="max-width:260px" th:value="${q}" aria-label="Buscar por nome">
+      <select class="select" name="category" style="width:190px" aria-label="Categoria">
+        <option value="">Todas as categorias</option>
+        <option th:each="c : ${categories}" th:value="${c.name()}" th:text="${c.label}" th:selected="${filterCategory == c}">Pizza</option>
+      </select>
+      <select class="select" name="active" style="width:190px" aria-label="Situação">
+        <option value="" th:selected="${filterActive == ''}">Todas as situações</option>
+        <option value="true" th:selected="${filterActive == 'true'}">Ativos</option>
+        <option value="false" th:selected="${filterActive == 'false'}">Inativos</option>
+      </select>
+      <button class="btn outline" type="submit">Filtrar</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-body flush table-wrap">
+      <table th:if="${!products.isEmpty()}">
+        <thead>
+          <tr><th>Nome</th><th>Categoria</th><th>Preço</th><th>Situação</th><th class="actions" sec:authorize="hasRole('ADMIN')">Ações</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="p : ${products}">
+            <td style="font-weight:500" th:text="${p.name()}">Produto</td>
+            <td th:text="${p.category().label}">Pizza</td>
+            <td th:text="${@fmt.money(p.price())}">R$ 0,00</td>
+            <td><span class="badge" th:classappend="${p.isActive()} ? 'success'" th:text="${p.isActive()} ? 'Ativo' : 'Inativo'">Ativo</span></td>
+            <td class="actions" sec:authorize="hasRole('ADMIN')">
+              <a class="btn ghost sm" th:href="@{/products/{id}/edit(id=${p.id()})}">Editar</a>
+              <form class="inline-form" method="post" th:action="@{/products/{id}/delete(id=${p.id()})}"
+                    onsubmit="return confirm('Excluir este produto? Se já houver pedidos com ele, será apenas desativado.')">
+                <button class="btn ghost sm" type="submit" style="color:var(--destructive)">Excluir</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="empty" th:if="${products.isEmpty()}">Nenhum produto encontrado.</p>
+    </div>
+  </div>
+</section>
+</body>
+</html>

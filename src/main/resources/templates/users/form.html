@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: page('Novo usuário', 'users', ~{::section})}">
+<body>
+<section>
+  <form class="form-narrow stack" method="post" th:object="${form}" th:action="@{/users}" autocomplete="off">
+    <div class="alert alert-error" role="alert" th:if="${errors != null and !errors.isEmpty()}">
+      <ul><li th:each="e : ${errors}" th:text="${e}">Erro</li></ul>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Dados do usuário</h2></div>
+      <div class="card-body stack-sm" style="gap:16px">
+        <div class="field"><label for="name">Nome</label>
+          <input class="input" id="name" th:field="*{name}" required></div>
+        <div class="field"><label for="email">E-mail</label>
+          <input class="input" id="email" type="email" th:field="*{email}" required></div>
+        <div class="field"><label for="role">Perfil de acesso</label>
+          <select class="select" id="role" th:field="*{role}">
+            <option th:each="r : ${roles}" th:value="${r}" th:text="${r.label}">Operador</option>
+          </select></div>
+        <div class="field"><label for="password">Senha provisória</label>
+          <input class="input" id="password" type="password" th:field="*{password}" required minlength="6" maxlength="72"></div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <a class="btn outline" th:href="@{/users}">Cancelar</a>
+      <button class="btn" type="submit">Criar usuário</button>
+    </div>
+  </form>
+</section>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ops — Burger &amp; Pizza House</title>
+  <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div class="card" style="max-width:420px;width:100%">
+    <div class="card-body stack-sm" style="text-align:center;padding:32px">
+      <p class="display" style="font-size:40px;font-weight:600;color:var(--primary)" th:text="${status} ?: 'Erro'">404</p>
+      <h1 style="font-size:18px" th:switch="${status}">
+        <span th:case="403">Você não tem permissão para acessar esta página.</span>
+        <span th:case="404">Página não encontrada.</span>
+        <span th:case="*">Algo deu errado. Tente novamente.</span>
+      </h1>
+      <a class="btn" th:href="@{/dashboard}" style="align-self:center">Voltar ao início</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

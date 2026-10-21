@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar — Burger &amp; Pizza House</title>
+  <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="login">
+  <div class="login-art">
+    <div class="brand" style="padding:0"><span class="flame">🔥</span> Burger &amp; Pizza House</div>
+    <div>
+      <h2>O forno não espera.<br>O seu painel também não deveria.</h2>
+      <p class="sub">Pedidos, estoque de ingredientes e faturamento do dia, tudo num só lugar — do balcão à cozinha.</p>
+    </div>
+    <p class="small" style="color:var(--sidebar-muted)">Burger &amp; Pizza House — Sistema de Gestão</p>
+  </div>
+
+  <div class="login-form">
+    <form th:action="@{/login}" method="post">
+      <div class="brand" style="padding:0;color:var(--primary)"><span class="flame">🔥</span> Burger &amp; Pizza House</div>
+      <div class="stack-sm" style="gap:6px">
+        <h1>Entrar</h1>
+        <p class="muted">Acesse com seu e-mail e senha cadastrados.</p>
+      </div>
+
+      <div class="stack-sm" style="gap:16px">
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input class="input" id="email" name="email" type="email" autofocus required placeholder="voce@exemplo.com">
+        </div>
+        <div class="field">
+          <label for="password">Senha</label>
+          <input class="input" id="password" name="password" type="password" required placeholder="••••••••">
+        </div>
+      </div>
+
+      <p class="alert alert-error" role="alert" th:if="${errorMessage}" th:text="${errorMessage}"></p>
+      <p class="alert alert-success" role="status" th:if="${loggedOut}">Você saiu do sistema.</p>
+
+      <button type="submit" class="btn block">Entrar</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

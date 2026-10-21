@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: page(${'Pedido #' + order.number()}, 'orders', ~{::section})}">
+<body>
+<section>
+  <div class="grid grid-detail">
+    <div class="stack">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Itens do pedido</h2>
+          <span class="badge" th:classappend="${order.status().cssClass}" th:text="${order.status().label}">Pendente</span>
+        </div>
+        <div class="card-body flush table-wrap">
+          <table>
+            <thead><tr><th>Produto</th><th>Qtd.</th><th>Preço unit.</th><th>Total</th></tr></thead>
+            <tbody>
+              <tr th:each="item : ${order.items()}">
+                <td>
+                  <p style="font-weight:500" th:text="${item.productName()}">Produto</p>
+                  <p class="small muted" th:if="${item.notes() != null}" th:text="${item.notes()}"></p>
+                  <p class="small muted" th:if="${!item.halfFlavors().isEmpty()}"
+                     th:text="'Meio a meio: ' + ${#strings.listJoin(item.halfFlavors(), ' / ')}"></p>
+                </td>
+                <td th:text="${item.quantity()}">1</td>
+                <td th:text="${@fmt.money(item.unitPrice())}">R$ 0,00</td>
+                <td th:text="${@fmt.money(item.totalPrice())}">R$ 0,00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">Cliente</h2></div>
+        <div class="card-body form-grid">
+          <p><span class="muted">Nome: </span><span th:text="${order.customerName() ?: '—'}">—</span></p>
+          <p><span class="muted">Telefone: </span><span th:text="${order.customerPhone() ?: '—'}">—</span></p>
+          <p class="full"><span class="muted">Endereço: </span><span th:text="${order.customerAddress() ?: '—'}">—</span></p>
+          <p class="full" th:if="${order.note() != null}"><span class="muted">Observações: </span><span th:text="${order.note()}"></span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">Resumo</h2></div>
+        <div class="card-body stack-sm" style="gap:8px">
+          <div class="summary-row"><span>Tipo</span><span style="color:var(--foreground)" th:text="${order.type().label}">Entrega</span></div>
+          <div class="summary-row"><span>Pagamento</span><span style="color:var(--foreground)" th:text="${order.paymentMethod().label}">Pix</span></div>
+          <div class="summary-row"><span>Atendente</span><span style="color:var(--foreground)" th:text="${order.user().name()}">Admin</span></div>
+          <div class="summary-row"><span>Criado em</span><span style="color:var(--foreground)" th:text="${@fmt.dateTime(order.createdAt())}">—</span></div>
+          <hr class="sep">
+          <div class="summary-row"><span>Subtotal</span><span th:text="${@fmt.money(order.subtotal())}">R$ 0,00</span></div>
+          <div class="summary-row" th:if="${order.discount().signum() > 0}"><span>Desconto</span><span th:text="'-' + ${@fmt.money(order.discount())}">-R$ 0,00</span></div>
+          <div class="summary-row" th:if="${order.deliveryFee().signum() > 0}"><span>Taxa de entrega</span><span th:text="${@fmt.money(order.deliveryFee())}">R$ 0,00</span></div>
+          <div class="summary-total"><span>Total</span><span th:text="${@fmt.money(order.total())}">R$ 0,00</span></div>
+        </div>
+      </div>
+
+      <div class="card" th:if="${!order.allowedNextStatuses().isEmpty()}">
+        <div class="card-header"><h2 class="card-title">Atualizar status</h2></div>
+        <div class="card-body btn-row">
+          <form th:each="s : ${order.allowedNextStatuses()}" method="post"
+                th:action="@{/orders/{id}/status(id=${order.id()})}" class="inline-form" style="display:block">
+            <input type="hidden" name="status" th:value="${s.name()}">
+            <button type="submit" class="btn block" th:classappend="${s.name() == 'CANCELLED'} ? 'destructive'"
+                    th:text="'Marcar como ' + ${#strings.toLowerCase(s.label)}">Marcar como confirmado</button>
+          </form>
+        </div>
+      </div>
+
+      <a class="btn outline" th:href="@{/orders}">← Voltar aos pedidos</a>
+    </div>
+  </div>
+</section>
+</body>
+</html>
