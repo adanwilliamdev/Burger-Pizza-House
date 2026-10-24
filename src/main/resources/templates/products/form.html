@@ -38,12 +38,12 @@
     <div class="card">
       <div class="card-header"><h2 class="card-title">Receita (ingredientes)</h2></div>
       <div class="card-body stack-sm">
-        <p class="muted small">Deixe em branco as linhas que não usar. Para mais linhas, salve e edite novamente.
+        <p class="muted small">Deixe em branco as linhas que não usar; use "Adicionar ingrediente" para mais linhas.
           Cada pedido baixa do estoque estas quantidades por unidade vendida.</p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Ingrediente</th><th style="width:130px">Quantidade</th><th style="width:100px">Unidade</th></tr></thead>
-            <tbody>
+            <tbody id="recipe-rows">
               <tr th:each="row, st : *{lines}">
                 <td>
                   <select class="select" th:field="*{lines[__${st.index}__].ingredientId}" aria-label="Ingrediente">
@@ -57,6 +57,7 @@
             </tbody>
           </table>
         </div>
+        <div><button class="btn outline" type="button" id="add-recipe-row">+ Adicionar ingrediente</button></div>
       </div>
     </div>
 
@@ -65,6 +66,30 @@
       <button class="btn" type="submit" th:text="${productId == null} ? 'Criar produto' : 'Salvar alterações'">Salvar</button>
     </div>
   </form>
+  <script>
+    (function () {
+      var body = document.getElementById('recipe-rows');
+      var button = document.getElementById('add-recipe-row');
+      if (!body || !button) { return; }
+      button.addEventListener('click', function () {
+        var rows = body.querySelectorAll('tr');
+        var next = rows.length;
+        var copy = rows[rows.length - 1].cloneNode(true);
+        copy.querySelectorAll('select, input').forEach(function (el) {
+          ['name', 'id'].forEach(function (attr) {
+            var value = el.getAttribute(attr);
+            if (value) {
+              el.setAttribute(attr, value.replace(/lines\[\d+\]|lines\d+/, function (m) {
+                return m.charAt(5) === '[' ? 'lines[' + next + ']' : 'lines' + next;
+              }));
+            }
+          });
+          if (el.tagName === 'SELECT') { el.selectedIndex = 0; } else { el.value = ''; }
+        });
+        body.appendChild(copy);
+      });
+    })();
+  </script>
 </section>
 </body>
 </html>

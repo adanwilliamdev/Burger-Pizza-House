@@ -8,6 +8,7 @@ import com.burgerpizzahouse.dto.UserDtos.UserResponse;
 import com.burgerpizzahouse.security.AppUserDetails;
 import com.burgerpizzahouse.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,8 +31,8 @@ public class AuthApiController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
-        return auth.login(request);
+    public LoginResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
+        return auth.login(request, http.getRemoteAddr());
     }
 
     @PostMapping("/refresh")

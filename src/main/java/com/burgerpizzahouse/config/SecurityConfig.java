@@ -78,6 +78,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(a -> a
                         .requestMatchers("/login", "/error", "/css/**", "/favicon.svg").permitAll()
                         .requestMatchers("/docs", "/docs/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(f -> f
                         .loginPage("/login")

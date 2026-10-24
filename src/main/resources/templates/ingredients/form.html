@@ -36,8 +36,12 @@
             <input class="input" id="unit" th:field="*{unit}" maxlength="10" placeholder="g, kg, L, un…"></div>
           <div class="field"><label for="costPerUnit">Custo por unidade (R$)</label>
             <input class="input" id="costPerUnit" type="number" min="0" step="0.01" th:field="*{costPerUnit}" required></div>
-          <div class="field"><label for="currentStock">Estoque atual</label>
+          <div class="field" th:if="${ingredientId == null}"><label for="currentStock">Estoque inicial</label>
             <input class="input" id="currentStock" type="number" min="0" step="0.01" th:field="*{currentStock}"></div>
+          <div class="field" th:if="${ingredientId != null}"><label for="currentStockView">Estoque atual</label>
+            <input class="input" id="currentStockView" disabled
+                   th:value="${ingredient != null} ? (${@fmt.qty(ingredient.currentStock())} + ' ' + ${ingredient.unit()}) : ''">
+            <span class="hint">Para alterar o saldo use "Ajustar estoque" acima: a mudança fica registrada no histórico.</span></div>
           <div class="field"><label for="minStock">Estoque mínimo</label>
             <input class="input" id="minStock" type="number" min="0" step="0.01" th:field="*{minStock}">
             <span class="hint">Neste valor ou abaixo, o ingrediente aparece como estoque baixo no dashboard.</span></div>

@@ -24,6 +24,8 @@ public class SeedService {
 
     public static final String ADMIN_EMAIL = "admin@burgerpizzahouse.com";
 
+    private static final String DEFAULT_ADMIN_PASSWORD = "admin123";
+
     private static final Logger log = LoggerFactory.getLogger(SeedService.class);
 
     private final UserRepository users;
@@ -46,8 +48,14 @@ public class SeedService {
         log.info("Iniciando seed...");
 
         if (users.findByEmailIgnoreCase(ADMIN_EMAIL).isEmpty()) {
-            User admin = new User("Administrador", ADMIN_EMAIL, encoder.encode(props.seed().adminPassword()), Role.ADMIN);
-            admin.setSuperuser(true);
+            String adminPassword = props.seed().adminPassword();
+            // Em produção a senha padrão do repositório seria publicamente conhecida: recusa subir com ela.
+            if (props.isProduction() && (adminPassword == null || adminPassword.length() < 8
+                    || DEFAULT_ADMIN_PASSWORD.equals(adminPassword))) {
+                throw new IllegalStateException("SEED_ADMIN_PASSWORD inseguro para APP_ENV=production: "
+                        + "defina uma senha forte (8+ caracteres, diferente da padrão) antes do primeiro start.");
+            }
+            User admin = new User("Administrador", ADMIN_EMAIL, encoder.encode(adminPassword), Role.ADMIN);
             users.save(admin);
             log.info("Admin criado: {}", ADMIN_EMAIL);
         }

@@ -37,9 +37,6 @@ public class User extends AuditedEntity {
     @Column(nullable = false)
     private boolean active = true;
 
-    @Column(nullable = false)
-    private boolean superuser = false;
-
     protected User() {
     }
 
@@ -96,13 +93,5 @@ public class User extends AuditedEntity {
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public boolean isSuperuser() {
-        return superuser;
-    }
-
-    public void setSuperuser(boolean superuser) {
-        this.superuser = superuser;
     }
 }

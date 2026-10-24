@@ -43,11 +43,24 @@ server:
         http-only: true
         same-site: lax
 
+# DOCS_ENABLED=false desliga o Swagger UI e o /v3/api-docs (recomendado em produção).
 springdoc:
   api-docs:
     path: /v3/api-docs
+    enabled: ${DOCS_ENABLED:true}
   swagger-ui:
     path: /docs
+    enabled: ${DOCS_ENABLED:true}
+
+# Actuator: só health, info e metrics, e apenas para ADMIN (veja SecurityConfig).
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: never
 
 app:
   env: ${APP_ENV:development}
@@ -57,7 +70,7 @@ app:
   cors-origins: ${CORS_ORIGINS:}
   jwt:
     secret: ${JWT_SECRET_KEY:troque-esta-chave-em-producao-para-algo-aleatorio-e-longo}
-    access-token-expire-minutes: ${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:60}
+    access-token-expire-minutes: ${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:15}
     refresh-token-expire-days: ${JWT_REFRESH_TOKEN_EXPIRE_DAYS:7}
   # Anti força bruta no login
   login:

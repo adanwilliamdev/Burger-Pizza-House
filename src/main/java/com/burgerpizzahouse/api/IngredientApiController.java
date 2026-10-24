@@ -52,8 +52,9 @@ public class IngredientApiController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public IngredientResponse update(@PathVariable Long id, @Valid @RequestBody IngredientRequest request) {
-        return ingredients.update(id, request);
+    public IngredientResponse update(@PathVariable Long id, @Valid @RequestBody IngredientRequest request,
+                                     @AuthenticationPrincipal AppUserDetails admin) {
+        return ingredients.update(id, request, admin.getId());
     }
 
     @PostMapping("/{id}/stock")

@@ -57,14 +57,36 @@ public class IngredientService {
         return Mappers.toResponse(ingredient);
     }
 
+    /**
+     * Edita os dados do ingrediente. A linha é travada (FOR UPDATE), então a edição nunca sobrescreve a
+     * baixa de um pedido em andamento. {@code currentStock} nulo mantém o saldo atual; se vier um valor
+     * diferente do saldo, a diferença é lançada no livro-razão como ajuste manual (saldo e histórico
+     * continuam batendo).
+     */
     @Transactional
-    public IngredientResponse update(Long id, IngredientRequest request) {
-        Ingredient ingredient = find(id);
+    public IngredientResponse update(Long id, IngredientRequest request, Long adminId) {
+        Ingredient ingredient = ingredients.findByIdForUpdate(id)
+                .orElseThrow(() -> BusinessException.notFound("Ingrediente não encontrado."));
         ingredient.setName(request.name().strip());
         ingredient.setUnit(unitOf(request.unit()));
-        ingredient.setCurrentStock(nonNegative(request.currentStock()));
         ingredient.setMinStock(nonNegative(request.minStock()));
         ingredient.setCostPerUnit(request.costPerUnit());
+
+        BigDecimal target = request.currentStock();
+        if (target != null) {
+            if (target.signum() < 0) {
+                throw new BusinessException("O estoque atual não pode ser negativo.");
+            }
+            BigDecimal delta = target.subtract(ingredient.getCurrentStock());
+            if (delta.signum() != 0) {
+                ingredient.setCurrentStock(target);
+                movements.save(new StockMovement(ingredient.getId(), null, adminId, delta,
+                        delta.signum() > 0 ? StockReason.MANUAL_ADD : StockReason.MANUAL_REMOVE));
+                audits.save(new AuditLog(adminId, "ADJUST_STOCK", "Ingredient", String.valueOf(ingredient.getId()),
+                        ingredient.getName() + ": saldo ajustado na edição (" + (delta.signum() > 0 ? "+" : "")
+                                + plain(delta) + " " + ingredient.getUnit() + ")"));
+            }
+        }
         ingredients.saveAndFlush(ingredient);
         events.publishEvent(new DashboardChangedEvent());
         return Mappers.toResponse(ingredient);
@@ -101,6 +123,11 @@ public class IngredientService {
         if (usage > 0) {
             throw new BusinessException(HttpStatus.CONFLICT, "Este ingrediente é usado em " + usage
                     + " receita(s) de produto e não pode ser excluído. Remova-o das receitas primeiro.");
+        }
+        long history = movements.countByIngredientId(id);
+        if (history > 0) {
+            throw BusinessException.conflict("Este ingrediente tem " + history
+                    + " movimentação(ões) de estoque registrada(s) e não pode ser excluído, para preservar o histórico.");
         }
         ingredients.delete(ingredient);
         events.publishEvent(new DashboardChangedEvent());

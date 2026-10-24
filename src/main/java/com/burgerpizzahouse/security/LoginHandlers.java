@@ -30,7 +30,7 @@ public final class LoginHandlers {
         @Override
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                             Authentication authentication) throws IOException, ServletException {
-            throttle.clear(authentication.getName());
+            throttle.clear(authentication.getName(), request.getRemoteAddr());
             super.onAuthenticationSuccess(request, response, authentication);
         }
     }
@@ -52,7 +52,7 @@ public final class LoginHandlers {
             } else if (exception instanceof BadCredentialsException) {
                 String email = request.getParameter("email");
                 if (email != null) {
-                    throttle.registerFailure(email);
+                    throttle.registerFailure(email, request.getRemoteAddr());
                 }
             }
             response.sendRedirect(request.getContextPath() + "/login?error=" + reason);

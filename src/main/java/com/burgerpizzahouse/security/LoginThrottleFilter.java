@@ -26,7 +26,7 @@ public class LoginThrottleFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String email = request.getParameter("email");
-        if (email != null && throttle.isLocked(email)) {
+        if (email != null && throttle.isLocked(email, request.getRemoteAddr())) {
             response.sendRedirect(request.getContextPath() + "/login?error=locked");
             return;
         }

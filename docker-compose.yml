@@ -36,6 +36,7 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-troque-esta-chave-em-producao-para-algo-aleatorio-e-longo}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
       BUSINESS_TIMEZONE: ${BUSINESS_TIMEZONE:-America/Sao_Paulo}
+      DOCS_ENABLED: ${DOCS_ENABLED:-true}
       LOGIN_MAX_ATTEMPTS: ${LOGIN_MAX_ATTEMPTS:-5}
       LOGIN_LOCK_SECONDS: ${LOGIN_LOCK_SECONDS:-900}
       APP_SEED_ENABLED: ${APP_SEED_ENABLED:-true}

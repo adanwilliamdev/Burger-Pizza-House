@@ -39,16 +39,16 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request, String clientIp) {
         String email = request.email().strip();
-        if (throttle.isLocked(email)) {
+        if (throttle.isLocked(email, clientIp)) {
             throw new BusinessException(HttpStatus.TOO_MANY_REQUESTS,
                     "Muitas tentativas de login. Tente novamente em alguns minutos.");
         }
 
         Optional<User> found = users.findByEmailIgnoreCase(email);
         if (found.isEmpty() || !encoder.matches(request.password(), found.get().getPasswordHash())) {
-            throttle.registerFailure(email);
+            throttle.registerFailure(email, clientIp);
             throw new BusinessException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas.");
         }
         User user = found.get();
@@ -56,7 +56,7 @@ public class AuthService {
             throw new BusinessException(HttpStatus.UNAUTHORIZED, "Esta conta está inativa.");
         }
 
-        throttle.clear(email);
+        throttle.clear(email, clientIp);
         return new LoginResponse(jwt.createAccessToken(user.getId()), jwt.createRefreshToken(user.getId()),
                 "bearer", Mappers.toResponse(user));
     }

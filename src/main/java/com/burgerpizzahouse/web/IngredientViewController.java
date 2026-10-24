@@ -66,14 +66,15 @@ public class IngredientViewController {
     @PreAuthorize("hasRole('ADMIN')")
     public String create(@Valid @ModelAttribute("form") IngredientForm form, BindingResult result, Model model,
                          RedirectAttributes redirect) {
-        return save(null, form, result, model, redirect);
+        return save(null, form, result, model, redirect, null);
     }
 
     @PostMapping("/ingredients/{id:\\d+}")
     @PreAuthorize("hasRole('ADMIN')")
     public String update(@PathVariable Long id, @Valid @ModelAttribute("form") IngredientForm form,
-                         BindingResult result, Model model, RedirectAttributes redirect) {
-        return save(id, form, result, model, redirect);
+                         BindingResult result, Model model, RedirectAttributes redirect,
+                         @AuthenticationPrincipal AppUserDetails me) {
+        return save(id, form, result, model, redirect, me.getId());
     }
 
     @PostMapping("/ingredients/{id:\\d+}/stock")
@@ -116,14 +117,16 @@ public class IngredientViewController {
         return "redirect:/ingredients";
     }
 
-    private String save(Long id, IngredientForm form, BindingResult result, Model model, RedirectAttributes redirect) {
+    private String save(Long id, IngredientForm form, BindingResult result, Model model, RedirectAttributes redirect,
+                        Long adminId) {
         List<String> errors = new ArrayList<>();
         result.getAllErrors().forEach(e -> errors.add(e.getDefaultMessage()));
         if (errors.isEmpty()) {
-            IngredientRequest request = new IngredientRequest(form.getName(), form.getUnit(), form.getCurrentStock(),
-                    form.getMinStock(), form.getCostPerUnit());
+            // Na edição o saldo não vem do formulário (poderia estar desatualizado): ajuste só pelo "Ajustar estoque".
+            IngredientRequest request = new IngredientRequest(form.getName(), form.getUnit(),
+                    id == null ? form.getCurrentStock() : null, form.getMinStock(), form.getCostPerUnit());
             try {
-                IngredientResponse saved = id == null ? ingredients.create(request) : ingredients.update(id, request);
+                IngredientResponse saved = id == null ? ingredients.create(request) : ingredients.update(id, request, adminId);
                 redirect.addFlashAttribute("success", "Ingrediente \"" + saved.name() + "\" salvo com sucesso.");
                 return "redirect:/ingredients";
             } catch (BusinessException e) {

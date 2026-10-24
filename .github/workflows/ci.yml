@@ -35,5 +35,12 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
-      # testes unitários (surefire) + integração com concorrência real (failsafe)
+      # testes unitários (surefire) + integração: segurança, auth, estoque e concorrência real (failsafe) + JaCoCo
       - run: mvn -B verify
+      - name: Relatório de cobertura (JaCoCo)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco
+          if-no-files-found: ignore
