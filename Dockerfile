@@ -7,7 +7,7 @@ COPY src ./src
 RUN mvn -B -q -DskipTests package
 
 # ---- runtime ----
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:24-jre-alpine
 RUN addgroup -S app && adduser -S app -G app
 WORKDIR /app
 COPY --from=build /build/target/burger-pizza-house.jar app.jar
