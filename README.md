@@ -4,6 +4,7 @@
 ![Java 21](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot 3.3](https://img.shields.io/badge/Spring%20Boot-3.3-6DB33F)
 ![License MIT](https://img.shields.io/badge/license-MIT-blue)
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/adanwilliamdev/badge.svg)](https://hub.xerj.org/contributors/adanwilliamdev)
 
 ERP para hamburgueria e pizzaria: **pedidos**, **catálogo de produtos com receita**, **estoque de ingredientes** e **dashboard** de vendas. Aplicação 100% Java: uma única aplicação Spring Boot que serve a interface web, a API REST e fala com PostgreSQL e Redis.
 
