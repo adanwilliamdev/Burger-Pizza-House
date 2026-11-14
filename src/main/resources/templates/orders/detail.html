@@ -15,7 +15,7 @@
             <tbody>
               <tr th:each="item : ${order.items()}">
                 <td>
-                  <p style="font-weight:500" th:text="${item.productName()}">Produto</p>
+                  <p class="fw-500" th:text="${item.productName()}">Produto</p>
                   <p class="small muted" th:if="${item.notes() != null}" th:text="${item.notes()}"></p>
                   <p class="small muted" th:if="${!item.halfFlavors().isEmpty()}"
                      th:text="'Meio a meio: ' + ${#strings.listJoin(item.halfFlavors(), ' / ')}"></p>
@@ -43,11 +43,11 @@
     <div class="stack">
       <div class="card">
         <div class="card-header"><h2 class="card-title">Resumo</h2></div>
-        <div class="card-body stack-sm" style="gap:8px">
-          <div class="summary-row"><span>Tipo</span><span style="color:var(--foreground)" th:text="${order.type().label}">Entrega</span></div>
-          <div class="summary-row"><span>Pagamento</span><span style="color:var(--foreground)" th:text="${order.paymentMethod().label}">Pix</span></div>
-          <div class="summary-row"><span>Atendente</span><span style="color:var(--foreground)" th:text="${order.user().name()}">Admin</span></div>
-          <div class="summary-row"><span>Criado em</span><span style="color:var(--foreground)" th:text="${@fmt.dateTime(order.createdAt())}">—</span></div>
+        <div class="card-body stack-sm gap-8">
+          <div class="summary-row"><span>Tipo</span><span class="text-fg" th:text="${order.type().label}">Entrega</span></div>
+          <div class="summary-row"><span>Pagamento</span><span class="text-fg" th:text="${order.paymentMethod().label}">Pix</span></div>
+          <div class="summary-row"><span>Atendente</span><span class="text-fg" th:text="${order.user().name()}">Admin</span></div>
+          <div class="summary-row"><span>Criado em</span><span class="text-fg" th:text="${@fmt.dateTime(order.createdAt())}">—</span></div>
           <hr class="sep">
           <div class="summary-row"><span>Subtotal</span><span th:text="${@fmt.money(order.subtotal())}">R$ 0,00</span></div>
           <div class="summary-row" th:if="${order.discount().signum() > 0}"><span>Desconto</span><span th:text="'-' + ${@fmt.money(order.discount())}">-R$ 0,00</span></div>
@@ -60,7 +60,7 @@
         <div class="card-header"><h2 class="card-title">Atualizar status</h2></div>
         <div class="card-body btn-row">
           <form th:each="s : ${order.allowedNextStatuses()}" method="post"
-                th:action="@{/orders/{id}/status(id=${order.id()})}" class="inline-form" style="display:block">
+                th:action="@{/orders/{id}/status(id=${order.id()})}" class="inline-form d-block">
             <input type="hidden" name="status" th:value="${s.name()}">
             <button type="submit" class="btn block" th:classappend="${s.name() == 'CANCELLED'} ? 'destructive'"
                     th:text="'Marcar como ' + ${#strings.toLowerCase(s.label)}">Marcar como confirmado</button>

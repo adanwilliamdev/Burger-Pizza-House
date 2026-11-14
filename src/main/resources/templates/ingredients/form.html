@@ -12,14 +12,14 @@
       <div class="card-header"><h2 class="card-title">Ajustar estoque</h2></div>
       <div class="card-body">
         <form class="row" method="post" th:action="@{/ingredients/{id}/stock(id=${ingredientId})}">
-          <select class="select" name="operation" style="width:140px" aria-label="Operação">
+          <select class="select w-140" name="operation" aria-label="Operação">
             <option value="add">Adicionar</option>
             <option value="remove">Remover</option>
           </select>
-          <input class="input" name="quantity" type="number" min="0" step="0.01" style="width:150px"
+          <input class="input w-150" name="quantity" type="number" min="0" step="0.01"
                  th:placeholder="'Qtd. (' + ${ingredient.unit()} + ')'" required aria-label="Quantidade">
           <button class="btn outline" type="submit">Confirmar</button>
-          <p class="small muted" style="width:100%"
+          <p class="small muted w-full"
              th:text="'Estoque atual: ' + ${@fmt.qty(ingredient.currentStock())} + ' ' + ${ingredient.unit()}">Estoque atual</p>
         </form>
       </div>

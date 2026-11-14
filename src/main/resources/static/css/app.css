@@ -223,3 +223,28 @@ th.actions { text-align: right; }
 .login-form form { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 24px; }
 .login-form h1 { font-size: 24px; font-weight: 600; }
 @media (max-width: 1023px) { .login { grid-template-columns: 1fr; } .login-art { display: none; } }
+
+/* --------------------------------------------------------------- utilitários
+   Substituem os style="..." inline dos templates (a CSP não permite estilos inline). Ficam por último para
+   vencer a especificidade igual dos componentes acima. */
+.fw-500 { font-weight: 500; }
+.fs-18 { font-size: 18px; }
+.gap-4 { gap: 4px; } .gap-6 { gap: 6px; } .gap-8 { gap: 8px; } .gap-12 { gap: 12px; } .gap-16 { gap: 16px; }
+.pt-12 { padding-top: 12px; } .pt-16 { padding-top: 16px; }
+.p-0 { padding: 0; } .p-32 { padding: 32px; }
+.mt-6 { margin-top: 6px; } .mt-8 { margin-top: 8px; }
+.w-100 { width: 100px; } .w-130 { width: 130px; } .w-140 { width: 140px; } .w-150 { width: 150px; }
+.w-170 { width: 170px; } .w-180 { width: 180px; } .w-190 { width: 190px; } .w-200 { width: 200px; }
+.w-full { width: 100%; }
+.mw-260 { max-width: 260px; } .mw-420 { max-width: 420px; } .mw-480 { max-width: 480px; }
+.h-38 { height: 38px; }
+.d-block { display: block; }
+.self-start { align-self: flex-start; } .self-center { align-self: center; }
+.text-center { text-align: center; }
+.sep-top { border-top: 1px solid var(--border); }
+.text-fg { color: var(--foreground) !important; }
+.text-primary { color: var(--primary) !important; }
+.text-destructive { color: var(--destructive) !important; }
+.text-sidebar-muted { color: var(--sidebar-muted) !important; }
+.error-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.error-code { font-size: 40px; font-weight: 600; color: var(--primary); }

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: page('Meu perfil', 'me', ~{::section})}">
 <body>
 <section>
-  <div class="card" style="max-width:480px">
+  <div class="card mw-480">
     <div class="card-header"><h2 class="card-title" th:text="${profile.name()}">Nome</h2></div>
     <div class="card-body stack-sm">
       <p><span class="muted">E-mail: </span><span th:text="${profile.email()}"></span></p>

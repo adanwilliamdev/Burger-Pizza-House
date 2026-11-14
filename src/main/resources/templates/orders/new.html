@@ -26,13 +26,13 @@
 
     <div class="card cart-sticky">
       <div class="card-header"><h2 class="card-title">Carrinho</h2></div>
-      <div class="card-body stack-sm" style="gap:16px">
+      <div class="card-body stack-sm gap-16">
         <p class="muted" th:if="${cart.isEmpty()}">Clique nos produtos ao lado para adicioná-los.</p>
 
         <div class="stack-sm" th:if="${!cart.isEmpty()}">
           <div class="cart-line" th:each="l : ${cart}">
             <div class="row-between">
-              <p style="font-weight:500" th:text="${l.name()}">Produto</p>
+              <p class="fw-500" th:text="${l.name()}">Produto</p>
               <button type="submit" name="op" th:value="'remove:' + ${l.productId()}" class="btn ghost icon"
                       title="Remover item" aria-label="Remover item">✕</button>
             </div>
@@ -42,14 +42,14 @@
                 <span th:text="${l.quantity()}">1</span>
                 <button type="submit" name="op" th:value="'inc:' + ${l.productId()}" class="btn outline icon" aria-label="Aumentar">+</button>
               </div>
-              <span style="font-weight:500" th:text="${@fmt.money(l.lineTotal())}">R$ 0,00</span>
+              <span class="fw-500" th:text="${@fmt.money(l.lineTotal())}">R$ 0,00</span>
             </div>
             <input class="input sm" type="text" placeholder="Observações (ex: sem cebola)"
                    th:name="'notes_' + ${l.productId()}" th:value="${l.notes()}">
           </div>
         </div>
 
-        <div class="stack-sm" style="border-top:1px solid var(--border);padding-top:16px;gap:12px">
+        <div class="stack-sm sep-top pt-16 gap-12">
           <div class="field"><label for="customerName">Cliente</label>
             <input class="input" id="customerName" name="customerName" th:value="${draft.customerName}"></div>
           <div class="field"><label for="customerPhone">Telefone</label>
@@ -75,10 +75,10 @@
             <textarea class="textarea" id="note" name="note" th:text="${draft.note}"></textarea></div>
         </div>
 
-        <div class="stack-sm" style="border-top:1px solid var(--border);padding-top:12px;gap:4px">
+        <div class="stack-sm sep-top pt-12 gap-4">
           <div class="summary-row"><span>Subtotal</span><span th:text="${@fmt.money(subtotal)}">R$ 0,00</span></div>
           <div class="summary-total"><span>Total</span><span th:text="${@fmt.money(total)}">R$ 0,00</span></div>
-          <button type="submit" name="op" value="refresh" class="btn outline sm" style="align-self:flex-start;margin-top:6px">Atualizar total</button>
+          <button type="submit" name="op" value="refresh" class="btn outline sm self-start mt-6">Atualizar total</button>
         </div>
 
         <button type="submit" class="btn block" th:formaction="@{/orders/new/submit}"

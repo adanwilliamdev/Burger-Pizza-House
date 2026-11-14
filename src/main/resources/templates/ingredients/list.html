@@ -22,7 +22,7 @@
         </thead>
         <tbody>
           <tr th:each="i : ${ingredients}">
-            <td style="font-weight:500" th:text="${i.name()}">Farinha</td>
+            <td class="fw-500" th:text="${i.name()}">Farinha</td>
             <td>
               <span th:text="${@fmt.qty(i.currentStock())} + ' ' + ${i.unit()}">0 kg</span>
               <span class="badge danger" th:if="${i.isLowStock()}">⚠ Baixo</span>
@@ -32,8 +32,8 @@
             <td class="actions" sec:authorize="hasRole('ADMIN')">
               <a class="btn ghost sm" th:href="@{/ingredients/{id}/edit(id=${i.id()})}">Editar</a>
               <form class="inline-form" method="post" th:action="@{/ingredients/{id}/delete(id=${i.id()})}"
-                    onsubmit="return confirm('Excluir este ingrediente?')">
-                <button class="btn ghost sm" type="submit" style="color:var(--destructive)">Excluir</button>
+                    data-confirm="Excluir este ingrediente?">
+                <button class="btn ghost sm text-destructive" type="submit">Excluir</button>
               </form>
             </td>
           </tr>

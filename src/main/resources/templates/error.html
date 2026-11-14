@@ -8,16 +8,16 @@
   <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
-  <div class="card" style="max-width:420px;width:100%">
-    <div class="card-body stack-sm" style="text-align:center;padding:32px">
-      <p class="display" style="font-size:40px;font-weight:600;color:var(--primary)" th:text="${status} ?: 'Erro'">404</p>
-      <h1 style="font-size:18px" th:switch="${status}">
+<div class="error-wrap">
+  <div class="card mw-420 w-full">
+    <div class="card-body stack-sm text-center p-32">
+      <p class="display error-code" th:text="${status} ?: 'Erro'">404</p>
+      <h1 class="fs-18" th:switch="${status}">
         <span th:case="403">Você não tem permissão para acessar esta página.</span>
         <span th:case="404">Página não encontrada.</span>
         <span th:case="*">Algo deu errado. Tente novamente.</span>
       </h1>
-      <a class="btn" th:href="@{/dashboard}" style="align-self:center">Voltar ao início</a>
+      <a class="btn self-center" th:href="@{/dashboard}">Voltar ao início</a>
     </div>
   </div>
 </div>

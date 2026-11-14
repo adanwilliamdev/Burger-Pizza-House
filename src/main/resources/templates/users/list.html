@@ -9,7 +9,7 @@
         <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Situação</th></tr></thead>
         <tbody>
           <tr th:each="u : ${users}">
-            <td style="font-weight:500" th:text="${u.name()}">Nome</td>
+            <td class="fw-500" th:text="${u.name()}">Nome</td>
             <td th:text="${u.email()}">email</td>
             <td th:text="${u.role().label}">Operador</td>
             <td><span class="badge" th:classappend="${u.isActive()} ? 'success'" th:text="${u.isActive()} ? 'Ativo' : 'Inativo'">Ativo</span></td>

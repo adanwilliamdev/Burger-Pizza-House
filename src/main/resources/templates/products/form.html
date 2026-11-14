@@ -31,7 +31,7 @@
         <div class="field"><label for="preparationTime">Tempo de preparo (min)</label>
           <input class="input" id="preparationTime" type="number" min="1" th:field="*{preparationTime}"></div>
         <div class="field"><label>Situação</label>
-          <label class="check" style="height:38px"><input type="checkbox" th:field="*{active}"> Produto ativo (aparece no cardápio)</label></div>
+          <label class="check h-38"><input type="checkbox" th:field="*{active}"> Produto ativo (aparece no cardápio)</label></div>
       </div>
     </div>
 
@@ -42,7 +42,7 @@
           Cada pedido baixa do estoque estas quantidades por unidade vendida.</p>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Ingrediente</th><th style="width:130px">Quantidade</th><th style="width:100px">Unidade</th></tr></thead>
+            <thead><tr><th>Ingrediente</th><th class="w-130">Quantidade</th><th class="w-100">Unidade</th></tr></thead>
             <tbody id="recipe-rows">
               <tr th:each="row, st : *{lines}">
                 <td>
@@ -66,30 +66,6 @@
       <button class="btn" type="submit" th:text="${productId == null} ? 'Criar produto' : 'Salvar alterações'">Salvar</button>
     </div>
   </form>
-  <script>
-    (function () {
-      var body = document.getElementById('recipe-rows');
-      var button = document.getElementById('add-recipe-row');
-      if (!body || !button) { return; }
-      button.addEventListener('click', function () {
-        var rows = body.querySelectorAll('tr');
-        var next = rows.length;
-        var copy = rows[rows.length - 1].cloneNode(true);
-        copy.querySelectorAll('select, input').forEach(function (el) {
-          ['name', 'id'].forEach(function (attr) {
-            var value = el.getAttribute(attr);
-            if (value) {
-              el.setAttribute(attr, value.replace(/lines\[\d+\]|lines\d+/, function (m) {
-                return m.charAt(5) === '[' ? 'lines[' + next + ']' : 'lines' + next;
-              }));
-            }
-          });
-          if (el.tagName === 'SELECT') { el.selectedIndex = 0; } else { el.value = ''; }
-        });
-        body.appendChild(copy);
-      });
-    })();
-  </script>
 </section>
 </body>
 </html>

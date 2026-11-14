@@ -6,11 +6,11 @@
 
   <div class="card">
     <form class="card-body row" method="get" th:action="@{/orders}">
-      <select class="select" name="status" style="width:200px" aria-label="Status">
+      <select class="select w-200" name="status" aria-label="Status">
         <option value="">Todos os status</option>
         <option th:each="s : ${orderStatuses}" th:value="${s.name()}" th:text="${s.label}" th:selected="${filterStatus == s}">Pendente</option>
       </select>
-      <select class="select" name="type" style="width:180px" aria-label="Tipo">
+      <select class="select w-180" name="type" aria-label="Tipo">
         <option value="">Todos os tipos</option>
         <option th:each="t : ${orderTypes}" th:value="${t.name()}" th:text="${t.label}" th:selected="${filterType == t}">Entrega</option>
       </select>

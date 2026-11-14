@@ -3,7 +3,7 @@
 <body>
 <section class="stack">
   <form class="page-actions" method="get" th:action="@{/dashboard}">
-    <select class="select" name="days" style="width:170px" aria-label="Período">
+    <select class="select w-170" name="days" aria-label="Período">
       <option th:each="p : ${periods}" th:value="${p}" th:text="'Últimos ' + ${p} + ' dias'" th:selected="${p == days}">Últimos 7 dias</option>
     </select>
     <button class="btn outline" type="submit">Aplicar</button>
@@ -26,12 +26,12 @@
       <div class="card-body">
         <div class="bars">
           <div class="bar-col" th:each="d : ${summary.revenueByDay()}">
-            <div class="bar" th:style="'height:' + ${d.percent()} + '%'"
+            <div class="bar" th:data-height="${d.percent()}"
                  th:title="${d.label()} + ' — ' + ${@fmt.money(d.revenue())}"></div>
             <span class="bar-label" th:text="${d.label()}">01/01</span>
           </div>
         </div>
-        <p class="small muted" style="margin-top:8px">Pedidos entregues por dia (fuso do negócio). Passe o mouse sobre a barra para ver o valor.</p>
+        <p class="small muted mt-8">Pedidos entregues por dia (fuso do negócio). Passe o mouse sobre a barra para ver o valor.</p>
       </div>
     </div>
 
@@ -40,7 +40,7 @@
       <div class="card-body stack-sm">
         <p class="muted" th:if="${summary.topProducts().isEmpty()}">Ainda não há vendas registradas.</p>
         <div class="row-between" th:each="p, st : ${summary.topProducts()}">
-          <div class="rank"><span class="n" th:text="${st.count}">1</span><span style="font-weight:500" th:text="${p.name()}">Produto</span></div>
+          <div class="rank"><span class="n" th:text="${st.count}">1</span><span class="fw-500" th:text="${p.name()}">Produto</span></div>
           <span class="muted" th:text="${p.totalSold()} + ' un.'">0 un.</span>
         </div>
       </div>

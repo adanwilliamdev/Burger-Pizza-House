@@ -167,3 +167,10 @@ src/main/resources/
   - Sem proxy na frente (acesso direto), use `FORWARD_HEADERS_STRATEGY=none`.
   - `framework` não serve aqui: o `ForwardedHeaderFilter` do Spring não altera `getRemoteAddr()`.
   - Para conferir: faça um login com senha errada e veja a chave `login:fail:ip:<ip>` no Redis; deve ser o IP do cliente, não o do proxy.
+
+## Cabeçalhos de segurança
+
+- **Content-Security-Policy** estrita na interface web (`script-src 'self'; style-src 'self'`, sem `unsafe-inline`), `default-src 'none'` na API e uma CSP mais frouxa só para o Swagger (`/docs`, `/v3/api-docs`), que exige inline.
+- **Referrer-Policy** (`same-origin` na web, `no-referrer` na API), **Permissions-Policy** (câmera, microfone, geolocalização e pagamento desligados) e **HSTS** de 1 ano com subdomínios.
+- O HSTS só é enviado em requisições HTTPS. Atrás de proxy isso depende de o proxy enviar `X-Forwarded-Proto: https` e de `server.forward-headers-strategy` (veja "Atrás de proxy reverso").
+- Por causa da CSP, **os templates não podem ter `style="..."`, `<script>` inline nem `onclick`/`onsubmit`**: estilos vão para `static/css/app.css` (classes utilitárias como `w-200`, `gap-16`), comportamentos para `static/js/app.js` (`data-confirm="..."` pede confirmação ao enviar um formulário; `data-height` define a altura das barras do dashboard). O teste `TemplatesCspTest` falha se alguém reintroduzir isso.

@@ -10,23 +10,23 @@
 <body>
 <div class="login">
   <div class="login-art">
-    <div class="brand" style="padding:0"><span class="flame">🔥</span> Burger &amp; Pizza House</div>
+    <div class="brand p-0"><span class="flame">🔥</span> Burger &amp; Pizza House</div>
     <div>
       <h2>O forno não espera.<br>O seu painel também não deveria.</h2>
       <p class="sub">Pedidos, estoque de ingredientes e faturamento do dia, tudo num só lugar — do balcão à cozinha.</p>
     </div>
-    <p class="small" style="color:var(--sidebar-muted)">Burger &amp; Pizza House — Sistema de Gestão</p>
+    <p class="small text-sidebar-muted">Burger &amp; Pizza House — Sistema de Gestão</p>
   </div>
 
   <div class="login-form">
     <form th:action="@{/login}" method="post">
-      <div class="brand" style="padding:0;color:var(--primary)"><span class="flame">🔥</span> Burger &amp; Pizza House</div>
-      <div class="stack-sm" style="gap:6px">
+      <div class="brand p-0 text-primary"><span class="flame">🔥</span> Burger &amp; Pizza House</div>
+      <div class="stack-sm gap-6">
         <h1>Entrar</h1>
         <p class="muted">Acesse com seu e-mail e senha cadastrados.</p>
       </div>
 
-      <div class="stack-sm" style="gap:16px">
+      <div class="stack-sm gap-16">
         <div class="field">
           <label for="email">E-mail</label>
           <input class="input" id="email" name="email" type="email" autofocus required placeholder="voce@exemplo.com">
