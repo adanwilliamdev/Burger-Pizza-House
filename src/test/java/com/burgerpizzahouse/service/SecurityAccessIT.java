@@ -5,7 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -63,7 +63,7 @@ class SecurityAccessIT {
 
     @Test
     void webWithoutSessionRedirectsToLogin() throws Exception {
-        mvc.perform(get("/dashboard")).andExpect(status().isFound()).andExpect(redirectedUrlPattern("**/login"));
+        mvc.perform(get("/dashboard")).andExpect(status().isFound()).andExpect(redirectedUrl("/login"));
     }
 
     @Test
@@ -128,8 +128,8 @@ class SecurityAccessIT {
 
     @Test
     void swaggerDocsWithoutSessionRedirectsToLogin() throws Exception {
-        mvc.perform(get("/docs")).andExpect(status().isFound()).andExpect(redirectedUrlPattern("**/login"));
-        mvc.perform(get("/v3/api-docs")).andExpect(status().isFound()).andExpect(redirectedUrlPattern("**/login"));
+        mvc.perform(get("/docs")).andExpect(status().isFound()).andExpect(redirectedUrl("/login"));
+        mvc.perform(get("/v3/api-docs")).andExpect(status().isFound()).andExpect(redirectedUrl("/login"));
     }
 
     @Test
@@ -148,7 +148,7 @@ class SecurityAccessIT {
 
     @Test
     void actuatorWithoutSessionRedirectsToLogin() throws Exception {
-        mvc.perform(get("/actuator/metrics")).andExpect(status().isFound()).andExpect(redirectedUrlPattern("**/login"));
+        mvc.perform(get("/actuator/metrics")).andExpect(status().isFound()).andExpect(redirectedUrl("/login"));
     }
 
     @Test
