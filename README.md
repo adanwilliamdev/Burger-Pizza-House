@@ -1,100 +1,280 @@
 # 🔥 Burger & Pizza House
 
-[![CI](https://github.com/adanwilliamdev/Burger-Pizza-House/actions/workflows/ci.yml/badge.svg)](https://github.com/adanwilliamdev/Burger-Pizza-House/actions/workflows/ci.yml)
-![Java 21](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot 4.1](https://img.shields.io/badge/Spring%20Boot-4.1-6DB33F)
-![License MIT](https://img.shields.io/badge/license-MIT-blue)
-[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/adanwilliamdev/badge.svg)](https://hub.xerj.org/contributors/adanwilliamdev)
+<p align="center">
+  <img src="https://img.shields.io/github/actions/workflow/status/adanwilliamdev/Burger-Pizza-House/ci.yml?label=CI&logo=github" alt="CI">
+  <img src="https://img.shields.io/badge/Java-21-orange?logo=openjdk" alt="Java 21">
+  <img src="https://img.shields.io/badge/Spring%20Boot-4.1-6DB33F?logo=springboot" alt="Spring Boot 4.1">
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql" alt="PostgreSQL 16">
+  <img src="https://img.shields.io/badge/Redis-7-DC382D?logo=redis" alt="Redis 7">
+  <img src="https://img.shields.io/badge/License-MIT-blue" alt="MIT License">
+</p>
 
-ERP para hamburgueria e pizzaria: **pedidos**, **catálogo de produtos com receita**, **estoque de ingredientes** e **dashboard** de vendas. Aplicação 100% Java: uma única aplicação Spring Boot que serve a interface web, a API REST e fala com PostgreSQL e Redis.
+<p align="center">
+  <a href="https://hub.xerj.org/contributors/adanwilliamdev">
+    <img src="https://hub.xerj.org/contributors/adanwilliamdev/badge.svg" alt="XERJ Corpus Hub contributor">
+  </a>
+</p>
 
-## Stack
+<p align="center">
+  <strong>Gestão inteligente para hamburguerias e pizzarias.</strong>
+  <br>
+  Pedidos, catálogo de produtos, receitas, controle de estoque e gestão financeira em uma única plataforma.
+</p>
 
-| Camada | Tecnologia |
+---
+
+## 📌 Sobre o projeto
+
+O **Burger & Pizza House** é um sistema ERP desenvolvido para hamburguerias e pizzarias, com foco na gestão operacional, controle de estoque e processamento seguro de pedidos.
+
+A aplicação utiliza uma arquitetura **100% Java**, com uma única aplicação Spring Boot responsável por servir a interface web, disponibilizar a API REST e integrar os serviços de persistência e cache.
+
+O projeto foi desenvolvido com atenção especial à consistência dos dados, concorrência entre operações, segurança e integridade do estoque.
+
+### Principais recursos
+
+- 📦 Gestão de pedidos e fluxo operacional.
+- 🍕 Catálogo de produtos com receitas e ingredientes.
+- 🥩 Controle de estoque e movimentações auditáveis.
+- 📊 Dashboard com indicadores de vendas.
+- 🔐 Autenticação JWT e controle de acesso por perfil.
+- 💳 Controle de pagamentos, troco e fechamento de caixa.
+- ⚡ Redis para cache, segurança e controle de tentativas.
+- 🐳 Ambiente de desenvolvimento e produção com Docker.
+
+---
+
+## 🛠️ Stack tecnológica
+
+| Camada | Tecnologias |
 |---|---|
-| Linguagem / build | Java 21, Maven |
-| Aplicação | Spring Boot 4.1 (Spring Framework 7, Spring MVC, Jackson 3) |
-| Interface web | Thymeleaf (renderização no servidor) + [htmx](https://htmx.org) para o carrinho (servido por WebJar, sem CDN) + `app.js` mínimo + CSS próprio |
-| Segurança | Spring Security — sessão + CSRF na interface; JWT (access/refresh) na API |
-| Persistência | Spring Data JPA / Hibernate, PostgreSQL 16, migrações com Flyway |
-| Cache e controle | Redis 7 (cache do dashboard, blacklist de tokens, anti força bruta) |
-| Documentação da API | springdoc-openapi (Swagger UI) |
-| Observabilidade | Spring Boot Actuator (`health`, `info`, `metrics`, somente ADMIN) |
-| Testes | JUnit 5, Mockito, MockMvc + Spring Security Test (unitários + integração com concorrência real), cobertura com JaCoCo |
-| Infra | Docker, Docker Compose, GitHub Actions |
+| Linguagem e build | Java 21, Maven |
+| Backend | Spring Boot 4.1, Spring Framework 7, Spring MVC |
+| Frontend | Thymeleaf, htmx, JavaScript, CSS |
+| Segurança | Spring Security 7, JWT, CSRF |
+| Persistência | Spring Data JPA, Hibernate 7 |
+| Banco de dados | PostgreSQL 16 |
+| Migrações | Flyway |
+| Cache | Redis 7 |
+| Documentação | springdoc-openapi, Swagger UI |
+| Observabilidade | Spring Boot Actuator |
+| Testes | JUnit 5, Mockito, MockMvc, JaCoCo |
+| Infraestrutura | Docker, Docker Compose |
+| CI/CD | GitHub Actions |
 
-## Funcionalidades
+---
 
-- **Pedidos**: lista paginada (20 por página, com total) com busca por número/cliente e filtro por status, tipo e período; carrinho com observações por item, desconto, taxa de entrega, tipo (entrega/retirada/mesa) e forma de pagamento; numeração sequencial; fluxo de status (`Pendente → Confirmado → Preparando → Pronto → Saiu para entrega → Entregue`, com cancelamento a partir de qualquer estado não final).
-- **Catálogo**: produtos por categoria com **receita** (ingredientes e quantidades). Produto que já tem pedidos é desativado em vez de apagado, preservando o histórico.
-- **Estoque**: ingredientes com estoque mínimo, alerta de estoque baixo, ajuste manual (entrada/saída) e livro-razão de movimentações.
-- **Dashboard**: faturamento e pedidos do dia, pedidos em andamento, estoque baixo, mais vendidos e faturamento por dia (7/14/30/90 dias), no fuso do negócio.
-- **Perfis**: `ADMIN` gerencia produtos, ingredientes e usuários; `MANAGER` e `OPERATOR` operam pedidos e consultam o painel.
+## 🚀 Funcionalidades
 
-## Telas
+### 📋 Gestão de pedidos
+
+- Listagem paginada no servidor, com 20 registros por página e total de resultados.
+- Pesquisa por número do pedido ou nome do cliente.
+- Filtros por status, tipo de atendimento e período.
+- Carrinho com observações individuais por item.
+- Aplicação de descontos e taxas de entrega.
+- Tipos de atendimento: entrega, retirada e mesa.
+- Formas de pagamento configuráveis.
+- Numeração sequencial e exclusiva dos pedidos.
+- Fluxo de status:
+
+  `Pendente → Confirmado → Preparando → Pronto → Saiu para entrega → Entregue`
+
+- Cancelamento permitido em qualquer estado não final.
+
+### 🍔 Catálogo de produtos
+
+- Cadastro de produtos organizados por categoria.
+- Associação de ingredientes e quantidades por receita.
+- Suporte a pizzas com até quatro sabores.
+- Desativação de produtos com histórico de pedidos, preservando os registros anteriores.
+
+### 📦 Controle de estoque
+
+- Cadastro e gerenciamento de ingredientes.
+- Definição de estoque mínimo.
+- Alertas de estoque baixo.
+- Ajustes manuais de entrada e saída.
+- Livro-razão de movimentações.
+- Histórico de consumo por pedidos e devoluções.
+- Proteção contra inconsistências em operações simultâneas.
+
+### 📊 Dashboard
+
+- Faturamento diário.
+- Quantidade de pedidos do dia.
+- Pedidos em andamento.
+- Ingredientes com estoque baixo.
+- Produtos mais vendidos.
+- Histórico de faturamento por período: 7, 14, 30 e 90 dias.
+- Consideração do fuso horário configurado para o negócio.
+
+### 👥 Controle de acesso
+
+| Perfil | Permissões |
+|---|---|
+| `ADMIN` | Gerenciamento de produtos, ingredientes, usuários e operações administrativas |
+| `MANAGER` | Operação de pedidos e consulta ao dashboard |
+| `OPERATOR` | Operação de pedidos e consulta ao dashboard |
+
+### 💳 Pagamentos e caixa
+
+- Registro de pagamentos.
+- Cálculo automático de troco para pagamentos em dinheiro.
+- Identificação de pedidos pendentes de pagamento.
+- Fechamento de caixa por data.
+- Totalização por forma de pagamento.
+- Separação entre valores recebidos, valores a receber e pedidos cancelados.
+
+---
+
+## 🖥️ Demonstração das telas
+
+### Autenticação e dashboard
 
 <p align="center">
   <img src="docs/screenshots/login.png" alt="Tela de login" width="49%">
-  <img src="docs/screenshots/dashboard.png" alt="Dashboard com faturamento, mais vendidos e pedidos recentes" width="49%">
+  <img src="docs/screenshots/dashboard.png" alt="Dashboard" width="49%">
 </p>
 
-**Pedidos** — lista paginada com busca por número ou cliente e filtros de status, tipo e período:
+### Gestão de pedidos
+
+Listagem paginada com pesquisa por número ou cliente e filtros por status, tipo e período.
 
 <p align="center">
-  <img src="docs/screenshots/pedidos.png" alt="Lista de pedidos com filtros e paginação" width="90%">
+  <img src="docs/screenshots/pedidos.png" alt="Lista de pedidos" width="90%">
 </p>
 
-**Novo pedido** — carrinho que atualiza sem recarregar a página (htmx), com layout próprio para desktop, tablet de balcão e celular:
+### Novo pedido
+
+Carrinho dinâmico com atualização parcial da interface utilizando htmx, sem necessidade de recarregar toda a página.
 
 <p align="center">
   <img src="docs/screenshots/novo-pedido.png" alt="Novo pedido no desktop" width="90%">
 </p>
+
 <p align="center">
   <img src="docs/screenshots/novo-pedido-tablet.png" alt="Novo pedido no tablet" width="62%">
   <img src="docs/screenshots/novo-pedido-celular.png" alt="Novo pedido no celular" width="26%">
 </p>
 
-> As imagens ficam em `docs/screenshots/`. Para refazê-las com a aplicação rodando, use `python docs/screenshots/capture.py`.
+> As imagens estão armazenadas em `docs/screenshots/`. Para capturar novas imagens com a aplicação em execução, utilize `python docs/screenshots/capture.py`.
 
-## Tela de pedidos: paginação, filtros e carrinho
+---
 
-- `GET /orders` pagina no servidor (`Page` com total) e usa um DTO resumido (`OrderSummaryResponse`, sem itens). Filtros: `q` (número, com ou sem `#`, ou parte do nome do cliente), `status`, `type`, `start_date`, `end_date`, `page`.
-- `GET /api/orders` aceita também `q` e devolve o total no cabeçalho `X-Total-Count` (o corpo continua sendo um array, então clientes atuais não quebram).
-- Novo pedido: os botões do carrinho (+, −, remover, adicionar, categoria) usam htmx e trocam só `#catalog`, `#cart-lines`, `#cart-summary` e `#cart-bar`; o servidor continua renderizando tudo (`templates/orders/new-fragments.html`). Sem JavaScript os mesmos botões funcionam com POST + redirect.
-- Layout: tablet (700–1023 px) mantém produtos e carrinho lado a lado, com total e "Finalizar" sempre visíveis; celular (< 700 px) empilha e mostra uma barra "Ver carrinho"; telas de toque têm alvos de 44 px.
+## ⚙️ Detalhes técnicos
 
-## Garantias de robustez
+### Paginação, filtros e carrinho
 
-- **Nunca vende estoque que não existe**, nem com pedidos simultâneos: as linhas de ingredientes são travadas (`SELECT … FOR UPDATE`, sempre em ordem de id, sem deadlock) *antes* de validar o saldo. Há ainda um `CHECK (current_stock >= 0)` no banco como rede de segurança.
-- **Pedido atômico**: pedido, itens, baixa de estoque, movimentos e auditoria numa única transação. Falta de estoque devolve a lista exata de ingredientes em falta.
-- **Cancelamento devolve o estoque exatamente uma vez**, com base no livro-razão (`stock_movements`), mesmo que a receita mude depois.
-- **Número do pedido sem repetição** (advisory lock da transação + índice único).
-- **Dinheiro e quantidades em `NUMERIC`/`BigDecimal`** — sem erro de ponto flutuante.
-- **Redis é auxiliar**: se cair, o sistema continua vendendo (só a blacklist de tokens falha "fechada": recusa a operação em vez de aceitar token possivelmente revogado).
-- **Segurança**: JWT com `jti` único e rotação de refresh token; access token de curta duração (15 min por padrão); bloqueio temporário de login por **e-mail + IP**, por IP e por e-mail (quem erra a senha de outra pessoa a partir de outro IP não consegue bloquear a conta dela); em `APP_ENV=production` a aplicação se recusa a subir com a chave JWT padrão/curta **e com a senha de admin padrão** (`admin123`).
-- **Estoque auditável**: editar um ingrediente trava a linha e nunca sobrescreve a baixa de um pedido em andamento; qualquer mudança de saldo (pedido, cancelamento, ajuste ou edição pela API) vira uma linha no livro-razão. Ingrediente com histórico de movimentações não pode ser excluído (o banco usa `ON DELETE RESTRICT`).
+**Interface web:**
 
-## Como funciona a criação de um pedido
+- `GET /orders` utiliza paginação no servidor com `Page` e total de resultados.
+- Filtros disponíveis: `q`, `status`, `type`, `start_date`, `end_date` e `page`.
+- O parâmetro `q` aceita número do pedido, com ou sem `#`, ou parte do nome do cliente.
+- A listagem utiliza `OrderSummaryResponse`, evitando carregar os itens completos de cada pedido.
+
+**API REST:**
+
+- `GET /api/orders` também aceita o parâmetro `q`.
+- O total de resultados é informado pelo cabeçalho `X-Total-Count`.
+- O corpo continua retornando um array, preservando a compatibilidade com clientes existentes.
+
+**Carrinho dinâmico:**
+
+- Operações de adicionar, remover, incrementar, decrementar e selecionar categorias utilizam htmx.
+- Atualização parcial dos elementos `#catalog`, `#cart-lines`, `#cart-summary` e `#cart-bar`.
+- Renderização executada no servidor através de `templates/orders/new-fragments.html`.
+- Funcionamento alternativo com POST e redirect, mesmo sem JavaScript.
+
+**Responsividade:**
+
+| Dispositivo | Comportamento |
+|---|---|
+| Desktop | Catálogo e carrinho em layout amplo |
+| Tablet (700–1023 px) | Produtos e carrinho lado a lado, com total e finalização sempre visíveis |
+| Celular (< 700 px) | Layout empilhado e barra para visualizar o carrinho |
+
+As interfaces de toque utilizam alvos de interação com pelo menos 44 px.
+
+---
+
+## 🔒 Garantias de robustez e consistência
+
+O sistema foi projetado para proteger as operações críticas de uma aplicação comercial, especialmente pedidos simultâneos, movimentações de estoque e autenticação.
+
+### Controle de concorrência
+
+- **Bloqueio pessimista:** ingredientes são bloqueados com `SELECT ... FOR UPDATE` antes da validação do saldo.
+- **Ordem determinística:** os bloqueios são adquiridos sempre pela ordem de ID, reduzindo o risco de deadlocks.
+- **Restrição no banco:** `CHECK (current_stock >= 0)` impede saldos negativos.
+- **Numeração exclusiva:** advisory lock transacional combinado com índice único evita números de pedidos duplicados.
+
+### Transações e integridade
+
+- Pedido, itens, baixa de estoque, movimentações e auditoria são registrados em uma única transação.
+- Falta de estoque retorna HTTP `409` com a relação exata de ingredientes insuficientes.
+- Cancelamentos devolvem os ingredientes no máximo uma vez.
+- A devolução utiliza o histórico de movimentações, mesmo quando a receita do produto é alterada posteriormente.
+- Valores monetários e quantidades utilizam `NUMERIC` e `BigDecimal`, evitando erros de ponto flutuante.
+
+### Auditoria do estoque
+
+- Alterações de ingredientes bloqueiam a linha correspondente durante a operação.
+- Ajustes de saldo são registrados no livro-razão.
+- Pedidos, cancelamentos, ajustes e alterações pela API geram registros de movimentação.
+- Ingredientes com histórico de movimentações não podem ser excluídos (`ON DELETE RESTRICT`).
+- A edição de dados cadastrais não sobrescreve indevidamente o saldo de estoque.
+
+### Resiliência do Redis
+
+O Redis atua como componente auxiliar. Se ficar indisponível, o sistema continua processando vendas.
+
+A exceção é a blacklist de tokens: nesse cenário, a autenticação falha de forma segura (*fail closed*), recusando a operação em vez de aceitar um token possivelmente revogado.
+
+### Segurança da aplicação
+
+- JWT com identificador único (`jti`).
+- Rotação de refresh tokens.
+- Access tokens com validade curta, de 15 minutos por padrão.
+- Revogação de tokens através de blacklist no Redis.
+- Proteção contra força bruta com bloqueio temporário por e-mail e IP.
+- Contadores independentes por IP, e-mail e combinação dos dois.
+- Proteção contra CSRF na interface web.
+- Perfis de autorização para páginas, API e Actuator.
+- Em produção, a aplicação recusa iniciar com a chave JWT padrão ou curta e com a senha administrativa padrão `admin123`.
+
+---
+
+## 🔄 Fluxo de criação de pedidos
+
+O processamento de pedidos utiliza transações e bloqueios no banco para garantir que duas operações simultâneas não consumam o mesmo estoque disponível.
 
 ```mermaid
 sequenceDiagram
-    participant C as Cliente (web ou API)
+    participant C as Cliente (Web ou API)
     participant S as OrderService
     participant DB as PostgreSQL
+
     C->>S: create(itens, desconto, taxa...)
-    S->>DB: busca produtos e receitas
-    S->>S: valida produto ativo, desconto e soma o consumo por ingrediente
-    S->>DB: SELECT ... FOR UPDATE nos ingredientes (ordem de id)
-    alt falta ingrediente
-        S-->>C: 409 com a lista exata de faltas (rollback libera os locks)
-    else estoque suficiente
-        S->>DB: advisory lock + próximo número do pedido
-        S->>DB: grava pedido, itens, baixa de estoque, movimentos e auditoria
-        S-->>C: 201 + pedido (tudo numa única transação)
+    S->>DB: Busca produtos e receitas
+    S->>S: Valida produtos e calcula consumo
+    S->>DB: SELECT ... FOR UPDATE nos ingredientes
+
+    alt Estoque insuficiente
+        S-->>C: HTTP 409 com lista de faltas
+        Note over S,DB: Rollback e liberação dos locks
+    else Estoque suficiente
+        S->>DB: Advisory lock e próximo número
+        S->>DB: Registra pedido e itens
+        S->>DB: Baixa estoque e registra movimentos
+        S->>DB: Registra auditoria
+        S-->>C: HTTP 201 com pedido criado
     end
 ```
 
-## Modelo de dados
+---
+
+## 🗄️ Modelo de dados
 
 ```mermaid
 erDiagram
@@ -108,129 +288,484 @@ erDiagram
     USERS ||--o{ AUDIT_LOGS : gera
 ```
 
-## Como rodar
+---
 
-### Docker (recomendado)
+## 🐳 Como executar
+
+### Pré-requisitos
+
+- JDK 21.
+- Docker e Docker Compose.
+- Maven 3.9+ (para execução local sem container da aplicação).
+- PostgreSQL 16 e Redis 7 (para execução local).
+
+### 1. Docker Compose (recomendado)
+
+Clone o repositório:
+
+```bash
+git clone https://github.com/adanwilliamdev/Burger-Pizza-House.git
+
+cd Burger-Pizza-House
+```
+
+Inicie a aplicação e suas dependências:
 
 ```bash
 docker compose up --build
 ```
 
-O `docker-compose.yml` é só para desenvolvimento: Postgres e Redis publicam portas apenas em `127.0.0.1`, com as credenciais padrão do repositório.
+O ambiente de desenvolvimento publica as portas do PostgreSQL e Redis somente em `127.0.0.1`, utilizando as credenciais padrão do repositório.
 
-### Produção (Docker)
+### 2. Acessar a aplicação
 
-```bash
-cp .env.prod.example .env.prod      # preencha os 4 segredos (openssl rand -hex 32)
-docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+| Serviço | Endereço |
+|---|---|
+| Aplicação web | http://localhost:8080 |
+| Swagger UI | http://localhost:8080/docs |
+| Health check | http://localhost:8080/api/health |
+| Readiness | http://localhost:8080/api/health/ready |
+
+O Actuator disponibiliza:
+
+- `/actuator/health`
+- `/actuator/metrics`
+
+Esses endpoints exigem autenticação como `ADMIN`.
+
+**Credenciais iniciais de desenvolvimento:**
+
+```text
+E-mail: admin@burgerpizzahouse.com
+Senha:  admin123
 ```
 
-- **Sem portas expostas** em Postgres e Redis: ficam numa rede interna (`internal: true`), alcançável só pela aplicação.
-- **Redis com senha** (`REDIS_PASSWORD`, só letras e números, pois vai na URL) e persistência em disco.
-- **Segredos só no `.env.prod`** (ignorado pelo Git e pelo Docker build): `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_SECRET_KEY` e `SEED_ADMIN_PASSWORD`. Se algum faltar, o `docker compose` se recusa a subir. `POSTGRES_PASSWORD` só vale na primeira criação do volume; para trocar depois use `ALTER USER`.
-- A aplicação sobe com `APP_ENV=production` (Swagger desligado) e escuta só em `127.0.0.1:8080`: coloque Nginx/Traefik com HTTPS na frente (veja "Atrás de proxy reverso" abaixo). O proxy no mesmo host chega pelo gateway da rede Docker, que está na faixa privada confiável por padrão.
+> Em produção, essa senha padrão não é permitida. Configure `SEED_ADMIN_PASSWORD` antes da primeira inicialização.
 
-- Aplicação: http://localhost:8080
-- API (Swagger): http://localhost:8080/docs (exige login como ADMIN; vem desligado por padrão com `APP_ENV=production`, ligue com `DOCS_ENABLED=true` se precisar)
-- Saúde: http://localhost:8080/api/health e `/api/health/ready`
-- Actuator (somente ADMIN logado): `/actuator/health`, `/actuator/metrics`
+### 3. Execução local
 
-Login inicial: `admin@burgerpizzahouse.com` / `admin123`. Com `APP_ENV=production` a aplicação **não sobe** com essa senha: defina `SEED_ADMIN_PASSWORD` (8+ caracteres) antes do primeiro start.
+Caso prefira executar a aplicação fora do Docker:
 
-Opcional: `cp .env.example .env` para ajustar variáveis (o Compose lê o arquivo automaticamente).
-
-### Local (sem Docker para a aplicação)
-
-Requisitos: JDK 21, Maven 3.9+, PostgreSQL e Redis em execução.
+Inicie somente as dependências:
 
 ```bash
-docker compose up -d postgres redis   # só as dependências
+docker compose up -d postgres redis
+```
+
+Execute a aplicação:
+
+```bash
 mvn spring-boot:run
 ```
 
-As migrações (Flyway) e os dados iniciais rodam automaticamente na inicialização. O seed é idempotente e nunca sobrescreve dados existentes; desligue com `APP_SEED_ENABLED=false`.
+As migrações do Flyway e os dados iniciais são executados automaticamente.
 
-## Testes
+O seed é idempotente e não sobrescreve dados existentes. Para desativá-lo:
 
-```bash
-mvn test      # unitários (estoque, dinheiro, status, validações de pedido, anti força bruta)
-mvn verify    # + integração (segurança, auth, estoque, concorrência real) e relatório de cobertura
+```properties
+APP_SEED_ENABLED=false
 ```
 
-`mvn verify` exige PostgreSQL e Redis no ar (`docker compose up -d postgres redis`) e gera o relatório de cobertura em `target/site/jacoco/index.html`.
+---
 
-Os testes de integração cobrem:
+## 🚀 Configuração para produção
 
-- **Concorrência**: pedidos simultâneos que nunca vendem além do estoque, números de pedido únicos e cancelamento simultâneo devolvendo o estoque uma única vez.
-- **Segurança**: 401 sem token ou com token inválido, 403 para OPERATOR/MANAGER em rotas de ADMIN (API, páginas web e Actuator), redirecionamento ao login e CSRF no formulário.
-- **Autenticação**: login, `/me`, rotação do refresh token (o antigo deixa de valer), logout revogando o refresh, tokens de tipos trocados recusados e bloqueio por tentativas.
-- **Estoque**: editar ingrediente mantém saldo e livro-razão consistentes e preserva o histórico na exclusão.
+O projeto possui um arquivo Compose específico para produção.
 
-## API REST
+### 1. Preparar os segredos
 
-Prefixo `/api`, autenticada por `Authorization: Bearer <access_token>`. Documentação interativa em `/docs` (e `/v3/api-docs`): só para ADMIN logado na interface web, e desligada por padrão em `APP_ENV=production`.
+```bash
+cp .env.prod.example .env.prod
+```
+
+Preencha as variáveis:
+
+```env
+POSTGRES_PASSWORD=
+REDIS_PASSWORD=
+JWT_SECRET_KEY=
+SEED_ADMIN_PASSWORD=
+```
+
+Para gerar uma chave segura:
+
+```bash
+openssl rand -hex 32
+```
+
+### 2. Subir o ambiente
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+```
+
+### 3. Medidas de segurança em produção
+
+- PostgreSQL e Redis ficam em rede interna Docker (`internal: true`), sem portas publicadas.
+- Redis utiliza autenticação por senha e persistência em disco.
+- Segredos ficam exclusivamente no `.env.prod`, ignorado pelo Git e pelo Docker build.
+- A inicialização falha caso algum segredo obrigatório esteja ausente.
+- O Swagger fica desabilitado por padrão.
+- A aplicação utiliza `APP_ENV=production`.
+- A aplicação escuta em `127.0.0.1:8080`, exigindo proxy reverso com HTTPS para exposição externa.
+
+> Importante: `POSTGRES_PASSWORD` é aplicada na criação inicial do volume. Para alterá-la posteriormente, utilize `ALTER USER` no PostgreSQL.
+
+### Variáveis principais
+
+| Variável | Finalidade |
+|---|---|
+| `DATABASE_URL` | Endereço do banco |
+| `DATABASE_USER` | Usuário do banco |
+| `DATABASE_PASSWORD` | Senha do banco |
+| `REDIS_URL` | Conexão com Redis |
+| `JWT_SECRET_KEY` | Chave de assinatura JWT |
+| `APP_ENV` | Ambiente da aplicação |
+| `BUSINESS_TIMEZONE` | Fuso horário do negócio |
+| `CORS_ORIGINS` | Origens permitidas |
+| `DOCS_ENABLED` | Habilita documentação Swagger |
+| `LOGIN_MAX_ATTEMPTS` | Limite de tentativas de login |
+| `LOGIN_LOCK_SECONDS` | Tempo de bloqueio |
+| `APP_SEED_ENABLED` | Ativa ou desativa seed |
+| `SEED_ADMIN_PASSWORD` | Senha do administrador inicial |
+
+Consulte `.env.example` e `.env.prod.example` para a configuração completa.
+
+---
+
+## 🧪 Testes
+
+O projeto possui testes unitários e de integração, com foco nas regras de negócio, segurança e concorrência.
+
+### Executar testes
+
+```bash
+# Testes unitários
+mvn test
+
+# Testes de integração e relatório de cobertura
+mvn verify
+```
+
+Para executar `mvn verify`, é necessário ter PostgreSQL e Redis em execução:
+
+```bash
+docker compose up -d postgres redis
+```
+
+### Cobertura dos testes
+
+| Área | Cenários testados |
+|---|---|
+| Pedidos | Validação, valores, descontos e transições de status |
+| Estoque | Baixas, devoluções, ajustes e integridade do histórico |
+| Concorrência | Pedidos simultâneos sem venda acima do estoque |
+| Numeração | Unicidade dos números de pedidos |
+| Cancelamento | Devolução de estoque exatamente uma vez |
+| Autenticação | Login, refresh, logout e revogação |
+| Segurança | JWT inválido, ausência de token e permissões |
+| CSRF | Proteção dos formulários web |
+| Autorização | Bloqueio de acessos indevidos por perfil |
+
+O relatório de cobertura JaCoCo é gerado em:
+
+```text
+target/site/jacoco/index.html
+```
+
+---
+
+## 🔌 API REST
+
+A API utiliza o prefixo `/api` e autenticação por Bearer Token.
+
+```http
+Authorization: Bearer <access_token>
+```
+
+### Principais endpoints
 
 | Recurso | Endpoints |
 |---|---|
-| Auth | `POST /api/auth/login`, `/refresh`, `/logout`; `GET /api/auth/me` |
-| Pedidos | `GET/POST /api/orders`, `GET /api/orders/{id}`, `POST /api/orders/{id}/status` |
-| Produtos | `GET /api/products`, `GET /api/products/{id}`; admin: `POST`, `PUT`, `DELETE` |
-| Ingredientes | `GET /api/ingredients` (`?low_stock=true`); admin: `POST`, `PUT`, `DELETE`, `POST /{id}/stock` |
-| Usuários | admin: `GET/POST /api/users` |
+| Autenticação | `POST /api/auth/login`, `/refresh`, `/logout` |
+| Perfil autenticado | `GET /api/auth/me` |
+| Pedidos | `GET/POST /api/orders` |
+| Pedido específico | `GET /api/orders/{id}` |
+| Status do pedido | `POST /api/orders/{id}/status` |
+| Pagamento | `POST /api/orders/{id}/payment` |
+| Produtos | `GET /api/products`, `GET /api/products/{id}` |
+| Gerenciar produtos | `POST`, `PUT`, `DELETE /api/products` |
+| Ingredientes | `GET /api/ingredients` |
+| Estoque baixo | `GET /api/ingredients?low_stock=true` |
+| Ajustar estoque | `POST /api/ingredients/{id}/stock` |
+| Usuários | `GET/POST /api/users` |
 | Dashboard | `GET /api/dashboard?days=7` |
+| Fechamento de caixa | `GET /api/orders/cash-closing?date=AAAA-MM-DD` |
 
-Erros no formato `{"detail": "mensagem"}`; falta de estoque responde `409` com `{"detail": {"message": "...", "shortages": [...]}}`. `PUT /api/ingredients/{id}` com `current_stock` ajusta o saldo e registra a diferença no livro-razão; sem esse campo o saldo é mantido.
+Operações administrativas exigem o perfil `ADMIN`.
 
-## Configuração (variáveis de ambiente)
+### Documentação interativa
 
-Veja `.env.example`. Principais: `DATABASE_URL`, `DATABASE_USER`, `DATABASE_PASSWORD`, `REDIS_URL`, `JWT_SECRET_KEY`, `APP_ENV`, `BUSINESS_TIMEZONE`, `CORS_ORIGINS`, `DOCS_ENABLED`, `LOGIN_MAX_ATTEMPTS`, `LOGIN_LOCK_SECONDS`, `APP_SEED_ENABLED`, `SEED_ADMIN_PASSWORD`.
-
-## Estrutura
-
-```
-src/main/java/com/burgerpizzahouse/
-├── config/       propriedades, segurança, seed, OpenAPI
-├── domain/       entidades JPA e enums
-├── repository/   Spring Data (inclui as consultas com lock)
-├── service/      regras de negócio (pedidos, estoque, dashboard, auth)
-├── security/     JWT, filtros e handlers de login
-├── api/          controllers REST (/api/**)
-├── dto/          contratos da API
-└── web/          controllers e formulários da interface (Thymeleaf)
-src/main/resources/
-├── db/migration/ migrações Flyway
-├── templates/    páginas Thymeleaf
-└── static/       CSS e favicon
+```text
+http://localhost:8080/docs
+http://localhost:8080/v3/api-docs
 ```
 
-## Observações
+A documentação é acessível somente para administradores autenticados na interface web e fica desabilitada por padrão em produção.
 
-- **Receitas**: no formulário de produto use o botão "Adicionar ingrediente" para incluir quantas linhas de receita precisar.
-- **Estoque na edição**: o formulário de edição de ingrediente não altera o saldo (poderia estar desatualizado); use "Ajustar estoque", que fica registrado no histórico.
-- **Atrás de proxy reverso (Nginx, Traefik, load balancer)**: o bloqueio de login é por IP, então a aplicação precisa enxergar o IP real do cliente. Sem isso todos chegam com o IP do proxy, compartilham o mesmo contador e poucos erros de senha (limite de IP = `LOGIN_MAX_ATTEMPTS` × 4) travariam o login da loja inteira. A aplicação já vem com `server.forward-headers-strategy: native` (variável `FORWARD_HEADERS_STRATEGY`), que usa o `X-Forwarded-For` somente quando a conexão vem de um proxy confiável.
-  - O proxy deve **enviar/sobrescrever** o `X-Forwarded-For` (e `X-Forwarded-Proto`). Nginx: `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;` e `proxy_set_header X-Forwarded-Proto $scheme;`. Traefik e a maioria dos load balancers já enviam.
-  - Proxies confiáveis: por padrão, os ranges privados (10.x, 172.16-31.x, 192.168.x, 127.x, ::1). Se o proxy tiver IP público, defina `SERVER_TOMCAT_REMOTEIP_INTERNAL_PROXIES` com uma regex dos IPs dele; fora da lista o cabeçalho é ignorado.
-  - Sem proxy na frente (acesso direto), use `FORWARD_HEADERS_STRATEGY=none`.
-  - `framework` não serve aqui: o `ForwardedHeaderFilter` do Spring não altera `getRemoteAddr()`.
-  - Para conferir: faça um login com senha errada e veja a chave `login:fail:ip:<ip>` no Redis; deve ser o IP do cliente, não o do proxy.
+### Formato de erros
 
-## Versões
+Os erros utilizam o formato:
 
-Spring Boot **4.1.2** (Spring Framework 7, Spring Security 7, Hibernate 7, Jackson 3), springdoc-openapi **3.1.0** e jjwt **0.13.0**. O Spring Boot 3.5, última linha 3.x, saiu do suporte open source em 30/06/2026, e o 3.3 já estava sem suporte desde 2025. Mudanças da migração a ter em mente:
-- starters renomeados/novos: `spring-boot-starter-webmvc` (era `-web`), `spring-boot-starter-flyway` (o `flyway-core` sozinho não autoconfigura mais) e, nos testes, `spring-boot-starter-webmvc-test` e `spring-boot-starter-security-test`;
-- Jackson 3: pacote `tools.jackson` (as anotações `@JsonProperty` seguem em `com.fasterxml.jackson.annotation`) e exceções não verificadas (`JacksonException`);
-- `@AutoConfigureMockMvc` agora é `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`.
+```json
+{
+  "detail": "Mensagem de erro"
+}
+```
 
-## Cabeçalhos de segurança
+Em caso de estoque insuficiente:
 
-- **Content-Security-Policy** estrita na interface web (`script-src 'self'; style-src 'self'`, sem `unsafe-inline`), `default-src 'none'` na API e uma CSP mais frouxa só para o Swagger (`/docs`, `/v3/api-docs`), que exige inline.
-- **Referrer-Policy** (`same-origin` na web, `no-referrer` na API), **Permissions-Policy** (câmera, microfone, geolocalização e pagamento desligados) e **HSTS** de 1 ano com subdomínios.
-- O HSTS só é enviado em requisições HTTPS. Atrás de proxy isso depende de o proxy enviar `X-Forwarded-Proto: https` e de `server.forward-headers-strategy` (veja "Atrás de proxy reverso").
-- Por causa da CSP, **os templates não podem ter `style="..."`, `<script>` inline nem `onclick`/`onsubmit`**: estilos vão para `static/css/app.css` (classes utilitárias como `w-200`, `gap-16`), comportamentos para `static/js/app.js` (`data-confirm="..."` pede confirmação ao enviar um formulário; `data-height` define a altura das barras do dashboard). O teste `TemplatesCspTest` falha se alguém reintroduzir isso.
+```json
+{
+  "detail": {
+    "message": "Estoque insuficiente",
+    "shortages": []
+  }
+}
+```
 
-## Regras de pedidos (meio a meio, cancelamento, pagamento)
+A resposta utiliza HTTP `409 Conflict`.
 
-- **Meio a meio / quartos** (só pizzas, até 4 sabores): na API, `half_flavors` recebe os nomes dos *outros* sabores além do produto do item. O preço é o do **sabor mais caro**; o estoque baixa **proporcionalmente** (cada sabor consome `quantidade ÷ nº de sabores` da própria receita). Na tela de novo pedido, cada pizza do carrinho tem o seletor "Meio a meio com…".
-- **Cancelamento**: `POST /api/orders/{id}/status` aceita `cancel_reason` e `return_to_stock`. Se o pedido já estava em *Preparando* (ou depois), o motivo é obrigatório e, por padrão, os insumos **não** voltam ao estoque (perda). Antes do preparo, o padrão é devolver. A tela de detalhe pergunta o destino dos insumos.
-- **Pagamento**: `POST /api/orders/{id}/payment` (corpo opcional `{"amount_received": 50}`) marca como pago; em dinheiro calcula o **troco**. Pedidos não pagos aparecem como "A receber".
-- **Fechamento de caixa**: `GET /api/orders/cash-closing?date=AAAA-MM-DD` e a tela **Caixa** (ADMIN e MANAGER) somam o recebido por forma de pagamento, o a receber e os cancelados do dia.
+**Atualização de ingredientes:**
+
+O endpoint `PUT /api/ingredients/{id}` aceita `current_stock` para ajustar o saldo e registrar a diferença no livro-razão. Sem esse campo, o saldo existente é preservado.
+
+---
+
+## 🍕 Regras de negócio
+
+### Pizzas meio a meio e quartos
+
+- Exclusivo para pizzas.
+- Suporte a até quatro sabores.
+- O campo `half_flavors` recebe os nomes dos outros sabores além do produto principal.
+- O preço considera o sabor mais caro.
+- O consumo de estoque é proporcional à quantidade de cada sabor.
+- Cada receita consome `quantidade ÷ número de sabores`.
+- A interface permite selecionar os sabores adicionais diretamente no carrinho.
+
+### Cancelamento de pedidos
+
+O endpoint `POST /api/orders/{id}/status` aceita:
+
+- `cancel_reason`
+- `return_to_stock`
+
+Regras:
+
+- Antes do preparo, o padrão é devolver os ingredientes ao estoque.
+- A partir do status `Preparando`, o motivo do cancelamento é obrigatório.
+- Após o início do preparo, os ingredientes não retornam ao estoque por padrão, sendo registrados como perda.
+- A tela de detalhes permite escolher o destino dos insumos.
+
+### Pagamento
+
+Endpoint:
+
+```http
+POST /api/orders/{id}/payment
+```
+
+Corpo opcional:
+
+```json
+{
+  "amount_received": 50
+}
+```
+
+O sistema:
+
+- Marca o pedido como pago.
+- Calcula o troco automaticamente para pagamentos em dinheiro.
+- Identifica pedidos ainda não pagos como `A receber`.
+
+### Fechamento de caixa
+
+Endpoint:
+
+```http
+GET /api/orders/cash-closing?date=AAAA-MM-DD
+```
+
+A tela Caixa, disponível para `ADMIN` e `MANAGER`, apresenta:
+
+- Total recebido por forma de pagamento.
+- Valores pendentes de recebimento.
+- Pedidos cancelados no dia.
+
+---
+
+## 🌐 Proxy reverso e cabeçalhos
+
+A aplicação oferece suporte a Nginx, Traefik e load balancers.
+
+O bloqueio de login depende da identificação correta do IP do cliente. Sem essa configuração, usuários podem compartilhar o mesmo contador de tentativas associado ao IP do proxy.
+
+A aplicação utiliza:
+
+```yaml
+server:
+  forward-headers-strategy: native
+```
+
+Configurável através de `FORWARD_HEADERS_STRATEGY`.
+
+### Nginx
+
+O proxy deve enviar ou sobrescrever os cabeçalhos:
+
+```nginx
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $scheme;
+```
+
+### Proxies confiáveis
+
+Por padrão, são considerados confiáveis os seguintes intervalos:
+
+- `10.x.x.x`
+- `172.16.x.x` até `172.31.x.x`
+- `192.168.x.x`
+- `127.x.x.x`
+- `::1`
+
+Para proxies com IP público, configure `SERVER_TOMCAT_REMOTEIP_INTERNAL_PROXIES` com uma expressão regular que corresponda aos IPs confiáveis.
+
+Sem proxy reverso, utilize:
+
+```env
+FORWARD_HEADERS_STRATEGY=none
+```
+
+> O modo `framework` não é adequado neste cenário, pois o `ForwardedHeaderFilter` do Spring não altera o resultado de `getRemoteAddr()`.
+
+Para validar a configuração, faça um login com senha incorreta e confira a chave `login:fail:ip:<ip>` no Redis. Ela deve conter o IP real do cliente, não o endereço do proxy.
+
+---
+
+## 🛡️ Cabeçalhos de segurança
+
+A aplicação utiliza políticas de segurança HTTP para reduzir a superfície de ataque.
+
+| Política | Configuração |
+|---|---|
+| Content-Security-Policy (Web) | `script-src 'self'; style-src 'self'` |
+| Content-Security-Policy (API) | `default-src 'none'` |
+| Referrer-Policy (Web) | `same-origin` |
+| Referrer-Policy (API) | `no-referrer` |
+| Permissions-Policy | Câmera, microfone, geolocalização e pagamento desativados |
+| HSTS | 1 ano com subdomínios |
+
+O HSTS é enviado somente em requisições HTTPS.
+
+Por causa da CSP, os templates não devem conter:
+
+- Atributos `style="..."`.
+- Elementos `<script>` inline.
+- Eventos inline como `onclick` e `onsubmit`.
+
+Os estilos ficam em `static/css/app.css`, com classes utilitárias como `w-200` e `gap-16`.
+
+Os comportamentos ficam em `static/js/app.js`. Atributos como `data-confirm` e `data-height` permitem configurar comportamentos sem JavaScript inline.
+
+O teste `TemplatesCspTest` verifica se essas restrições continuam sendo respeitadas.
+
+---
+
+## 📁 Estrutura do projeto
+
+```text
+src/
+└── main/
+    ├── java/
+    │   └── com/burgerpizzahouse/
+    │       ├── config/        # Configurações, segurança, seed e OpenAPI
+    │       ├── domain/        # Entidades JPA e enums
+    │       ├── repository/    # Repositórios e consultas com locks
+    │       ├── service/       # Regras de negócio
+    │       ├── security/      # JWT, filtros e handlers
+    │       ├── api/           # Controllers REST
+    │       ├── dto/           # Contratos da API
+    │       └── web/           # Controllers e formulários Thymeleaf
+    │
+    └── resources/
+        ├── db/migration/      # Migrações Flyway
+        ├── templates/         # Páginas Thymeleaf
+        └── static/
+            ├── css/           # Estilos
+            ├── js/            # JavaScript
+            └── favicon/       # Ícones
+
+docs/
+└── screenshots/               # Capturas das telas
+```
+
+---
+
+## 📌 Observações importantes
+
+- **Receitas:** utilize o botão "Adicionar ingrediente" no formulário de produtos para incluir quantas linhas de receita forem necessárias.
+- **Edição de estoque:** a edição cadastral de ingredientes não altera o saldo. Utilize a opção "Ajustar estoque" para registrar movimentações.
+- **Histórico:** ingredientes com movimentações não podem ser excluídos.
+- **Swagger:** desligado por padrão em produção, podendo ser habilitado com `DOCS_ENABLED=true`.
+- **Redis:** sua indisponibilidade não impede a criação de pedidos, mas operações que dependem da blacklist de tokens são recusadas com segurança.
+
+---
+
+## 📦 Versões e compatibilidade
+
+| Componente | Versão |
+|---|---|
+| Java | 21 |
+| Spring Boot | 4.1.2 |
+| Spring Framework | 7 |
+| Spring Security | 7 |
+| Hibernate | 7 |
+| Jackson | 3 |
+| springdoc-openapi | 3.1.0 |
+| JJWT | 0.13.0 |
+| PostgreSQL | 16 |
+| Redis | 7 |
+
+### Migração para Spring Boot 4
+
+O projeto utiliza a linha Spring Boot 4, com Spring Framework 7, Spring Security 7, Hibernate 7 e Jackson 3.
+
+Algumas mudanças importantes em relação às versões anteriores:
+
+- `spring-boot-starter-webmvc` substitui o antigo `spring-boot-starter-web`.
+- `spring-boot-starter-flyway` passa a ser utilizado para autoconfiguração do Flyway.
+- Testes utilizam `spring-boot-starter-webmvc-test` e `spring-boot-starter-security-test`.
+- Jackson 3 utiliza o pacote `tools.jackson`.
+- As anotações `@JsonProperty` continuam em `com.fasterxml.jackson.annotation`.
+- `JacksonException` utiliza exceções não verificadas.
+- `@AutoConfigureMockMvc` passa a ser importado de `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`.
+
+---
+
+## 📄 Licença
+
+Este projeto está licenciado sob a licença **MIT**.
+
+Consulte o arquivo `LICENSE` para mais informações.
+
+---
+
+<p align="center">
+  Desenvolvido com ☕ Java 21 e Spring Boot.
+  <br>
+  <strong>Burger & Pizza House</strong>
+  <br>
+  <sub>Consistência, segurança e tecnologia aplicadas à gestão de negócios.</sub>
+</p>
