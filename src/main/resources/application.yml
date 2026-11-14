@@ -33,6 +33,14 @@ spring:
 
 server:
   port: ${PORT:8080}
+  # IP real do cliente atrás de proxy reverso (Nginx, Traefik, load balancer). O login usa o IP para o bloqueio
+  # anti força bruta; sem isto todos chegariam com o IP do proxy e compartilhariam o mesmo contador.
+  # native    = RemoteIpValve do Tomcat: reescreve getRemoteAddr() a partir do X-Forwarded-For, mas só confia no
+  #             cabeçalho quando a conexão vem de um proxy confiável (ranges privados por padrão; ajuste com
+  #             SERVER_TOMCAT_REMOTEIP_INTERNAL_PROXIES). Cabeçalho forjado por quem acessa direto é ignorado.
+  # framework = ForwardedHeaderFilter do Spring: ajusta esquema/host, mas NÃO altera getRemoteAddr().
+  # none      = sem proxy na frente (acesso direto à aplicação).
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:native}
   error:
     include-message: never
     include-stacktrace: never

@@ -161,4 +161,9 @@ src/main/resources/
 
 - **Receitas**: no formulário de produto use o botão "Adicionar ingrediente" para incluir quantas linhas de receita precisar.
 - **Estoque na edição**: o formulário de edição de ingrediente não altera o saldo (poderia estar desatualizado); use "Ajustar estoque", que fica registrado no histórico.
-- **Atrás de proxy reverso**: o bloqueio de login usa o IP da conexão; configure `server.forward-headers-strategy` para usar o IP real do cliente.
+- **Atrás de proxy reverso (Nginx, Traefik, load balancer)**: o bloqueio de login é por IP, então a aplicação precisa enxergar o IP real do cliente. Sem isso todos chegam com o IP do proxy, compartilham o mesmo contador e poucos erros de senha (limite de IP = `LOGIN_MAX_ATTEMPTS` × 4) travariam o login da loja inteira. A aplicação já vem com `server.forward-headers-strategy: native` (variável `FORWARD_HEADERS_STRATEGY`), que usa o `X-Forwarded-For` somente quando a conexão vem de um proxy confiável.
+  - O proxy deve **enviar/sobrescrever** o `X-Forwarded-For` (e `X-Forwarded-Proto`). Nginx: `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;` e `proxy_set_header X-Forwarded-Proto $scheme;`. Traefik e a maioria dos load balancers já enviam.
+  - Proxies confiáveis: por padrão, os ranges privados (10.x, 172.16-31.x, 192.168.x, 127.x, ::1). Se o proxy tiver IP público, defina `SERVER_TOMCAT_REMOTEIP_INTERNAL_PROXIES` com uma regex dos IPs dele; fora da lista o cabeçalho é ignorado.
+  - Sem proxy na frente (acesso direto), use `FORWARD_HEADERS_STRATEGY=none`.
+  - `framework` não serve aqui: o `ForwardedHeaderFilter` do Spring não altera `getRemoteAddr()`.
+  - Para conferir: faça um login com senha errada e veja a chave `login:fail:ip:<ip>` no Redis; deve ser o IP do cliente, não o do proxy.

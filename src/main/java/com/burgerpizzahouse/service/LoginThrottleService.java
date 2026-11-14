@@ -16,8 +16,10 @@ import org.springframework.stereotype.Service;
  * </ul>
  * Se o Redis cair, o login continua funcionando (sem o limite).
  *
- * <p>O IP vem de {@code request.getRemoteAddr()}. Atrás de proxy reverso, configure
- * {@code server.forward-headers-strategy} para que o endereço real do cliente seja usado.
+ * <p>O IP vem de {@code request.getRemoteAddr()}. Atrás de proxy reverso isso só é o cliente real porque o
+ * {@code application.yml} define {@code server.forward-headers-strategy: native} (RemoteIpValve do Tomcat, que
+ * reescreve o endereço a partir do {@code X-Forwarded-For} de proxies confiáveis). Sem isso, todos os usuários
+ * dividiriam o contador de IP do proxy. Veja o README.
  */
 @Service
 public class LoginThrottleService {
