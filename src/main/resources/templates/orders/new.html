@@ -2,61 +2,17 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: page('Novo pedido', 'orders', ~{::section})}">
 <body>
 <section>
-  <form th:action="@{/orders/new/update}" method="post" class="grid grid-order" autocomplete="off">
+  <form id="order-form" th:action="@{/orders/new/update}" method="post" class="grid grid-order" autocomplete="off">
     <!-- Botão padrão (Enter nos campos) apenas atualiza a tela; nunca finaliza o pedido sem querer. -->
     <button type="submit" name="op" value="refresh" class="sr-only" tabindex="-1" aria-hidden="true">Atualizar</button>
 
-    <div class="stack-sm">
-      <div class="chips">
-        <button type="submit" name="op" value="category:" class="btn sm"
-                th:classappend="${draft.category.isEmpty()} ? '' : 'outline'">Todos</button>
-        <button type="submit" name="op" th:each="c : ${categories}" th:value="'category:' + ${c.name()}" class="btn sm"
-                th:classappend="${draft.category == c.name()} ? '' : 'outline'" th:text="${c.label}">Pizza</button>
-      </div>
+    <div th:replace="~{orders/new-fragments :: catalog}"></div>
 
-      <div class="tiles">
-        <button type="submit" name="op" class="tile" th:each="p : ${tiles}" th:value="'add:' + ${p.id()}">
-          <span class="cat" th:text="${p.category().label}">Pizza</span>
-          <span class="name" th:text="${p.name()}">Produto</span>
-          <span class="price" th:text="${@fmt.money(p.price())}">R$ 0,00</span>
-        </button>
-      </div>
-      <p class="muted" th:if="${tiles.isEmpty()}">Nenhum produto nesta categoria.</p>
-    </div>
-
-    <div class="card cart-sticky">
+    <div class="card cart-sticky" id="cart">
       <div class="card-header"><h2 class="card-title">Carrinho</h2></div>
       <div class="card-body stack-sm gap-16">
-        <p class="muted" th:if="${cart.isEmpty()}">Clique nos produtos ao lado para adicioná-los.</p>
-
-        <div class="stack-sm" th:if="${!cart.isEmpty()}">
-          <div class="cart-line" th:each="l : ${cart}">
-            <div class="row-between">
-              <p class="fw-500" th:text="${l.name()}">Produto</p>
-              <button type="submit" name="op" th:value="'remove:' + ${l.productId()}" class="btn ghost icon"
-                      title="Remover item" aria-label="Remover item">✕</button>
-            </div>
-            <div class="row-between">
-              <div class="qty">
-                <button type="submit" name="op" th:value="'dec:' + ${l.productId()}" class="btn outline icon" aria-label="Diminuir">−</button>
-                <span th:text="${l.quantity()}">1</span>
-                <button type="submit" name="op" th:value="'inc:' + ${l.productId()}" class="btn outline icon" aria-label="Aumentar">+</button>
-              </div>
-              <span class="fw-500" th:text="${@fmt.money(l.lineTotal())}">R$ 0,00</span>
-            </div>
-            <input class="input sm" type="text" placeholder="Observações (ex: sem cebola)"
-                   th:name="'notes_' + ${l.productId()}" th:value="${l.notes()}">
-            <div class="field" th:if="${l.pizza()}">
-              <select class="select sm" th:name="'half_' + ${l.productId()}" aria-label="Meio a meio com">
-                <option value="">Pizza inteira</option>
-                <option th:each="o : ${pizzaOptions}" th:if="${o.id() != l.productId()}" th:value="${o.id()}"
-                        th:text="'Meio a meio com ' + ${o.name()}"
-                        th:selected="${l.halfWithId() != null and l.halfWithId() == o.id()}">Meio a meio com Calabresa</option>
-              </select>
-              <span class="hint" th:if="${l.halfWithName() != null}">Cobra o sabor mais caro; o estoque é baixado meio a meio.</span>
-            </div>
-          </div>
-        </div>
+        <div class="alert alert-error" id="order-alert" role="alert" hidden></div>
+        <div th:replace="~{orders/new-fragments :: cartLines}"></div>
 
         <div class="stack-sm sep-top pt-16 gap-12">
           <div class="field"><label for="customerName">Cliente</label>
@@ -64,7 +20,7 @@
           <div class="field"><label for="customerPhone">Telefone</label>
             <input class="input" id="customerPhone" name="customerPhone" th:value="${draft.customerPhone}"></div>
           <div class="field"><label for="type">Tipo de pedido</label>
-            <select class="select" id="type" name="type">
+            <select class="select" id="type" name="type" data-recalc>
               <option th:each="t : ${orderTypes}" th:value="${t.name()}" th:text="${t.label}" th:selected="${draft.type == t}">Entrega</option>
             </select></div>
           <div class="field"><label for="customerAddress">Endereço de entrega</label>
@@ -76,24 +32,19 @@
             </select></div>
           <div class="form-grid">
             <div class="field"><label for="discount">Desconto (R$)</label>
-              <input class="input" id="discount" name="discount" type="number" min="0" step="0.01" th:value="${draft.discount}"></div>
+              <input class="input" id="discount" name="discount" data-recalc type="number" min="0" step="0.01" th:value="${draft.discount}"></div>
             <div class="field"><label for="deliveryFee">Taxa de entrega (R$)</label>
-              <input class="input" id="deliveryFee" name="deliveryFee" type="number" min="0" step="0.01" th:value="${draft.deliveryFee}"></div>
+              <input class="input" id="deliveryFee" name="deliveryFee" data-recalc type="number" min="0" step="0.01" th:value="${draft.deliveryFee}"></div>
           </div>
           <div class="field"><label for="note">Observações do pedido</label>
             <textarea class="textarea" id="note" name="note" th:text="${draft.note}"></textarea></div>
         </div>
 
-        <div class="stack-sm sep-top pt-12 gap-4">
-          <div class="summary-row"><span>Subtotal</span><span th:text="${@fmt.money(subtotal)}">R$ 0,00</span></div>
-          <div class="summary-total"><span>Total</span><span th:text="${@fmt.money(total)}">R$ 0,00</span></div>
-          <button type="submit" name="op" value="refresh" class="btn outline sm self-start mt-6">Atualizar total</button>
-        </div>
-
-        <button type="submit" class="btn block" th:formaction="@{/orders/new/submit}"
-                th:disabled="${cart.isEmpty()}">Finalizar pedido</button>
+        <div th:replace="~{orders/new-fragments :: cartSummary(false)}"></div>
       </div>
     </div>
+
+    <a th:replace="~{orders/new-fragments :: cartBar(false)}"></a>
   </form>
 </section>
 </body>

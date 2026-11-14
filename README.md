@@ -14,7 +14,7 @@ ERP para hamburgueria e pizzaria: **pedidos**, **catálogo de produtos com recei
 |---|---|
 | Linguagem / build | Java 21, Maven |
 | Aplicação | Spring Boot 4.1 (Spring Framework 7, Spring MVC, Jackson 3) |
-| Interface web | Thymeleaf (renderização no servidor, só um `app.js` mínimo, sem frameworks) + CSS próprio |
+| Interface web | Thymeleaf (renderização no servidor) + [htmx](https://htmx.org) para o carrinho (servido por WebJar, sem CDN) + `app.js` mínimo + CSS próprio |
 | Segurança | Spring Security — sessão + CSRF na interface; JWT (access/refresh) na API |
 | Persistência | Spring Data JPA / Hibernate, PostgreSQL 16, migrações com Flyway |
 | Cache e controle | Redis 7 (cache do dashboard, blacklist de tokens, anti força bruta) |
@@ -25,11 +25,18 @@ ERP para hamburgueria e pizzaria: **pedidos**, **catálogo de produtos com recei
 
 ## Funcionalidades
 
-- **Pedidos**: carrinho com observações por item, desconto, taxa de entrega, tipo (entrega/retirada/mesa) e forma de pagamento; numeração sequencial; fluxo de status (`Pendente → Confirmado → Preparando → Pronto → Saiu para entrega → Entregue`, com cancelamento a partir de qualquer estado não final).
+- **Pedidos**: lista paginada (20 por página, com total) com busca por número/cliente e filtro por status, tipo e período; carrinho com observações por item, desconto, taxa de entrega, tipo (entrega/retirada/mesa) e forma de pagamento; numeração sequencial; fluxo de status (`Pendente → Confirmado → Preparando → Pronto → Saiu para entrega → Entregue`, com cancelamento a partir de qualquer estado não final).
 - **Catálogo**: produtos por categoria com **receita** (ingredientes e quantidades). Produto que já tem pedidos é desativado em vez de apagado, preservando o histórico.
 - **Estoque**: ingredientes com estoque mínimo, alerta de estoque baixo, ajuste manual (entrada/saída) e livro-razão de movimentações.
 - **Dashboard**: faturamento e pedidos do dia, pedidos em andamento, estoque baixo, mais vendidos e faturamento por dia (7/14/30/90 dias), no fuso do negócio.
 - **Perfis**: `ADMIN` gerencia produtos, ingredientes e usuários; `MANAGER` e `OPERATOR` operam pedidos e consultam o painel.
+
+## Tela de pedidos: paginação, filtros e carrinho
+
+- `GET /orders` pagina no servidor (`Page` com total) e usa um DTO resumido (`OrderSummaryResponse`, sem itens). Filtros: `q` (número, com ou sem `#`, ou parte do nome do cliente), `status`, `type`, `start_date`, `end_date`, `page`.
+- `GET /api/orders` aceita também `q` e devolve o total no cabeçalho `X-Total-Count` (o corpo continua sendo um array, então clientes atuais não quebram).
+- Novo pedido: os botões do carrinho (+, −, remover, adicionar, categoria) usam htmx e trocam só `#catalog`, `#cart-lines`, `#cart-summary` e `#cart-bar`; o servidor continua renderizando tudo (`templates/orders/new-fragments.html`). Sem JavaScript os mesmos botões funcionam com POST + redirect.
+- Layout: tablet (700–1023 px) mantém produtos e carrinho lado a lado, com total e "Finalizar" sempre visíveis; celular (< 700 px) empilha e mostra uma barra "Ver carrinho"; telas de toque têm alvos de 44 px.
 
 ## Garantias de robustez
 

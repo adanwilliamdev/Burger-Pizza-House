@@ -5,7 +5,9 @@
   <div class="page-actions"><a class="btn" th:href="@{/orders/new}">+ Novo pedido</a></div>
 
   <div class="card">
-    <form class="card-body row" method="get" th:action="@{/orders}">
+    <form class="card-body row filters" method="get" th:action="@{/orders}">
+      <input class="input w-200" type="search" name="q" maxlength="100" th:value="${filterQuery}"
+             placeholder="Nº ou cliente" aria-label="Buscar por número ou cliente" enterkeyhint="search">
       <select class="select w-200" name="status" aria-label="Status">
         <option value="">Todos os status</option>
         <option th:each="s : ${orderStatuses}" th:value="${s.name()}" th:text="${s.label}" th:selected="${filterStatus == s}">Pendente</option>
@@ -14,32 +16,51 @@
         <option value="">Todos os tipos</option>
         <option th:each="t : ${orderTypes}" th:value="${t.name()}" th:text="${t.label}" th:selected="${filterType == t}">Entrega</option>
       </select>
+      <label class="date-filter">
+        <span class="muted small">De</span>
+        <input class="input w-150" type="date" name="start_date" th:value="${filterStart}" aria-label="Data inicial">
+      </label>
+      <label class="date-filter">
+        <span class="muted small">Até</span>
+        <input class="input w-150" type="date" name="end_date" th:value="${filterEnd}" aria-label="Data final">
+      </label>
       <button class="btn outline" type="submit">Filtrar</button>
-      <a class="btn ghost" th:href="@{/orders}">Limpar</a>
+      <a class="btn ghost" th:href="@{/orders}" th:if="${hasFilters}">Limpar</a>
     </form>
   </div>
 
   <div class="card">
     <div class="card-body flush table-wrap">
       <table th:if="${!orders.isEmpty()}">
-        <thead><tr><th>Nº</th><th>Cliente</th><th>Tipo</th><th>Status</th><th>Pgto</th><th>Total</th><th>Criado em</th></tr></thead>
+        <thead><tr><th>Nº</th><th>Cliente</th><th class="hide-sm">Tipo</th><th>Status</th><th class="hide-sm">Pgto</th><th>Total</th><th class="hide-md">Criado em</th></tr></thead>
         <tbody>
           <tr th:each="o : ${orders}">
             <td><a class="link" th:href="@{/orders/{id}(id=${o.id()})}" th:text="'#' + ${o.number()}">#1</a></td>
             <td th:text="${o.customerName() ?: '—'}">—</td>
-            <td th:text="${o.type().label}">Entrega</td>
+            <td class="hide-sm" th:text="${o.type().label}">Entrega</td>
             <td><span class="badge" th:classappend="${o.status().cssClass}" th:text="${o.status().label}">Pendente</span></td>
-            <td>
+            <td class="hide-sm">
               <span class="badge st-delivered" th:if="${o.paid()}">Pago</span>
               <span class="badge st-pending" th:if="${!o.paid() and o.status().name() != 'CANCELLED'}">A receber</span>
               <span class="muted" th:if="${!o.paid() and o.status().name() == 'CANCELLED'}">—</span>
             </td>
-            <td th:text="${@fmt.money(o.total())}">R$ 0,00</td>
-            <td class="muted" th:text="${@fmt.dateTime(o.createdAt())}">—</td>
+            <td class="nowrap" th:text="${@fmt.money(o.total())}">R$ 0,00</td>
+            <td class="muted hide-md" th:text="${@fmt.dateTime(o.createdAt())}">—</td>
           </tr>
         </tbody>
       </table>
       <p class="empty" th:if="${orders.isEmpty()}">Nenhum pedido encontrado para os filtros selecionados.</p>
+
+      <nav class="pager" th:if="${totalOrders > 0}" aria-label="Paginação dos pedidos">
+        <span class="muted small" th:text="'Mostrando ' + ${firstShown} + '–' + ${lastShown} + ' de ' + ${totalOrders}">Mostrando 1–20 de 135</span>
+        <div class="pager-nav">
+          <a class="btn outline sm" th:if="${prevHref != null}" th:href="@{${prevHref}}" rel="prev">‹ Anterior</a>
+          <span class="btn outline sm is-disabled" th:if="${prevHref == null}" aria-disabled="true">‹ Anterior</span>
+          <span class="small" th:text="'Página ' + ${pageNumber} + ' de ' + ${totalPages}">Página 1 de 7</span>
+          <a class="btn outline sm" th:if="${nextHref != null}" th:href="@{${nextHref}}" rel="next">Próxima ›</a>
+          <span class="btn outline sm is-disabled" th:if="${nextHref == null}" aria-disabled="true">Próxima ›</span>
+        </div>
+      </nav>
     </div>
   </div>
 </section>

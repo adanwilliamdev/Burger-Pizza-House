@@ -9,14 +9,18 @@ import com.burgerpizzahouse.dto.OrderDtos.PaymentRequest;
 import com.burgerpizzahouse.dto.OrderDtos.StatusUpdateRequest;
 import com.burgerpizzahouse.security.AppUserDetails;
 import com.burgerpizzahouse.service.OrderService;
+import com.burgerpizzahouse.service.OrderService.OrderFilter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -35,23 +39,34 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class OrderApiController {
 
+    /** Exposto também no CORS (veja SecurityConfig), para navegadores em outra origem poderem lê-lo. */
+    public static final String TOTAL_COUNT_HEADER = "X-Total-Count";
+
     private final OrderService orders;
 
     public OrderApiController(OrderService orders) {
         this.orders = orders;
     }
 
+    /**
+     * Lista paginada por offset/limit. O corpo continua sendo um array (compatível com quem já consome); o total de
+     * pedidos que casam com os filtros vem no cabeçalho {@value #TOTAL_COUNT_HEADER}.
+     */
     @GetMapping
-    public List<OrderResponse> list(
+    public ResponseEntity<List<OrderResponse>> list(
             @RequestParam(required = false) OrderStatus status,
             @RequestParam(required = false) OrderType type,
             @RequestParam(name = "start_date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate startDate,
             @RequestParam(name = "end_date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate endDate,
+            @RequestParam(name = "q", required = false) @Size(max = 100) String query,
             @RequestParam(defaultValue = "500") @Min(1) @Max(500) int limit,
             @RequestParam(defaultValue = "0") @Min(0) int offset) {
-        return orders.list(status, type, startDate, endDate, limit, offset);
+        Page<OrderResponse> page = orders.list(new OrderFilter(status, type, startDate, endDate, query), limit, offset);
+        return ResponseEntity.ok()
+                .header(TOTAL_COUNT_HEADER, String.valueOf(page.getTotalElements()))
+                .body(page.getContent());
     }
 
     @PostMapping

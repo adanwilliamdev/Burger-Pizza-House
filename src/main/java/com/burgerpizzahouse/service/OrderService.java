@@ -18,6 +18,7 @@ import com.burgerpizzahouse.dto.OrderDtos.MethodTotal;
 import com.burgerpizzahouse.dto.OrderDtos.OrderCreateRequest;
 import com.burgerpizzahouse.dto.OrderDtos.OrderItemRequest;
 import com.burgerpizzahouse.dto.OrderDtos.OrderResponse;
+import com.burgerpizzahouse.dto.OrderDtos.OrderSummaryResponse;
 import com.burgerpizzahouse.dto.OrderDtos.StockShortage;
 import com.burgerpizzahouse.repository.AuditLogRepository;
 import com.burgerpizzahouse.repository.IngredientRepository;
@@ -43,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -98,31 +100,58 @@ public class OrderService {
 
     // ------------------------------------------------------------------ consulta
 
+    /** Filtros da listagem. {@code query} casa com o número do pedido (com ou sem #) ou com parte do nome do cliente. */
+    public record OrderFilter(OrderStatus status, OrderType type, LocalDate startDate, LocalDate endDate,
+                              String query) {
+    }
+
+    private static final Sort NEWEST_FIRST = Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id"));
+
+    /** Página completa (com itens), para a API. O total vem junto ({@link Page#getTotalElements()}). */
     @Transactional(readOnly = true)
-    public List<OrderResponse> list(OrderStatus status, OrderType type, LocalDate startDate, LocalDate endDate,
-                                    int limit, int offset) {
-        Specification<Order> spec = (root, query, cb) -> {
+    public Page<OrderResponse> list(OrderFilter filter, int limit, long offset) {
+        return orders.findAll(toSpecification(filter), new OffsetBasedPageRequest(offset, limit, NEWEST_FIRST))
+                .map(Mappers::toResponse);
+    }
+
+    /** Página resumida (sem itens), para a tela de pedidos. */
+    @Transactional(readOnly = true)
+    public Page<OrderSummaryResponse> listSummaries(OrderFilter filter, int limit, long offset) {
+        return orders.findAll(toSpecification(filter), new OffsetBasedPageRequest(offset, limit, NEWEST_FIRST))
+                .map(Mappers::toSummary);
+    }
+
+    private Specification<Order> toSpecification(OrderFilter filter) {
+        return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if (status != null) {
-                predicates.add(cb.equal(root.get("status"), status));
+            if (filter.status() != null) {
+                predicates.add(cb.equal(root.get("status"), filter.status()));
             }
-            if (type != null) {
-                predicates.add(cb.equal(root.get("type"), type));
+            if (filter.type() != null) {
+                predicates.add(cb.equal(root.get("type"), filter.type()));
             }
-            if (startDate != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.<java.time.Instant>get("createdAt"),
-                        startDate.atStartOfDay(props.zone()).toInstant()));
+            if (filter.startDate() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.<Instant>get("createdAt"),
+                        filter.startDate().atStartOfDay(props.zone()).toInstant()));
             }
-            if (endDate != null) {
-                predicates.add(cb.lessThan(root.<java.time.Instant>get("createdAt"),
-                        endDate.plusDays(1).atStartOfDay(props.zone()).toInstant()));
+            if (filter.endDate() != null) {
+                predicates.add(cb.lessThan(root.<Instant>get("createdAt"),
+                        filter.endDate().plusDays(1).atStartOfDay(props.zone()).toInstant()));
+            }
+            String text = filter.query() == null ? "" : filter.query().strip();
+            if (!text.isEmpty()) {
+                String escaped = text.toLowerCase()
+                        .replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+                Predicate byName = cb.like(cb.lower(root.<String>get("customerName")), "%" + escaped + "%", '\\');
+                String digits = text.startsWith("#") ? text.substring(1).strip() : text;
+                if (digits.matches("\\d{1,9}")) {
+                    predicates.add(cb.or(cb.equal(root.<Integer>get("number"), Integer.parseInt(digits)), byName));
+                } else {
+                    predicates.add(byName);
+                }
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-        Sort sort = Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id"));
-        return orders.findAll(spec, new OffsetBasedPageRequest(offset, limit, sort)).getContent().stream()
-                .map(Mappers::toResponse)
-                .toList();
     }
 
     @Transactional(readOnly = true)

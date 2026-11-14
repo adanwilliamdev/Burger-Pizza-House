@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+  Pedaços da tela de novo pedido que o servidor re-renderiza a cada clique no carrinho.
+  Na página inteira entram via th:replace (orders/new.html); nas respostas do htmx (POST /orders/new/update)
+  voltam sozinhos. Os ids são os alvos da troca (veja static/js/app.js): #catalog, #cart-lines, #cart-summary, #cart-bar.
+-->
+
+<!-- Categorias + produtos -->
+<div id="catalog" class="stack-sm" th:fragment="catalog">
+  <div class="chips">
+    <button type="submit" name="op" value="category:" class="btn sm"
+            th:classappend="${draft.category.isEmpty()} ? '' : 'outline'">Todos</button>
+    <button type="submit" name="op" th:each="c : ${categories}" th:value="'category:' + ${c.name()}" class="btn sm"
+            th:classappend="${draft.category == c.name()} ? '' : 'outline'" th:text="${c.label}">Pizza</button>
+  </div>
+
+  <div class="tiles">
+    <button type="submit" name="op" class="tile" th:each="p : ${tiles}" th:value="'add:' + ${p.id()}">
+      <span class="cat" th:text="${p.category().label}">Pizza</span>
+      <span class="name" th:text="${p.name()}">Produto</span>
+      <span class="price" th:text="${@fmt.money(p.price())}">R$ 0,00</span>
+    </button>
+  </div>
+  <p class="muted" th:if="${tiles.isEmpty()}">Nenhum produto nesta categoria.</p>
+</div>
+
+<!-- Linhas do carrinho -->
+<div id="cart-lines" class="stack-sm" th:fragment="cartLines">
+  <p class="muted" th:if="${cart.isEmpty()}">Clique nos produtos ao lado para adicioná-los.</p>
+
+  <div class="cart-line" th:each="l : ${cart}">
+    <div class="row-between">
+      <p class="fw-500" th:text="${l.name()}">Produto</p>
+      <button type="submit" name="op" th:value="'remove:' + ${l.productId()}" class="btn ghost icon"
+              title="Remover item" aria-label="Remover item">✕</button>
+    </div>
+    <div class="row-between">
+      <div class="qty">
+        <button type="submit" name="op" th:value="'dec:' + ${l.productId()}" class="btn outline icon" aria-label="Diminuir">−</button>
+        <span th:text="${l.quantity()}">1</span>
+        <button type="submit" name="op" th:value="'inc:' + ${l.productId()}" class="btn outline icon" aria-label="Aumentar">+</button>
+      </div>
+      <span class="fw-500" th:text="${@fmt.money(l.lineTotal())}">R$ 0,00</span>
+    </div>
+    <input class="input sm" type="text" placeholder="Observações (ex: sem cebola)"
+           th:id="'notes_' + ${l.productId()}" th:name="'notes_' + ${l.productId()}" th:value="${l.notes()}"
+           aria-label="Observações do item">
+    <div class="field" th:if="${l.pizza()}">
+      <select class="select sm" th:name="'half_' + ${l.productId()}" data-recalc aria-label="Meio a meio com">
+        <option value="">Pizza inteira</option>
+        <option th:each="o : ${pizzaOptions}" th:if="${o.id() != l.productId()}" th:value="${o.id()}"
+                th:text="'Meio a meio com ' + ${o.name()}"
+                th:selected="${l.halfWithId() != null and l.halfWithId() == o.id()}">Meio a meio com Calabresa</option>
+      </select>
+      <span class="hint" th:if="${l.halfWithName() != null}">Cobra o sabor mais caro; o estoque é baixado meio a meio.</span>
+    </div>
+  </div>
+</div>
+
+<!-- Totais + finalizar. oob=true quando vai junto de outra resposta do htmx (troca fora de banda). -->
+<div id="cart-summary" class="cart-summary stack-sm gap-4" th:fragment="cartSummary(oob)"
+     th:attr="hx-swap-oob=${oob ? 'true' : null}">
+  <div class="summary-row"><span>Subtotal</span><span th:text="${@fmt.money(subtotal)}">R$ 0,00</span></div>
+  <div class="summary-total"><span>Total</span><span th:text="${@fmt.money(total)}">R$ 0,00</span></div>
+  <div class="cart-actions">
+    <button type="submit" name="op" value="refresh" class="btn outline">Atualizar total</button>
+    <button type="submit" class="btn" th:formaction="@{/orders/new/submit}"
+            th:disabled="${cart.isEmpty()}">Finalizar pedido</button>
+  </div>
+</div>
+
+<!-- Barra do carrinho (só aparece em celular): resume e leva até o carrinho, que fica abaixo dos produtos. -->
+<a id="cart-bar" class="cart-bar" href="#cart" th:fragment="cartBar(oob)"
+   th:classappend="${cart.isEmpty()} ? 'is-empty'" th:attr="hx-swap-oob=${oob ? 'true' : null}">
+  <span><span th:if="${itemCount == 1}">1 item</span><span th:if="${itemCount != 1}" th:text="${itemCount} + ' itens'">0 itens</span></span>
+  <span class="cart-bar-total" th:text="${@fmt.money(total)}">R$ 0,00</span>
+  <span class="cart-bar-go">Ver carrinho ›</span>
+</a>
+
+<!-- Resposta do htmx para add/inc/dec/remove/refresh: troca #cart-lines e atualiza totais e barra fora de banda. -->
+<th:block th:fragment="cartUpdate">
+  <th:block th:replace="~{orders/new-fragments :: cartLines}"></th:block>
+  <th:block th:replace="~{orders/new-fragments :: cartSummary(true)}"></th:block>
+  <th:block th:replace="~{orders/new-fragments :: cartBar(true)}"></th:block>
+</th:block>
+
+</body>
+</html>

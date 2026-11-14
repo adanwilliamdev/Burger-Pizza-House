@@ -83,6 +83,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(props.corsOriginList());
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
+        config.addExposedHeader("X-Total-Count");
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);
@@ -123,7 +124,7 @@ public class SecurityConfig {
                                 .includeSubDomains(true))
                         .addHeaderWriter(new StaticHeadersWriter("Permissions-Policy", PERMISSIONS_POLICY)))
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/login", "/error", "/css/**", "/js/**", "/favicon.svg").permitAll()
+                        .requestMatchers("/login", "/error", "/css/**", "/js/**", "/webjars/htmx.org/**", "/favicon.svg").permitAll()
                         .requestMatchers("/docs", "/docs/**", "/swagger-ui/**", "/v3/api-docs/**").hasRole("ADMIN")
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

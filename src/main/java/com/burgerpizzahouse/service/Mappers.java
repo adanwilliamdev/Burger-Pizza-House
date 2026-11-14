@@ -11,6 +11,7 @@ import com.burgerpizzahouse.dto.CatalogDtos.ProductResponse;
 import com.burgerpizzahouse.dto.CatalogDtos.RecipeLineResponse;
 import com.burgerpizzahouse.dto.OrderDtos.OrderItemResponse;
 import com.burgerpizzahouse.dto.OrderDtos.OrderResponse;
+import com.burgerpizzahouse.dto.OrderDtos.OrderSummaryResponse;
 import com.burgerpizzahouse.dto.OrderDtos.OrderUserResponse;
 import com.burgerpizzahouse.dto.UserDtos.UserResponse;
 import java.util.List;
@@ -58,6 +59,12 @@ public final class Mappers {
                 o.getCreatedAt(), o.getUpdatedAt(), items, o.allowedNextStatuses(),
                 o.isPaid(), o.getPaidAt(), o.getAmountReceived(), o.change(),
                 o.getCancelReason(), o.getStockReturned());
+    }
+
+    /** Versão enxuta para listagens: não toca em itens nem no usuário (nada de carga extra). */
+    public static OrderSummaryResponse toSummary(Order o) {
+        return new OrderSummaryResponse(o.getId(), o.getNumber(), o.getCustomerName(), o.getType(), o.getStatus(),
+                o.getPaymentMethod(), o.isPaid(), o.getTotal(), o.getCreatedAt());
     }
 
     private static OrderItemResponse toItem(OrderItem item) {

@@ -96,6 +96,15 @@
       <version>${springdoc.version}</version>
     </dependency>
 
+    <!-- htmx: servido pela própria aplicação em /webjars/htmx.org/<versão>/dist/htmx.min.js (a CSP só aceita 'self').
+         Se trocar a versão, troque também o caminho em templates/layout.html. -->
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>htmx.org</artifactId>
+      <version>2.0.4</version>
+      <scope>runtime</scope>
+    </dependency>
+
     <!-- Boot 4: um starter de teste por tecnologia (MockMvc em webmvc-test, @WithMockUser em security-test). -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

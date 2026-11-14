@@ -33,6 +33,12 @@ spring:
     cache: ${THYMELEAF_CACHE:true}
   web:
     locale: pt_BR
+    resources:
+      cache:
+        cachecontrol:
+          # Sem isto o Spring Security manda "no-store" também para CSS/JS/htmx e o tablet baixa tudo a cada
+          # página. "no-cache" deixa o navegador guardar e revalidar (resposta 304, sem baixar de novo).
+          no-cache: true
 
 server:
   port: ${PORT:8080}

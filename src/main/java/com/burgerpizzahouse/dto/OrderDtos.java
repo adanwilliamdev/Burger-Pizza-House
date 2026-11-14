@@ -79,6 +79,19 @@ public final class OrderDtos {
     public record OrderUserResponse(Long id, String name, String email) {
     }
 
+    /** Linha da listagem de pedidos: só o que a tabela mostra (sem itens, usuário nem observações). */
+    public record OrderSummaryResponse(
+            Long id,
+            int number,
+            String customerName,
+            OrderType type,
+            OrderStatus status,
+            PaymentMethod paymentMethod,
+            boolean paid,
+            BigDecimal total,
+            Instant createdAt) {
+    }
+
     public record OrderResponse(
             Long id,
             int number,

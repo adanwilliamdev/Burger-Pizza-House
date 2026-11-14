@@ -40,6 +40,7 @@ p { margin: 0; }
 .link { color: var(--primary); font-weight: 500; }
 .link:hover { text-decoration: underline; }
 .hidden { display: none; }
+[hidden] { display: none !important; }
 
 /* ------------------------------------------------------------------ shell */
 .shell { display: flex; min-height: 100vh; }
@@ -79,7 +80,8 @@ p { margin: 0; }
 .menu a:hover, .menu button:hover { background: var(--muted); }
 .menu .danger { color: var(--destructive); }
 
-.mobile-nav { display: none; position: fixed; left: 0; right: 0; bottom: 0; height: 56px; z-index: 40;
+.mobile-nav { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+              height: calc(56px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px);
               background: var(--card); border-top: 1px solid var(--border); justify-content: space-around; }
 .mobile-nav a { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px;
                 font-weight: 500; color: var(--muted-fg); }
@@ -87,7 +89,7 @@ p { margin: 0; }
 @media (max-width: 1023px) {
   .sidebar { display: none; }
   .mobile-nav { display: flex; }
-  .main-col { padding-bottom: 56px; }
+  .main-col { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
   .content { padding: 16px; }
   .topbar { padding: 0 16px; }
 }
@@ -105,9 +107,9 @@ p { margin: 0; }
 .grid { display: grid; gap: 16px; }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-main { grid-template-columns: 2fr 1fr; }
-.grid-detail { grid-template-columns: 1fr 320px; }
-.grid-order { grid-template-columns: 1fr 380px; align-items: start; }
+.grid-main { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.grid-detail { grid-template-columns: minmax(0, 1fr) 320px; }
+.grid-order { grid-template-columns: minmax(0, 1fr) 380px; align-items: start; }
 @media (max-width: 1023px) {
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .grid-main, .grid-detail, .grid-order { grid-template-columns: 1fr; }
@@ -171,6 +173,11 @@ tbody tr:hover { background: color-mix(in srgb, var(--muted) 50%, transparent); 
 td.actions { text-align: right; white-space: nowrap; }
 th.actions { text-align: right; }
 .empty { padding: 20px; color: var(--muted-fg); font-size: 14px; }
+.pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+         padding: 12px 16px; border-top: 1px solid var(--border); }
+.pager-nav { display: flex; align-items: center; gap: 12px; }
+.btn.is-disabled { opacity: .45; pointer-events: none; }
+.date-filter { display: inline-flex; align-items: center; gap: 6px; }
 
 .badge { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 2px 10px; font-size: 12px;
          font-weight: 500; border: 1px solid transparent; background: var(--secondary); color: var(--foreground); }
@@ -209,6 +216,20 @@ th.actions { text-align: right; }
 .qty { display: flex; align-items: center; gap: 8px; }
 .qty span { width: 20px; text-align: center; }
 .cart-sticky { position: sticky; top: 16px; }
+/* Carrinho mais alto que a tela (tablet): rola por dentro e o total + "Finalizar" ficam sempre à vista. */
+@media (min-width: 700px) {
+  /* altura útil = tela − barra superior (56) − respiro do conteúdo (24 + 16) */
+  .cart-sticky { max-height: calc(100vh - 96px); max-height: calc(100dvh - 96px); overflow-y: auto; overscroll-behavior: contain; }
+  .cart-summary { position: sticky; bottom: 0; margin: 0 -20px -20px; padding: 12px 20px 20px; background: var(--card);
+                  border-top: 1px solid var(--border); box-shadow: 0 -6px 12px -8px rgba(0,0,0,.18); z-index: 1; }
+}
+/* Enquanto o htmx atualiza o carrinho (só se demorar mais de 150 ms), escurece levemente. */
+#order-form.htmx-request #cart-lines, #order-form.htmx-request #cart-summary, #order-form.htmx-request #catalog {
+  opacity: .6; transition: opacity .1s linear .15s; }
+.cart-actions { display: flex; gap: 8px; margin-top: 6px; }
+.cart-actions .btn { flex: 1; padding: 0 12px; }
+.cart-actions .btn:last-child { flex: 2; }
+.cart-bar { display: none; }
 .summary-row { display: flex; justify-content: space-between; color: var(--muted-fg); }
 .summary-total { display: flex; justify-content: space-between; font-family: var(--font-display); font-size: 16px; font-weight: 600; }
 .sep { border: 0; border-top: 1px solid var(--border); margin: 8px 0; }
@@ -224,10 +245,68 @@ th.actions { text-align: right; }
 .login-form h1 { font-size: 24px; font-weight: 600; }
 @media (max-width: 1023px) { .login { grid-template-columns: 1fr; } .login-art { display: none; } }
 
+/* ------------------------------------------------------------- responsivo
+   Faixas: desktop >= 1024 (barra lateral) | tablet 700-1023 | celular < 700.
+   No tablet a tela de novo pedido mantém produtos e carrinho lado a lado (balcão); no celular empilha. */
+@media (max-width: 899px) { .hide-md { display: none; } }
+@media (max-width: 639px) { .hide-sm { display: none; } }
+
+@media (min-width: 700px) and (max-width: 1023px) {
+  /* a barra de navegação inferior (56 px) cobre o rodapé da tela: desconta da altura do carrinho
+     (barra superior 56 + respiro 16 + barra inferior 56 + folga 8) */
+  .cart-sticky { max-height: calc(100vh - 136px - env(safe-area-inset-bottom, 0px));
+                 max-height: calc(100dvh - 136px - env(safe-area-inset-bottom, 0px)); }
+  .grid-order { grid-template-columns: minmax(0, 1fr) 340px; }
+  .grid-detail { grid-template-columns: minmax(0, 1fr) 300px; }
+  .tiles { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+@media (max-width: 699px) {
+  .content { padding: 12px; gap: 16px; }
+  .topbar h1 { font-size: 16px; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .tile { padding: 12px; }
+  .card-header { padding: 14px 14px 4px; }
+  .card-body { padding: 12px 14px 16px; }
+  .card-body.flush { padding: 0; }
+  .grid-order { padding-bottom: 64px; } /* espaço para a barra do carrinho */
+  .page-actions .btn { flex: 1 1 100%; }
+  /* filtros: um campo por linha */
+  .filters > .input, .filters > .select, .filters > .btn { flex: 1 1 100%; width: 100%; }
+  .filters > .date-filter { flex: 1 1 calc(50% - 6px); min-width: 0; }
+  .filters .date-filter .input { flex: 1; width: auto; min-width: 0; }
+  .pager { justify-content: center; }
+  .pager > span { width: 100%; text-align: center; }
+  .pager-nav { width: 100%; justify-content: space-between; }
+  .cart-bar { position: fixed; left: 12px; right: 12px; z-index: 45; display: flex; align-items: center; gap: 12px;
+              bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 8px); padding: 12px 16px; border-radius: 12px;
+              background: var(--primary); color: var(--primary-fg); font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+  .cart-bar.is-empty { display: none; }
+  .cart-bar-total { margin-left: auto; font-family: var(--font-display); }
+  .cart-bar-go { font-weight: 500; opacity: .85; }
+  .cart-sticky { position: static; }
+}
+
+/* Telas de toque (tablet de balcão, celular): alvos de pelo menos 44 px e 16 px nos campos (o iOS dá zoom abaixo disso). */
+@media (pointer: coarse) {
+  .btn { height: 44px; }
+  .btn.sm { height: 40px; }
+  .btn.icon { width: 44px; height: 44px; font-size: 18px; }
+  .input, .select, .textarea { height: 44px; font-size: 16px; }
+  .textarea { height: auto; }
+  .input.sm, .select.sm { height: 40px; font-size: 16px; }
+  .tile { min-height: 88px; }
+  .qty { gap: 10px; }
+  .qty span { width: 28px; font-size: 16px; font-weight: 600; }
+  .nav a, .menu a, .menu button { padding-top: 12px; padding-bottom: 12px; }
+  td { padding-top: 14px; padding-bottom: 14px; }
+}
+
 /* --------------------------------------------------------------- utilitários
    Substituem os style="..." inline dos templates (a CSP não permite estilos inline). Ficam por último para
    vencer a especificidade igual dos componentes acima. */
 .fw-500 { font-weight: 500; }
+.nowrap { white-space: nowrap; }
 .fs-18 { font-size: 18px; }
 .gap-4 { gap: 4px; } .gap-6 { gap: 6px; } .gap-8 { gap: 8px; } .gap-12 { gap: 12px; } .gap-16 { gap: 16px; }
 .pt-12 { padding-top: 12px; } .pt-16 { padding-top: 16px; }

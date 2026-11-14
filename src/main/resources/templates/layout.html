@@ -3,10 +3,14 @@
       th:fragment="page(title, active, content)">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- htmx sem scripts/estilos inline nem eval (a CSP é estrita): ver SecurityConfig.WEB_CSP -->
+  <meta name="htmx-config" content='{"includeIndicatorStyles":false,"allowEval":false,"allowScriptTags":false,"defaultSettleDelay":0,"timeout":15000}'>
   <title th:text="${title} + ' — Burger & Pizza House'">Burger &amp; Pizza House</title>
   <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
   <link rel="stylesheet" th:href="@{/css/app.css}">
+  <!-- Versão fixa do htmx via WebJar (servido pela própria aplicação); mantenha igual à do pom.xml. -->
+  <script defer th:src="@{/webjars/htmx.org/2.0.4/dist/htmx.min.js}"></script>
   <script defer th:src="@{/js/app.js}"></script>
 </head>
 <body>
