@@ -1,7 +1,6 @@
 package com.burgerpizzahouse.service;
 
 import com.burgerpizzahouse.dto.DashboardDtos.DashboardSummary;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Cache do dashboard no Redis. É invalidado DEPOIS do commit da transação que mudou os números

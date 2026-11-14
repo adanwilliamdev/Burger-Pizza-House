@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/adanwilliamdev/Burger-Pizza-House/actions/workflows/ci.yml/badge.svg)](https://github.com/adanwilliamdev/Burger-Pizza-House/actions/workflows/ci.yml)
 ![Java 21](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot 3.3](https://img.shields.io/badge/Spring%20Boot-3.3-6DB33F)
+![Spring Boot 4.1](https://img.shields.io/badge/Spring%20Boot-4.1-6DB33F)
 ![License MIT](https://img.shields.io/badge/license-MIT-blue)
 [![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/adanwilliamdev/badge.svg)](https://hub.xerj.org/contributors/adanwilliamdev)
 
@@ -13,8 +13,8 @@ ERP para hamburgueria e pizzaria: **pedidos**, **catálogo de produtos com recei
 | Camada | Tecnologia |
 |---|---|
 | Linguagem / build | Java 21, Maven |
-| Aplicação | Spring Boot 3.3 (Spring MVC) |
-| Interface web | Thymeleaf (renderização no servidor, sem JavaScript obrigatório) + CSS próprio |
+| Aplicação | Spring Boot 4.1 (Spring Framework 7, Spring MVC, Jackson 3) |
+| Interface web | Thymeleaf (renderização no servidor, só um `app.js` mínimo, sem frameworks) + CSS próprio |
 | Segurança | Spring Security — sessão + CSRF na interface; JWT (access/refresh) na API |
 | Persistência | Spring Data JPA / Hibernate, PostgreSQL 16, migrações com Flyway |
 | Cache e controle | Redis 7 (cache do dashboard, blacklist de tokens, anti força bruta) |
@@ -181,6 +181,13 @@ src/main/resources/
   - Sem proxy na frente (acesso direto), use `FORWARD_HEADERS_STRATEGY=none`.
   - `framework` não serve aqui: o `ForwardedHeaderFilter` do Spring não altera `getRemoteAddr()`.
   - Para conferir: faça um login com senha errada e veja a chave `login:fail:ip:<ip>` no Redis; deve ser o IP do cliente, não o do proxy.
+
+## Versões
+
+Spring Boot **4.1.2** (Spring Framework 7, Spring Security 7, Hibernate 7, Jackson 3), springdoc-openapi **3.1.0** e jjwt **0.13.0**. O Spring Boot 3.5, última linha 3.x, saiu do suporte open source em 30/06/2026, e o 3.3 já estava sem suporte desde 2025. Mudanças da migração a ter em mente:
+- starters renomeados/novos: `spring-boot-starter-webmvc` (era `-web`), `spring-boot-starter-flyway` (o `flyway-core` sozinho não autoconfigura mais) e, nos testes, `spring-boot-starter-webmvc-test` e `spring-boot-starter-security-test`;
+- Jackson 3: pacote `tools.jackson` (as anotações `@JsonProperty` seguem em `com.fasterxml.jackson.annotation`) e exceções não verificadas (`JacksonException`);
+- `@AutoConfigureMockMvc` agora é `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`.
 
 ## Cabeçalhos de segurança
 

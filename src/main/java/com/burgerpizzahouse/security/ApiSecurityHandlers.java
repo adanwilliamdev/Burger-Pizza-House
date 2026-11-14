@@ -1,6 +1,5 @@
 package com.burgerpizzahouse.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -12,6 +11,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import tools.jackson.databind.ObjectMapper;
 
 /** Respostas JSON {"detail": "..."} para 401 e 403 na API. */
 public class ApiSecurityHandlers implements AuthenticationEntryPoint, AccessDeniedHandler {

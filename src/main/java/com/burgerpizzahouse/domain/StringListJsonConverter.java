@@ -1,18 +1,18 @@
 package com.burgerpizzahouse.domain;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import java.util.ArrayList;
 import java.util.List;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 /** Guarda uma lista de textos (ex.: sabores de uma pizza meio a meio) como JSON numa coluna text. */
 @Converter
 public class StringListJsonConverter implements AttributeConverter<List<String>, String> {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().build();
     private static final TypeReference<List<String>> LIST_TYPE = new TypeReference<>() {
     };
 
@@ -23,7 +23,7 @@ public class StringListJsonConverter implements AttributeConverter<List<String>,
         }
         try {
             return MAPPER.writeValueAsString(attribute);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Não foi possível serializar a lista", e);
         }
     }
@@ -35,7 +35,7 @@ public class StringListJsonConverter implements AttributeConverter<List<String>,
         }
         try {
             return MAPPER.readValue(dbData, LIST_TYPE);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return new ArrayList<>();
         }
     }

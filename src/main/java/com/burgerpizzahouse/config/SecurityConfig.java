@@ -7,7 +7,6 @@ import com.burgerpizzahouse.security.JwtService;
 import com.burgerpizzahouse.security.LoginHandlers;
 import com.burgerpizzahouse.security.LoginThrottleFilter;
 import com.burgerpizzahouse.service.LoginThrottleService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +27,7 @@ import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Duas cadeias de segurança:
