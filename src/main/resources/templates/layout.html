@@ -18,12 +18,12 @@
   <aside class="sidebar">
     <div class="brand"><span class="flame">🔥</span> Burger &amp; Pizza House</div>
     <nav class="nav">
-      <a th:href="@{/dashboard}" th:classappend="${active == 'dashboard'} ? 'active'">Dashboard</a>
-      <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? 'active'">Pedidos</a>
-      <a th:href="@{/cash}" th:classappend="${active == 'cash'} ? 'active'" sec:authorize="hasAnyRole('ADMIN','MANAGER')">Caixa</a>
-      <a th:href="@{/products}" th:classappend="${active == 'products'} ? 'active'">Produtos</a>
-      <a th:href="@{/ingredients}" th:classappend="${active == 'ingredients'} ? 'active'">Ingredientes</a>
-      <a th:href="@{/users}" th:classappend="${active == 'users'} ? 'active'" sec:authorize="hasRole('ADMIN')">Usuários</a>
+      <a th:href="@{/dashboard}" th:classappend="${active == 'dashboard'} ? 'active'"><span class="ico" aria-hidden="true">📊</span>Dashboard</a>
+      <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? 'active'"><span class="ico" aria-hidden="true">🧾</span>Pedidos</a>
+      <a th:href="@{/cash}" th:classappend="${active == 'cash'} ? 'active'" sec:authorize="hasAnyRole('ADMIN','MANAGER')"><span class="ico" aria-hidden="true">💵</span>Caixa</a>
+      <a th:href="@{/products}" th:classappend="${active == 'products'} ? 'active'"><span class="ico" aria-hidden="true">🍕</span>Produtos</a>
+      <a th:href="@{/ingredients}" th:classappend="${active == 'ingredients'} ? 'active'"><span class="ico" aria-hidden="true">🥬</span>Ingredientes</a>
+      <a th:href="@{/users}" th:classappend="${active == 'users'} ? 'active'" sec:authorize="hasRole('ADMIN')"><span class="ico" aria-hidden="true">👥</span>Usuários</a>
     </nav>
     <div class="sidebar-foot">
       <a class="btn-new" th:href="@{/orders/new}">🛍 Novo pedido</a>
@@ -57,11 +57,11 @@
   </div>
 
   <nav class="mobile-nav">
-    <a th:href="@{/dashboard}" th:classappend="${active == 'dashboard'} ? 'active'">Painel</a>
-    <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? 'active'">Pedidos</a>
-    <a th:href="@{/orders/new}">Novo</a>
-    <a th:href="@{/products}" th:classappend="${active == 'products'} ? 'active'">Produtos</a>
-    <a th:href="@{/ingredients}" th:classappend="${active == 'ingredients'} ? 'active'">Estoque</a>
+    <a th:href="@{/dashboard}" th:classappend="${active == 'dashboard'} ? 'active'"><span class="ico" aria-hidden="true">📊</span>Painel</a>
+    <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? 'active'"><span class="ico" aria-hidden="true">🧾</span>Pedidos</a>
+    <a th:href="@{/orders/new}"><span class="ico" aria-hidden="true">➕</span>Novo</a>
+    <a th:href="@{/products}" th:classappend="${active == 'products'} ? 'active'"><span class="ico" aria-hidden="true">🍕</span>Produtos</a>
+    <a th:href="@{/ingredients}" th:classappend="${active == 'ingredients'} ? 'active'"><span class="ico" aria-hidden="true">📦</span>Estoque</a>
   </nav>
 </div>
 </body>

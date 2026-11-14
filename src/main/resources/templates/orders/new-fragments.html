@@ -18,7 +18,8 @@
   </div>
 
   <div class="tiles">
-    <button type="submit" name="op" class="tile" th:each="p : ${tiles}" th:value="'add:' + ${p.id()}">
+    <button type="submit" name="op" class="tile" th:each="p : ${tiles}" th:value="'add:' + ${p.id()}"
+            th:classappend="'cat-' + ${p.category().name().toLowerCase()}">
       <span class="cat" th:text="${p.category().label}">Pizza</span>
       <span class="name" th:text="${p.name()}">Produto</span>
       <span class="price" th:text="${@fmt.money(p.price())}">R$ 0,00</span>
