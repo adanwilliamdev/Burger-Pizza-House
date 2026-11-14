@@ -84,6 +84,20 @@ erDiagram
 docker compose up --build
 ```
 
+O `docker-compose.yml` é só para desenvolvimento: Postgres e Redis publicam portas apenas em `127.0.0.1`, com as credenciais padrão do repositório.
+
+### Produção (Docker)
+
+```bash
+cp .env.prod.example .env.prod      # preencha os 4 segredos (openssl rand -hex 32)
+docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+```
+
+- **Sem portas expostas** em Postgres e Redis: ficam numa rede interna (`internal: true`), alcançável só pela aplicação.
+- **Redis com senha** (`REDIS_PASSWORD`, só letras e números, pois vai na URL) e persistência em disco.
+- **Segredos só no `.env.prod`** (ignorado pelo Git e pelo Docker build): `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_SECRET_KEY` e `SEED_ADMIN_PASSWORD`. Se algum faltar, o `docker compose` se recusa a subir. `POSTGRES_PASSWORD` só vale na primeira criação do volume; para trocar depois use `ALTER USER`.
+- A aplicação sobe com `APP_ENV=production` (Swagger desligado) e escuta só em `127.0.0.1:8080`: coloque Nginx/Traefik com HTTPS na frente (veja "Atrás de proxy reverso" abaixo). O proxy no mesmo host chega pelo gateway da rede Docker, que está na faixa privada confiável por padrão.
+
 - Aplicação: http://localhost:8080
 - API (Swagger): http://localhost:8080/docs (exige login como ADMIN; vem desligado por padrão com `APP_ENV=production`, ligue com `DOCS_ENABLED=true` se precisar)
 - Saúde: http://localhost:8080/api/health e `/api/health/ready`

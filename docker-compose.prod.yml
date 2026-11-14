@@ -1,0 +1,94 @@
+# Produção. Uso:
+#   cp .env.prod.example .env.prod     # preencha os segredos (veja o arquivo)
+#   docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+#
+# Diferenças para o docker-compose.yml (desenvolvimento):
+#   - Postgres e Redis NÃO publicam portas: só a aplicação os alcança, por uma rede interna sem saída;
+#   - Redis exige senha e persiste em disco (blacklist de tokens e bloqueio de login sobrevivem a reinício);
+#   - nenhuma credencial fica no arquivo: tudo vem do .env.prod, e o compose se recusa a subir se faltar segredo;
+#   - APP_ENV=production fixo (a aplicação recusa JWT/senha de admin fracos) e Swagger desligado por padrão;
+#   - a aplicação escuta só em 127.0.0.1: coloque Nginx/Traefik/load balancer na frente, com HTTPS
+#     (veja "Atrás de proxy reverso" no README).
+name: bph-prod
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bph_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env.prod}
+      POSTGRES_DB: ${POSTGRES_DB:-burger_pizza_house}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [backend]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # A senha é lida do ambiente do contêiner (não aparece no compose nem na linha de comando do host).
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\" --appendonly yes"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?defina REDIS_PASSWORD no .env.prod}
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    networks: [backend]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-burger_pizza_house}
+      DATABASE_USER: ${POSTGRES_USER:-bph_user}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      # A senha vai na URL: use só letras e números (ex.: openssl rand -hex 32), sem @ : / % #.
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?defina JWT_SECRET_KEY no .env.prod (32+ caracteres aleatórios)}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?defina SEED_ADMIN_PASSWORD no .env.prod (8+ caracteres)}
+      APP_SEED_ENABLED: ${APP_SEED_ENABLED:-true}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      BUSINESS_TIMEZONE: ${BUSINESS_TIMEZONE:-America/Sao_Paulo}
+      LOGIN_MAX_ATTEMPTS: ${LOGIN_MAX_ATTEMPTS:-5}
+      LOGIN_LOCK_SECONDS: ${LOGIN_LOCK_SECONDS:-900}
+      FORWARD_HEADERS_STRATEGY: ${FORWARD_HEADERS_STRATEGY:-native}
+      # Sem valor: repassa só se definido no .env.prod; senão o Swagger fica desligado (padrão de production).
+      DOCS_ENABLED:
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+    networks: [backend, frontend]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/health/ready >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+networks:
+  # Sem acesso externo: nem para entrar (nenhuma porta publicada) nem para sair.
+  backend:
+    internal: true
+  frontend: {}
+
+volumes:
+  postgres_data:
+  redis_data:
