@@ -6,7 +6,7 @@
 
   <div class="card">
     <form class="card-body row filters" method="get" th:action="@{/orders}">
-      <input class="input w-200" type="search" name="q" maxlength="100" th:value="${filterQuery}"
+      <input class="input search" type="search" name="q" maxlength="100" th:value="${filterQuery}"
              placeholder="Nº ou cliente" aria-label="Buscar por número ou cliente" enterkeyhint="search">
       <select class="select w-200" name="status" aria-label="Status">
         <option value="">Todos os status</option>

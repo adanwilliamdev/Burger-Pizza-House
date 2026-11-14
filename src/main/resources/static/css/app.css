@@ -212,6 +212,10 @@ th.actions { text-align: right; }
 .pager-nav { display: flex; align-items: center; gap: 12px; }
 .btn.is-disabled { opacity: .45; pointer-events: none; }
 .date-filter { display: inline-flex; align-items: center; gap: 6px; }
+/* Barra de filtros numa linha só em telas largas: a busca encolhe/cresce, selects e datas ficam compactos. */
+.filters > .search { flex: 1 1 110px; width: auto; min-width: 110px; }
+.filters > .select { flex: 0 1 168px; width: auto; min-width: 0; }
+.filters .date-filter .input { width: 130px; }
 
 .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 11px 3px 9px; font-size: 12px;
          font-weight: 600; border: 1px solid transparent; background: var(--secondary); color: var(--foreground); white-space: nowrap; }

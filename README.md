@@ -31,6 +31,31 @@ ERP para hamburgueria e pizzaria: **pedidos**, **catálogo de produtos com recei
 - **Dashboard**: faturamento e pedidos do dia, pedidos em andamento, estoque baixo, mais vendidos e faturamento por dia (7/14/30/90 dias), no fuso do negócio.
 - **Perfis**: `ADMIN` gerencia produtos, ingredientes e usuários; `MANAGER` e `OPERATOR` operam pedidos e consultam o painel.
 
+## Telas
+
+<p align="center">
+  <img src="docs/screenshots/login.png" alt="Tela de login" width="49%">
+  <img src="docs/screenshots/dashboard.png" alt="Dashboard com faturamento, mais vendidos e pedidos recentes" width="49%">
+</p>
+
+**Pedidos** — lista paginada com busca por número ou cliente e filtros de status, tipo e período:
+
+<p align="center">
+  <img src="docs/screenshots/pedidos.png" alt="Lista de pedidos com filtros e paginação" width="90%">
+</p>
+
+**Novo pedido** — carrinho que atualiza sem recarregar a página (htmx), com layout próprio para desktop, tablet de balcão e celular:
+
+<p align="center">
+  <img src="docs/screenshots/novo-pedido.png" alt="Novo pedido no desktop" width="90%">
+</p>
+<p align="center">
+  <img src="docs/screenshots/novo-pedido-tablet.png" alt="Novo pedido no tablet" width="62%">
+  <img src="docs/screenshots/novo-pedido-celular.png" alt="Novo pedido no celular" width="26%">
+</p>
+
+> As imagens ficam em `docs/screenshots/`. Para refazê-las com a aplicação rodando, use `python docs/screenshots/capture.py`.
+
 ## Tela de pedidos: paginação, filtros e carrinho
 
 - `GET /orders` pagina no servidor (`Page` com total) e usa um DTO resumido (`OrderSummaryResponse`, sem itens). Filtros: `q` (número, com ou sem `#`, ou parte do nome do cliente), `status`, `type`, `start_date`, `end_date`, `page`.
