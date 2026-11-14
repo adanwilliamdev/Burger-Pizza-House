@@ -195,3 +195,10 @@ Spring Boot **4.1.2** (Spring Framework 7, Spring Security 7, Hibernate 7, Jacks
 - **Referrer-Policy** (`same-origin` na web, `no-referrer` na API), **Permissions-Policy** (câmera, microfone, geolocalização e pagamento desligados) e **HSTS** de 1 ano com subdomínios.
 - O HSTS só é enviado em requisições HTTPS. Atrás de proxy isso depende de o proxy enviar `X-Forwarded-Proto: https` e de `server.forward-headers-strategy` (veja "Atrás de proxy reverso").
 - Por causa da CSP, **os templates não podem ter `style="..."`, `<script>` inline nem `onclick`/`onsubmit`**: estilos vão para `static/css/app.css` (classes utilitárias como `w-200`, `gap-16`), comportamentos para `static/js/app.js` (`data-confirm="..."` pede confirmação ao enviar um formulário; `data-height` define a altura das barras do dashboard). O teste `TemplatesCspTest` falha se alguém reintroduzir isso.
+
+## Regras de pedidos (meio a meio, cancelamento, pagamento)
+
+- **Meio a meio / quartos** (só pizzas, até 4 sabores): na API, `half_flavors` recebe os nomes dos *outros* sabores além do produto do item. O preço é o do **sabor mais caro**; o estoque baixa **proporcionalmente** (cada sabor consome `quantidade ÷ nº de sabores` da própria receita). Na tela de novo pedido, cada pizza do carrinho tem o seletor "Meio a meio com…".
+- **Cancelamento**: `POST /api/orders/{id}/status` aceita `cancel_reason` e `return_to_stock`. Se o pedido já estava em *Preparando* (ou depois), o motivo é obrigatório e, por padrão, os insumos **não** voltam ao estoque (perda). Antes do preparo, o padrão é devolver. A tela de detalhe pergunta o destino dos insumos.
+- **Pagamento**: `POST /api/orders/{id}/payment` (corpo opcional `{"amount_received": 50}`) marca como pago; em dinheiro calcula o **troco**. Pedidos não pagos aparecem como "A receber".
+- **Fechamento de caixa**: `GET /api/orders/cash-closing?date=AAAA-MM-DD` e a tela **Caixa** (ADMIN e MANAGER) somam o recebido por forma de pagamento, o a receber e os cancelados do dia.

@@ -18,7 +18,7 @@
                   <p class="fw-500" th:text="${item.productName()}">Produto</p>
                   <p class="small muted" th:if="${item.notes() != null}" th:text="${item.notes()}"></p>
                   <p class="small muted" th:if="${!item.halfFlavors().isEmpty()}"
-                     th:text="'Meio a meio: ' + ${#strings.listJoin(item.halfFlavors(), ' / ')}"></p>
+                     th:text="'Meio a meio: ' + ${item.productName()} + ' / ' + ${#strings.listJoin(item.halfFlavors(), ' / ')}"></p>
                 </td>
                 <td th:text="${item.quantity()}">1</td>
                 <td th:text="${@fmt.money(item.unitPrice())}">R$ 0,00</td>
@@ -46,6 +46,12 @@
         <div class="card-body stack-sm gap-8">
           <div class="summary-row"><span>Tipo</span><span class="text-fg" th:text="${order.type().label}">Entrega</span></div>
           <div class="summary-row"><span>Pagamento</span><span class="text-fg" th:text="${order.paymentMethod().label}">Pix</span></div>
+          <div class="summary-row"><span>Situação do pagamento</span>
+            <span class="badge st-delivered" th:if="${order.paid()}">Pago</span>
+            <span class="badge st-cancelled" th:if="${!order.paid() and order.status().name() == 'CANCELLED'}">—</span>
+            <span class="badge st-pending" th:if="${!order.paid() and order.status().name() != 'CANCELLED'}">A receber</span></div>
+          <div class="summary-row" th:if="${order.paid() and order.paymentMethod().name() == 'CASH'}"><span>Recebido / troco</span>
+            <span class="text-fg" th:text="${@fmt.money(order.amountReceived())} + ' / ' + ${@fmt.money(order.change())}">R$ 0,00</span></div>
           <div class="summary-row"><span>Atendente</span><span class="text-fg" th:text="${order.user().name()}">Admin</span></div>
           <div class="summary-row"><span>Criado em</span><span class="text-fg" th:text="${@fmt.dateTime(order.createdAt())}">—</span></div>
           <hr class="sep">
@@ -56,14 +62,59 @@
         </div>
       </div>
 
+      <div class="card" th:if="${order.status().name() == 'CANCELLED'}">
+        <div class="card-header"><h2 class="card-title">Cancelamento</h2></div>
+        <div class="card-body stack-sm gap-8">
+          <p><span class="muted">Motivo: </span><span th:text="${order.cancelReason() ?: '—'}">—</span></p>
+          <p th:if="${order.stockReturned() != null}">
+            <span class="muted">Estoque: </span>
+            <span th:text="${order.stockReturned()} ? 'Insumos devolvidos ao estoque' : 'Registrado como perda (insumos não devolvidos)'">—</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="card" th:if="${!order.paid() and order.status().name() != 'CANCELLED'}">
+        <div class="card-header"><h2 class="card-title">Registrar pagamento</h2></div>
+        <div class="card-body">
+          <form method="post" th:action="@{/orders/{id}/payment(id=${order.id()})}" class="stack-sm gap-8">
+            <div class="field" th:if="${order.paymentMethod().name() == 'CASH'}">
+              <label for="amountReceived">Valor recebido (R$) — deixe vazio se for o valor exato</label>
+              <input class="input" id="amountReceived" name="amountReceived" type="number" min="0" step="0.01">
+            </div>
+            <button type="submit" class="btn block">Marcar como pago</button>
+          </form>
+        </div>
+      </div>
+
       <div class="card" th:if="${!order.allowedNextStatuses().isEmpty()}">
         <div class="card-header"><h2 class="card-title">Atualizar status</h2></div>
         <div class="card-body btn-row">
-          <form th:each="s : ${order.allowedNextStatuses()}" method="post"
+          <form th:each="s : ${order.allowedNextStatuses()}" th:if="${s.name() != 'CANCELLED'}" method="post"
                 th:action="@{/orders/{id}/status(id=${order.id()})}" class="inline-form d-block">
             <input type="hidden" name="status" th:value="${s.name()}">
-            <button type="submit" class="btn block" th:classappend="${s.name() == 'CANCELLED'} ? 'destructive'"
+            <button type="submit" class="btn block"
                     th:text="'Marcar como ' + ${#strings.toLowerCase(s.label)}">Marcar como confirmado</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card" th:if="${!order.allowedNextStatuses().isEmpty()}">
+        <div class="card-header"><h2 class="card-title">Cancelar pedido</h2></div>
+        <div class="card-body">
+          <form method="post" th:action="@{/orders/{id}/status(id=${order.id()})}" class="stack-sm gap-8">
+            <input type="hidden" name="status" value="CANCELLED">
+            <div class="field"><label for="cancelReason">Motivo do cancelamento</label>
+              <textarea class="textarea" id="cancelReason" name="cancelReason"
+                        th:required="${order.status().preparedOrLater}"></textarea>
+              <span class="hint" th:if="${order.status().preparedOrLater}">Obrigatório: o pedido já estava em preparo.</span></div>
+            <div class="field">
+              <label>Destino dos insumos</label>
+              <label><input type="radio" name="returnToStock" value="true"
+                            th:checked="${!order.status().preparedOrLater}"> Devolver ao estoque</label>
+              <label><input type="radio" name="returnToStock" value="false"
+                            th:checked="${order.status().preparedOrLater}"> Registrar como perda (insumos já usados)</label>
+            </div>
+            <button type="submit" class="btn block destructive">Cancelar pedido</button>
           </form>
         </div>
       </div>

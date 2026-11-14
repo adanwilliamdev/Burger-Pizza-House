@@ -23,6 +23,13 @@ public final class StockCalculator {
     public record Line(long productId, int quantity) {
     }
 
+    /**
+     * Consumo fracionado: {@code units} unidades (possivelmente fracionárias) da receita do produto. Usado no meio a
+     * meio: cada sabor consome {@code quantidade / nº de sabores} da própria receita.
+     */
+    public record UnitLine(long productId, BigDecimal units) {
+    }
+
     /** Linha de receita: quanto de um ingrediente é gasto por unidade de produto. */
     public record RecipeEntry(long ingredientId, BigDecimal quantityPerUnit) {
     }
@@ -38,10 +45,18 @@ public final class StockCalculator {
      * @return ingrediente -> total necessário, em ordem crescente de id
      */
     public static Map<Long, BigDecimal> aggregateRequired(List<Line> lines, Map<Long, List<RecipeEntry>> recipes) {
+        return aggregateRequiredUnits(lines.stream()
+                .map(l -> new UnitLine(l.productId(), BigDecimal.valueOf(l.quantity())))
+                .toList(), recipes);
+    }
+
+    /** Igual a {@link #aggregateRequired}, mas aceitando unidades fracionárias (meio a meio). */
+    public static Map<Long, BigDecimal> aggregateRequiredUnits(List<UnitLine> lines,
+                                                               Map<Long, List<RecipeEntry>> recipes) {
         Map<Long, BigDecimal> required = new TreeMap<>();
-        for (Line line : lines) {
+        for (UnitLine line : lines) {
             for (RecipeEntry entry : recipes.getOrDefault(line.productId(), List.of())) {
-                BigDecimal amount = entry.quantityPerUnit().multiply(BigDecimal.valueOf(line.quantity()));
+                BigDecimal amount = entry.quantityPerUnit().multiply(line.units());
                 required.merge(entry.ingredientId(), amount, BigDecimal::add);
             }
         }

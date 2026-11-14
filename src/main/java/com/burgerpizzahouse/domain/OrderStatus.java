@@ -42,6 +42,11 @@ public enum OrderStatus {
         };
     }
 
+    /** A cozinha já pode ter usado os insumos (preparando ou depois): cancelar exige decidir o destino do estoque. */
+    public boolean isPreparedOrLater() {
+        return this == PREPARING || this == READY || this == DELIVERING || this == DELIVERED;
+    }
+
     public boolean canTransitionTo(OrderStatus next) {
         return allowedNext().contains(next);
     }

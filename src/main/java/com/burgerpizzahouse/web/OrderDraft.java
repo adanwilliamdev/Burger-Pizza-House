@@ -21,6 +21,8 @@ public class OrderDraft implements Serializable {
         private final long productId;
         private int quantity;
         private String notes = "";
+        /** Meio a meio: id do outro sabor (null = pizza inteira). */
+        private Long halfWith;
 
         public Line(long productId, int quantity) {
             this.productId = productId;
@@ -37,6 +39,14 @@ public class OrderDraft implements Serializable {
 
         public void setQuantity(int quantity) {
             this.quantity = quantity;
+        }
+
+        public Long getHalfWith() {
+            return halfWith;
+        }
+
+        public void setHalfWith(Long halfWith) {
+            this.halfWith = halfWith;
         }
 
         public String getNotes() {

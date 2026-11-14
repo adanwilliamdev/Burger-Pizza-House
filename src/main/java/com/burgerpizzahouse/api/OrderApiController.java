@@ -2,8 +2,10 @@ package com.burgerpizzahouse.api;
 
 import com.burgerpizzahouse.domain.OrderStatus;
 import com.burgerpizzahouse.domain.OrderType;
+import com.burgerpizzahouse.dto.OrderDtos.CashClosingResponse;
 import com.burgerpizzahouse.dto.OrderDtos.OrderCreateRequest;
 import com.burgerpizzahouse.dto.OrderDtos.OrderResponse;
+import com.burgerpizzahouse.dto.OrderDtos.PaymentRequest;
 import com.burgerpizzahouse.dto.OrderDtos.StatusUpdateRequest;
 import com.burgerpizzahouse.security.AppUserDetails;
 import com.burgerpizzahouse.service.OrderService;
@@ -15,6 +17,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,6 +69,21 @@ public class OrderApiController {
     @PostMapping("/{id}/status")
     public OrderResponse updateStatus(@PathVariable Long id, @Valid @RequestBody StatusUpdateRequest request,
                                       @AuthenticationPrincipal AppUserDetails user) {
-        return orders.updateStatus(id, request.status(), user.getId());
+        return orders.updateStatus(id, request.status(), user.getId(), request.cancelReason(), request.returnToStock());
+    }
+
+    /** Registra o pagamento (em dinheiro, o valor recebido é opcional e gera o troco). Corpo opcional. */
+    @PostMapping("/{id}/payment")
+    public OrderResponse pay(@PathVariable Long id, @Valid @RequestBody(required = false) PaymentRequest request,
+                             @AuthenticationPrincipal AppUserDetails user) {
+        return orders.registerPayment(id, request == null ? null : request.amountReceived(), user.getId());
+    }
+
+    /** Fechamento de caixa do dia (padrão: hoje no fuso do negócio). ADMIN e MANAGER. */
+    @GetMapping("/cash-closing")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public CashClosingResponse cashClosing(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return orders.cashClosing(date);
     }
 }

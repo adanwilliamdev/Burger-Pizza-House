@@ -46,6 +46,15 @@
             </div>
             <input class="input sm" type="text" placeholder="Observações (ex: sem cebola)"
                    th:name="'notes_' + ${l.productId()}" th:value="${l.notes()}">
+            <div class="field" th:if="${l.pizza()}">
+              <select class="select sm" th:name="'half_' + ${l.productId()}" aria-label="Meio a meio com">
+                <option value="">Pizza inteira</option>
+                <option th:each="o : ${pizzaOptions}" th:if="${o.id() != l.productId()}" th:value="${o.id()}"
+                        th:text="'Meio a meio com ' + ${o.name()}"
+                        th:selected="${l.halfWithId() != null and l.halfWithId() == o.id()}">Meio a meio com Calabresa</option>
+              </select>
+              <span class="hint" th:if="${l.halfWithName() != null}">Cobra o sabor mais caro; o estoque é baixado meio a meio.</span>
+            </div>
           </div>
         </div>
 

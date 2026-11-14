@@ -16,6 +16,7 @@
     <nav class="nav">
       <a th:href="@{/dashboard}" th:classappend="${active == 'dashboard'} ? 'active'">Dashboard</a>
       <a th:href="@{/orders}" th:classappend="${active == 'orders'} ? 'active'">Pedidos</a>
+      <a th:href="@{/cash}" th:classappend="${active == 'cash'} ? 'active'" sec:authorize="hasAnyRole('ADMIN','MANAGER')">Caixa</a>
       <a th:href="@{/products}" th:classappend="${active == 'products'} ? 'active'">Produtos</a>
       <a th:href="@{/ingredients}" th:classappend="${active == 'ingredients'} ? 'active'">Ingredientes</a>
       <a th:href="@{/users}" th:classappend="${active == 'users'} ? 'active'" sec:authorize="hasRole('ADMIN')">Usuários</a>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: page('Fechamento de caixa', 'cash', ~{::section})}">
+<body>
+<section class="stack">
+  <div class="card">
+    <form class="card-body row" method="get" th:action="@{/cash}">
+      <input class="input w-200" type="date" name="date" th:value="${closing.date()}" aria-label="Data">
+      <button class="btn outline" type="submit">Ver dia</button>
+      <a class="btn ghost" th:href="@{/cash}">Hoje</a>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2 class="card-title">Recebido no dia</h2></div>
+    <div class="card-body flush table-wrap">
+      <table th:if="${!closing.byMethod().isEmpty()}">
+        <thead><tr><th>Forma de pagamento</th><th>Pedidos</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr th:each="m : ${closing.byMethod()}">
+            <td th:text="${m.method().label}">Dinheiro</td>
+            <td th:text="${m.count()}">0</td>
+            <td th:text="${@fmt.money(m.amount())}">R$ 0,00</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="empty" th:if="${closing.byMethod().isEmpty()}">Nenhum pagamento registrado neste dia.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body stack-sm gap-8">
+      <div class="summary-total"><span>Total recebido</span><span th:text="${@fmt.money(closing.totalReceived())}">R$ 0,00</span></div>
+      <div class="summary-row"><span>A receber (pedidos do dia não pagos)</span>
+        <span th:text="${@fmt.money(closing.totalReceivable())} + ' (' + ${closing.receivableCount()} + ' pedidos)'">R$ 0,00</span></div>
+      <div class="summary-row"><span>Pedidos cancelados no dia</span><span th:text="${closing.cancelledCount()}">0</span></div>
+      <p class="muted small">Valores líquidos: em dinheiro conta o total do pedido (o troco devolvido não entra).</p>
+    </div>
+  </div>
+</section>
+</body>
+</html>

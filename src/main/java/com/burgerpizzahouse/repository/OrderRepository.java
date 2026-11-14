@@ -38,6 +38,15 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     @Query("select max(o.number) from Order o")
     Integer findMaxNumber();
 
+    /** Pagamentos recebidos no intervalo (fechamento de caixa). */
+    List<Order> findByPaidTrueAndPaidAtGreaterThanEqualAndPaidAtLessThan(Instant from, Instant to);
+
+    /** Pedidos do intervalo ainda não pagos e não cancelados (a receber). */
+    List<Order> findByPaidFalseAndStatusNotAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(
+            OrderStatus status, Instant from, Instant to);
+
+    long countByStatusAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(OrderStatus status, Instant from, Instant to);
+
     long countByStatusIn(Collection<OrderStatus> statuses);
 
     @Query("select sum(o.total) from Order o where o.status = :status")

@@ -5,6 +5,7 @@ import com.burgerpizzahouse.domain.OrderStatus;
 import com.burgerpizzahouse.domain.OrderType;
 import com.burgerpizzahouse.domain.PaymentMethod;
 import com.burgerpizzahouse.dto.CatalogDtos.ProductResponse;
+import com.burgerpizzahouse.dto.OrderDtos.CashClosingResponse;
 import com.burgerpizzahouse.dto.OrderDtos.OrderCreateRequest;
 import com.burgerpizzahouse.dto.OrderDtos.OrderItemRequest;
 import com.burgerpizzahouse.dto.OrderDtos.OrderResponse;
@@ -14,10 +15,13 @@ import com.burgerpizzahouse.service.InsufficientStockException;
 import com.burgerpizzahouse.service.OrderService;
 import com.burgerpizzahouse.service.ProductService;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,7 +36,8 @@ public class OrderViewController {
 
     /** Linha do carrinho já com os dados do produto, pronta para exibir. */
     public record CartLineView(Long productId, String name, BigDecimal unitPrice, int quantity,
-                               BigDecimal lineTotal, String notes) {
+                               BigDecimal lineTotal, String notes, boolean pizza, Long halfWithId,
+                               String halfWithName) {
     }
 
     private final OrderService orders;
@@ -69,14 +74,44 @@ public class OrderViewController {
 
     @PostMapping("/orders/{id:\\d+}/status")
     public String updateStatus(@PathVariable Long id, @RequestParam OrderStatus status,
+                               @RequestParam(required = false) String cancelReason,
+                               @RequestParam(required = false) String returnToStock,
                                @AuthenticationPrincipal AppUserDetails me, RedirectAttributes redirect) {
         try {
-            orders.updateStatus(id, status, me.getId());
+            Boolean giveBack = returnToStock == null || returnToStock.isBlank() ? null : Boolean.valueOf(returnToStock);
+            orders.updateStatus(id, status, me.getId(), cancelReason, giveBack);
             redirect.addFlashAttribute("success", "Status atualizado para \"" + status.getLabel() + "\".");
         } catch (BusinessException e) {
             redirect.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/orders/" + id;
+    }
+
+    @PostMapping("/orders/{id:\\d+}/payment")
+    public String pay(@PathVariable Long id, @RequestParam(required = false) String amountReceived,
+                      @AuthenticationPrincipal AppUserDetails me, RedirectAttributes redirect) {
+        try {
+            BigDecimal received = amountReceived == null || amountReceived.isBlank()
+                    ? null : parseMoneyStrict(amountReceived);
+            OrderResponse paid = orders.registerPayment(id, received, me.getId());
+            redirect.addFlashAttribute("success", paid.change().signum() > 0
+                    ? "Pagamento registrado. Troco: " + formatMoney(paid.change()) : "Pagamento registrado.");
+        } catch (NumberFormatException e) {
+            redirect.addFlashAttribute("error", "Informe um valor recebido válido.");
+        } catch (BusinessException e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/orders/" + id;
+    }
+
+    /** Fechamento de caixa do dia (ADMIN e MANAGER). */
+    @GetMapping("/cash")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public String cash(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                       Model model) {
+        CashClosingResponse closing = orders.cashClosing(date);
+        model.addAttribute("closing", closing);
+        return "orders/cash";
     }
 
     // ------------------------------------------------------------------------ novo pedido
@@ -94,9 +129,18 @@ public class OrderViewController {
         BigDecimal subtotal = BigDecimal.ZERO;
         for (OrderDraft.Line line : draft.getLines().values()) {
             ProductResponse p = byId.get(line.getProductId());
-            BigDecimal lineTotal = p.price().multiply(BigDecimal.valueOf(line.getQuantity()));
+            boolean pizza = p.category() == Category.PIZZA;
+            ProductResponse other = line.getHalfWith() == null ? null : byId.get(line.getHalfWith());
+            if (!pizza || other == null || other.category() != Category.PIZZA || other.id().equals(p.id())) {
+                line.setHalfWith(null); // sabor sumiu/desativado ou deixou de ser válido
+                other = null;
+            }
+            // meio a meio: preço do sabor mais caro
+            BigDecimal unitPrice = other == null ? p.price() : p.price().max(other.price());
+            BigDecimal lineTotal = unitPrice.multiply(BigDecimal.valueOf(line.getQuantity()));
             subtotal = subtotal.add(lineTotal);
-            cart.add(new CartLineView(p.id(), p.name(), p.price(), line.getQuantity(), lineTotal, line.getNotes()));
+            cart.add(new CartLineView(p.id(), p.name(), unitPrice, line.getQuantity(), lineTotal, line.getNotes(),
+                    pizza, other == null ? null : other.id(), other == null ? null : other.name()));
         }
         BigDecimal discount = parseMoney(draft.getDiscount());
         BigDecimal fee = draft.getType() == OrderType.DELIVERY ? parseMoney(draft.getDeliveryFee()) : BigDecimal.ZERO;
@@ -106,6 +150,7 @@ public class OrderViewController {
                 .filter(p -> draft.getCategory().isEmpty() || p.category().name().equals(draft.getCategory()))
                 .toList();
 
+        model.addAttribute("pizzaOptions", active.stream().filter(p -> p.category() == Category.PIZZA).toList());
         model.addAttribute("tiles", tiles);
         model.addAttribute("cart", cart);
         model.addAttribute("subtotal", subtotal);
@@ -150,9 +195,13 @@ public class OrderViewController {
         }
 
         boolean delivery = draft.getType() == OrderType.DELIVERY;
+        Map<Long, String> names = new LinkedHashMap<>();
+        products.list(null, true, null).forEach(p -> names.put(p.id(), p.name()));
         List<OrderItemRequest> items = draft.getLines().values().stream()
                 .map(l -> new OrderItemRequest(l.getProductId(), l.getQuantity(),
-                        l.getNotes().isBlank() ? null : l.getNotes(), List.of()))
+                        l.getNotes().isBlank() ? null : l.getNotes(),
+                        l.getHalfWith() != null && names.containsKey(l.getHalfWith())
+                                ? List.of(names.get(l.getHalfWith())) : List.of()))
                 .toList();
         OrderCreateRequest request;
         try {
@@ -208,6 +257,14 @@ public class OrderViewController {
             if (notes != null) {
                 line.setNotes(notes);
             }
+            String half = params.get("half_" + line.getProductId());
+            if (half != null) {
+                try {
+                    line.setHalfWith(half.isBlank() ? null : Long.valueOf(half.strip()));
+                } catch (NumberFormatException ignored) {
+                    line.setHalfWith(null);
+                }
+            }
         }
     }
 
@@ -215,6 +272,10 @@ public class OrderViewController {
         if (params.containsKey(key)) {
             setter.accept(params.get(key));
         }
+    }
+
+    private static String formatMoney(BigDecimal value) {
+        return "R$ " + value.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString().replace('.', ',');
     }
 
     private static boolean isCategory(String value) {

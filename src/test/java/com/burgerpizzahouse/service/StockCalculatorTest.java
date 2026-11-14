@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.burgerpizzahouse.service.StockCalculator.Line;
 import com.burgerpizzahouse.service.StockCalculator.RecipeEntry;
 import com.burgerpizzahouse.service.StockCalculator.Shortage;
+import com.burgerpizzahouse.service.StockCalculator.UnitLine;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -68,5 +69,27 @@ class StockCalculatorTest {
         List<Shortage> shortages = StockCalculator.findShortages(Map.of(7L, bd("1")), Map.of(), Map.of());
         assertEquals(1, shortages.size());
         assertEquals(0, shortages.get(0).available().signum());
+    }
+
+    @Test
+    void fractionalUnitsSplitTheRecipeBetweenFlavors() {
+        // meio a meio: 2 pizzas, cada sabor consome metade da própria receita por pizza (2 / 2 = 1 unidade de cada)
+        Map<Long, List<RecipeEntry>> recipes = Map.of(
+                1L, List.of(new RecipeEntry(10, bd("0.5")), new RecipeEntry(11, bd("0.3"))),
+                2L, List.of(new RecipeEntry(10, bd("0.4"))));
+        Map<Long, BigDecimal> required = StockCalculator.aggregateRequiredUnits(
+                List.of(new UnitLine(1, bd("1")), new UnitLine(2, bd("1"))), recipes);
+
+        assertEquals(0, bd("0.9").compareTo(required.get(10L)));
+        assertEquals(0, bd("0.3").compareTo(required.get(11L)));
+    }
+
+    @Test
+    void thirdsAreRoundedToTheLedgerScale() {
+        Map<Long, List<RecipeEntry>> recipes = Map.of(1L, List.of(new RecipeEntry(10, bd("1"))));
+        Map<Long, BigDecimal> required = StockCalculator.aggregateRequiredUnits(
+                List.of(new UnitLine(1, bd("0.333333"))), recipes);
+
+        assertEquals(0, bd("0.3333").compareTo(required.get(10L)));
     }
 }

@@ -55,7 +55,9 @@ public final class Mappers {
                 o.getCustomerName(), o.getCustomerPhone(), o.getCustomerAddress(),
                 o.getType(), o.getStatus(), o.getPaymentMethod(),
                 o.getTotal(), o.getDiscount(), o.getDeliveryFee(), o.subtotal(), o.getNote(),
-                o.getCreatedAt(), o.getUpdatedAt(), items, o.allowedNextStatuses());
+                o.getCreatedAt(), o.getUpdatedAt(), items, o.allowedNextStatuses(),
+                o.isPaid(), o.getPaidAt(), o.getAmountReceived(), o.change(),
+                o.getCancelReason(), o.getStockReturned());
     }
 
     private static OrderItemResponse toItem(OrderItem item) {

@@ -9,4 +9,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     boolean existsByName(String name);
 
     java.util.Optional<Product> findFirstByName(String name);
+
+    java.util.Optional<Product> findFirstByNameAndActiveTrue(String name);
 }

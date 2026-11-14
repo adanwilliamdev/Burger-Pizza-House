@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +67,22 @@ public class Order extends AuditedEntity {
     @Column(columnDefinition = "text")
     private String note;
 
+    @Column(nullable = false)
+    private boolean paid;
+
+    @Column(name = "paid_at")
+    private Instant paidAt;
+
+    @Column(name = "amount_received", precision = 12, scale = 2)
+    private BigDecimal amountReceived;
+
+    @Column(name = "cancel_reason", columnDefinition = "text")
+    private String cancelReason;
+
+    /** null = não cancelado; true = insumos devolvidos ao estoque; false = registrados como perda. */
+    @Column(name = "stock_returned")
+    private Boolean stockReturned;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id")
     private List<OrderItem> items = new ArrayList<>();
@@ -89,6 +106,48 @@ public class Order extends AuditedEntity {
 
     public BigDecimal subtotal() {
         return total.subtract(deliveryFee).add(discount);
+    }
+
+    /** Troco devolvido (só faz sentido em dinheiro). */
+    public BigDecimal change() {
+        if (paymentMethod == PaymentMethod.CASH && amountReceived != null) {
+            return amountReceived.subtract(total).max(BigDecimal.ZERO);
+        }
+        return BigDecimal.ZERO;
+    }
+
+    public void markPaid(BigDecimal received, Instant when) {
+        this.paid = true;
+        this.amountReceived = received;
+        this.paidAt = when;
+    }
+
+    public boolean isPaid() {
+        return paid;
+    }
+
+    public Instant getPaidAt() {
+        return paidAt;
+    }
+
+    public BigDecimal getAmountReceived() {
+        return amountReceived;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
+
+    public Boolean getStockReturned() {
+        return stockReturned;
+    }
+
+    public void setStockReturned(Boolean stockReturned) {
+        this.stockReturned = stockReturned;
     }
 
     public Long getId() {
