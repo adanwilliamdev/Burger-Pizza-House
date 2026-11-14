@@ -51,14 +51,16 @@ server:
         http-only: true
         same-site: lax
 
-# DOCS_ENABLED=false desliga o Swagger UI e o /v3/api-docs (recomendado em produção).
+# Swagger UI (/docs) e /v3/api-docs: ligados por padrão em desenvolvimento e DESLIGADOS por padrão com
+# APP_ENV=production (veja app.docs-default abaixo). DOCS_ENABLED=true/false sobrescreve o padrão.
+# Mesmo ligados, exigem login com perfil ADMIN (veja SecurityConfig).
 springdoc:
   api-docs:
     path: /v3/api-docs
-    enabled: ${DOCS_ENABLED:true}
+    enabled: ${DOCS_ENABLED:${app.docs-default.${APP_ENV:development}:true}}
   swagger-ui:
     path: /docs
-    enabled: ${DOCS_ENABLED:true}
+    enabled: ${DOCS_ENABLED:${app.docs-default.${APP_ENV:development}:true}}
 
 # Actuator: só health, info e metrics, e apenas para ADMIN (veja SecurityConfig).
 management:
@@ -72,6 +74,9 @@ management:
 
 app:
   env: ${APP_ENV:development}
+  # Padrão do Swagger por ambiente (chave = valor de APP_ENV, em minúsculas). Ambiente não listado = true.
+  docs-default:
+    production: false
   # Fuso que define "hoje" e o agrupamento por dia no dashboard.
   business-timezone: ${BUSINESS_TIMEZONE:America/Sao_Paulo}
   # Origens autorizadas a chamar a API a partir de outro domínio (separadas por vírgula). Vazio = só mesma origem.

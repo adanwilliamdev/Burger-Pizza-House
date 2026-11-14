@@ -85,7 +85,7 @@ docker compose up --build
 ```
 
 - Aplicação: http://localhost:8080
-- API (Swagger): http://localhost:8080/docs (desligue em produção com `DOCS_ENABLED=false`)
+- API (Swagger): http://localhost:8080/docs (exige login como ADMIN; vem desligado por padrão com `APP_ENV=production`, ligue com `DOCS_ENABLED=true` se precisar)
 - Saúde: http://localhost:8080/api/health e `/api/health/ready`
 - Actuator (somente ADMIN logado): `/actuator/health`, `/actuator/metrics`
 
@@ -122,7 +122,7 @@ Os testes de integração cobrem:
 
 ## API REST
 
-Prefixo `/api`, autenticada por `Authorization: Bearer <access_token>`. Documentação interativa em `/docs`.
+Prefixo `/api`, autenticada por `Authorization: Bearer <access_token>`. Documentação interativa em `/docs` (e `/v3/api-docs`): só para ADMIN logado na interface web, e desligada por padrão em `APP_ENV=production`.
 
 | Recurso | Endpoints |
 |---|---|
