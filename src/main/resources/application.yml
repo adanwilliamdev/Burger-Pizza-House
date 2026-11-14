@@ -24,8 +24,11 @@ spring:
         enabled: false
   jackson:
     property-naming-strategy: SNAKE_CASE
-    serialization:
-      write-dates-as-timestamps: false
+    # Jackson 3 (Boot 4): WRITE_DATES_AS_TIMESTAMPS saiu de SerializationFeature e foi para DateTimeFeature;
+    # o caminho antigo (spring.jackson.serialization.*) quebra o bind e impede o contexto de subir.
+    datatype:
+      datetime:
+        write-dates-as-timestamps: false
   thymeleaf:
     cache: ${THYMELEAF_CACHE:true}
   web:
